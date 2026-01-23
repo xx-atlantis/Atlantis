@@ -28,3 +28,19 @@ experimental: {
 
 module.exports = nextConfig;
 
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  images: {
+    // Enable the most advanced compression formats
+    formats: ['image/avif', 'image/webp'],
+    // If you load images from external URLs (like AWS S3 or a CMS), add domains here
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'your-external-domain.com',
+      },
+    ],
+  },
+}
+
+module.exports = nextConfig
