@@ -1,8 +1,12 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  reactStrictMode: false, // ✅ FIXED
+  reactStrictMode: false,
 
   images: {
+    // ✅ ADDED: Modern compression formats for the speed boost
+    formats: ['image/avif', 'image/webp'],
+    
+    // Kept your existing Cloudinary config
     remotePatterns: [
       {
         protocol: "https",
@@ -13,34 +17,16 @@ const nextConfig = {
 
   api: {
     bodyParser: {
-      sizeLimit: "100mb", // support large videos + images
+      sizeLimit: "100mb",
     },
   },
 
-experimental: {
+  experimental: {
     serverActions: {
-      bodySizeLimit: "100mb", // Keeps your large file upload support
-      // ✅ ADDED: Allow PayTabs to talk to your server
+      bodySizeLimit: "100mb",
       allowedOrigins: ["secure.paytabs.sa", "atlantis.sa"],
     },
   },
 };
 
 module.exports = nextConfig;
-
-/** @type {import('next').NextConfig} */
-const nextConfig = {
-  images: {
-    // Enable the most advanced compression formats
-    formats: ['image/avif', 'image/webp'],
-    // If you load images from external URLs (like AWS S3 or a CMS), add domains here
-    remotePatterns: [
-      {
-        protocol: 'https',
-        hostname: 'your-external-domain.com',
-      },
-    ],
-  },
-}
-
-module.exports = nextConfig
