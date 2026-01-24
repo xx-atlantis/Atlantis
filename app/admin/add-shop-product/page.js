@@ -297,64 +297,68 @@ export default function AdminShopPage() {
 										<h3 className="font-semibold text-gray-900 line-clamp-1 text-lg">
 											{p.name}
 										</h3>
-										<p className="text-sm text-gray-500 line-clamp-2 mt-1 min-h-[2.5rem]">
-											{p.short_description || "No description"}
-										</p>
-									</div>
+										<p
+		className="text-sm text-gray-500 mt-1 min-h-[2.5rem] line-clamp-2 tiptap-content"
+		dangerouslySetInnerHTML={{
+			__html: p.short_description || "No description",
+		}}
+/>
 
-									{p.material && (
-										<div className="flex items-center gap-2 text-xs text-gray-600">
-											<span className="px-2 py-1 bg-gray-100 rounded">
-												{p.material}
-											</span>
-										</div>
-									)}
+	</div>
 
-									<div className="flex justify-between items-center pt-3 border-t">
-										<div>
-											<p className="text-xs text-gray-500">Price</p>
-											<span className="flex items-center text-xl font-bold text-gray-900">
-												<SaudiRiyal size={16} /> {p.price.toLocaleString()}
-											</span>
-										</div>
+	{p.material && (
+		<div className="flex items-center gap-2 text-xs text-gray-600">
+			<span className="px-2 py-1 bg-gray-100 rounded">
+				{p.material}
+			</span>
+		</div>
+	)}
 
-										<div className="flex gap-2">
-											{canUpdate && (
-												<button
-													onClick={() => openEdit(p)}
-													className="p-2.5 rounded-lg hover:bg-blue-50 text-blue-600 transition"
-													title="Edit product"
-												>
-													<Edit size={18} />
-												</button>
-											)}
-											{canDelete && (
-												<button
-													onClick={() => deleteProduct(p.id)}
-													className="p-2.5 rounded-lg hover:bg-red-50 text-red-600 transition"
-													title="Delete product"
-												>
-													<Trash2 size={18} />
-												</button>
-											)}
-										</div>
-									</div>
-								</div>
-							</div>
-						))}
-					</div>
-				)}
-			</div>
+	<div className="flex justify-between items-center pt-3 border-t">
+		<div>
+			<p className="text-xs text-gray-500">Price</p>
+			<span className="flex items-center text-xl font-bold text-gray-900">
+				<SaudiRiyal size={16} /> {p.price.toLocaleString()}
+			</span>
+		</div>
 
-			{/* MODAL */}
-			{modalOpen && editing && (
-				<ProductModal
-					editing={editing}
-					setEditing={setEditing}
-					onSave={saveProduct}
-					onClose={() => setModalOpen(false)}
-				/>
+		<div className="flex gap-2">
+			{canUpdate && (
+				<button
+					onClick={() => openEdit(p)}
+					className="p-2.5 rounded-lg hover:bg-blue-50 text-blue-600 transition"
+					title="Edit product"
+				>
+					<Edit size={18} />
+				</button>
 			)}
-		</main>
+			{canDelete && (
+				<button
+					onClick={() => deleteProduct(p.id)}
+					className="p-2.5 rounded-lg hover:bg-red-50 text-red-600 transition"
+					title="Delete product"
+				>
+					<Trash2 size={18} />
+				</button>
+			)}
+		</div>
+	</div>
+	</div>
+	</div>
+	))}
+	</div>
+	)}
+	</div>
+
+	{/* MODAL */}
+	{modalOpen && editing && (
+		<ProductModal
+			editing={editing}
+			setEditing={setEditing}
+			onSave={saveProduct}
+			onClose={() => setModalOpen(false)}
+		/>
+	)}
+	</main>
 	);
 }

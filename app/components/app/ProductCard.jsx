@@ -85,7 +85,7 @@ export const ProductCard = ({ product, onClick }) => {
 
         <div className="flex items-center justify-between mt-2">
           <span className="text-lg font-bold text-[#2D3247] flex items-center">
-            <SaudiRiyal size={18} /> {product.price}
+            <SaudiRiyal size={18} /> {product.price.toLocaleString()}
           </span>
         </div>
       </CardContent>

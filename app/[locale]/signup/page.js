@@ -43,7 +43,7 @@ export default function SignupPage() {
   useEffect(() => {
     if (typeof window !== "undefined" && !window.recaptchaVerifier) {
       window.recaptchaVerifier = new RecaptchaVerifier(auth, "recaptcha-container", {
-        size: "normal", // "normal" shows the 'I'm not a robot' box
+        size: "normal", // Change to "normal" if you want to force a challenge to build trust
         callback: () => {},
         "expired-callback": () => {
           toast.error("Recaptcha expired. Please try again.");
@@ -193,7 +193,8 @@ export default function SignupPage() {
 
   return (
     <section dir={isRTL ? "rtl" : "ltr"} className="min-h-screen flex flex-col lg:flex-row bg-gray-50">
-      
+      <div id="recaptcha-container"></div>
+
       {/* Left Image */}
       <div className="relative hidden lg:flex w-1/2 bg-gray-200">
         <Image src="/hero.jpg" alt="Interior design" fill className="object-cover" priority />
@@ -306,10 +307,6 @@ export default function SignupPage() {
               <p className="text-[10px] text-gray-400 mt-1 text-right ltr:text-left">
                 {isRTL ? "مثال: 501234567" : "Example: 501234567"}
               </p>
-
-              {/* ✅ MOVED HERE: Recaptcha container is now inside the phone section */}
-              <div id="recaptcha-container" className="mt-3 flex justify-center"></div>
-
             </div>
 
             {/* OTP Input */}

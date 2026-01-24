@@ -24,6 +24,14 @@ import { Input } from "@/components/ui/input";
 function UserModal({ open, onClose, onSave, roles, user }) {
 	const isEdit = !!user;
 
+	const resetState = () => {
+		setEmail("");
+		setPassword("");
+		setSelectedRoles([]);
+		setSaving(false);
+	};
+
+
 	const [email, setEmail] = useState(user?.email || "");
 	const [password, setPassword] = useState("");
 	const [selectedRoles, setSelectedRoles] = useState(
@@ -32,16 +40,22 @@ function UserModal({ open, onClose, onSave, roles, user }) {
 	const [saving, setSaving] = useState(false);
 
 	useEffect(() => {
-		if (user) {
-			setEmail(user.email);
-			setSelectedRoles(user.roles?.map((r) => r.id) || []);
-			setPassword("");
+		if (open) {
+			if (user) {
+				setEmail(user.email);
+				setSelectedRoles(user.roles?.map((r) => r.id) || []);
+				setPassword(""); // never prefill password
+			} else {
+				setEmail("");
+				setPassword("");
+				setSelectedRoles([]);
+			}
 		} else {
-			setEmail("");
-			setPassword("");
-			setSelectedRoles([]);
+			// ✅ modal closed → clear everything
+			resetState();
 		}
-	}, [user]);
+	}, [open, user]);
+
 
 	if (!open) return null;
 
@@ -72,7 +86,11 @@ function UserModal({ open, onClose, onSave, roles, user }) {
 			roleIds: selectedRoles,
 		});
 		setSaving(false);
+
+		resetState();  // ✅ clear modal
+		onClose();     // ✅ close modal
 	}
+
 
 	const allSelected = selectedRoles.length === roles.length;
 
@@ -84,7 +102,7 @@ function UserModal({ open, onClose, onSave, roles, user }) {
 						<User className="w-6 h-6 text-blue-600" />
 						{isEdit ? "Edit Admin User" : "Create Admin User"}
 					</h2>
-					<button 
+					<button
 						onClick={onClose}
 						className="hover:bg-gray-100 p-1 rounded transition"
 					>
@@ -143,7 +161,7 @@ function UserModal({ open, onClose, onSave, roles, user }) {
 								{allSelected ? 'Deselect All' : 'Select All'}
 							</button>
 						</div>
-						
+
 						<div className="border rounded-lg p-4 max-h-64 overflow-y-auto bg-gray-50">
 							{roles.length === 0 ? (
 								<p className="text-sm text-gray-400 text-center py-4">
@@ -156,11 +174,10 @@ function UserModal({ open, onClose, onSave, roles, user }) {
 										return (
 											<label
 												key={role.id}
-												className={`flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-all ${
-													isChecked 
-														? 'bg-blue-50 border border-blue-200' 
+												className={`flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-all ${isChecked
+														? 'bg-blue-50 border border-blue-200'
 														: 'bg-white border border-gray-200 hover:bg-gray-50'
-												}`}
+													}`}
 											>
 												<input
 													type="checkbox"
@@ -169,9 +186,8 @@ function UserModal({ open, onClose, onSave, roles, user }) {
 													className="w-4 h-4 text-blue-600 rounded focus:ring-2 focus:ring-blue-500"
 												/>
 												<div className="flex-1">
-													<div className={`text-sm font-medium ${
-														isChecked ? 'text-blue-900' : 'text-gray-700'
-													}`}>
+													<div className={`text-sm font-medium ${isChecked ? 'text-blue-900' : 'text-gray-700'
+														}`}>
 														{role.name}
 													</div>
 													{role.permissions && (
@@ -189,7 +205,7 @@ function UserModal({ open, onClose, onSave, roles, user }) {
 								</div>
 							)}
 						</div>
-						
+
 						{selectedRoles.length > 0 && (
 							<p className="text-xs text-gray-500 mt-2">
 								{selectedRoles.length} role{selectedRoles.length !== 1 ? 's' : ''} selected
@@ -202,8 +218,8 @@ function UserModal({ open, onClose, onSave, roles, user }) {
 					<Button variant="outline" onClick={onClose}>
 						Cancel
 					</Button>
-					<Button 
-						onClick={handleSubmit} 
+					<Button
+						onClick={handleSubmit}
 						disabled={saving || !email.trim() || (!isEdit && !password.trim())}
 					>
 						{saving && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}

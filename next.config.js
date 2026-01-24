@@ -1,10 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  reactStrictMode: false,
+  reactStrictMode: false, // ✅ FIXED
 
-  // 1. Optimize Images (Crucial for Speed Score)
   images: {
-    formats: ['image/avif', 'image/webp'], // The secret sauce for small files
     remotePatterns: [
       {
         protocol: "https",
@@ -13,18 +11,20 @@ const nextConfig = {
     ],
   },
 
-  // 2. Allow large uploads (Your existing requirement)
   api: {
     bodyParser: {
-      sizeLimit: "100mb",
+      sizeLimit: "100mb", // support large videos + images
     },
   },
-  experimental: {
+
+experimental: {
     serverActions: {
-      bodySizeLimit: "100mb",
+      bodySizeLimit: "100mb", // Keeps your large file upload support
+      // ✅ ADDED: Allow PayTabs to talk to your server
       allowedOrigins: ["secure.paytabs.sa", "atlantis.sa"],
     },
   },
 };
 
 module.exports = nextConfig;
+

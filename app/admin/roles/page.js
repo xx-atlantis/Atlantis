@@ -20,24 +20,38 @@ import { useAdminAuth } from "@/app/context/AdminAuthContext";
 function RoleModal({ open, onClose, onSave, role, permissions }) {
 	const isEdit = !!role;
 
+
+	const resetState = () => {
+		setName("");
+		setSelected(["content.read"]);
+		setSaving(false);
+	};
+
 	const [name, setName] = useState(role?.name || "");
 	const [selected, setSelected] = useState(role?.permissions || ["content.read"]);
 	const [saving, setSaving] = useState(false);
 
 	useEffect(() => {
-		if (role) {
-			setName(role.name);
-			// Ensure content.read is always included
-			const rolePermissions = role.permissions || [];
-			if (!rolePermissions.includes("content.read")) {
-				rolePermissions.push("content.read");
+		if (open) {
+			if (role) {
+				setName(role.name);
+
+				const rolePermissions = [...(role.permissions || [])];
+				if (!rolePermissions.includes("content.read")) {
+					rolePermissions.push("content.read");
+				}
+
+				setSelected(rolePermissions);
+			} else {
+				setName("");
+				setSelected(["content.read"]);
 			}
-			setSelected(rolePermissions);
 		} else {
-			// For new roles, default to content.read
-			setSelected(["content.read"]);
+			// ✅ modal closed → reset everything
+			resetState();
 		}
-	}, [role]);
+	}, [open, role]);
+
 
 	// Move useMemo BEFORE the early return
 	const groupedPermissions = useMemo(() => {
@@ -46,7 +60,7 @@ function RoleModal({ open, onClose, onSave, role, permissions }) {
 			if (!groups[p.group]) groups[p.group] = [];
 			groups[p.group].push(p);
 		});
-		
+
 		// Sort permissions within each group by action (create, read, update, delete)
 		const actionOrder = { create: 0, read: 1, update: 2, delete: 3 };
 		Object.keys(groups).forEach(group => {
@@ -54,7 +68,7 @@ function RoleModal({ open, onClose, onSave, role, permissions }) {
 				return (actionOrder[a.action] || 99) - (actionOrder[b.action] || 99);
 			});
 		});
-		
+
 		return groups;
 	}, [permissions]);
 
@@ -63,7 +77,7 @@ function RoleModal({ open, onClose, onSave, role, permissions }) {
 	const togglePermission = (key) => {
 		// Prevent deselecting content.read
 		if (key === "content.read") return;
-		
+
 		setSelected((prev) =>
 			prev.includes(key)
 				? prev.filter((p) => p !== key)
@@ -74,7 +88,7 @@ function RoleModal({ open, onClose, onSave, role, permissions }) {
 	const toggleAllInGroup = (groupPerms) => {
 		const groupKeys = groupPerms.map(p => p.key);
 		const allSelected = groupKeys.every(key => selected.includes(key));
-		
+
 		if (allSelected) {
 			// When deselecting all, keep content.read
 			setSelected(prev => prev.filter(p => !groupKeys.includes(p) || p === "content.read"));
@@ -85,9 +99,13 @@ function RoleModal({ open, onClose, onSave, role, permissions }) {
 
 	async function handleSubmit() {
 		if (!name.trim()) return;
+
 		setSaving(true);
 		await onSave({ name, permissionKeys: selected });
 		setSaving(false);
+
+		resetState();   // ✅ clear modal
+		onClose();      // ✅ close modal
 	}
 
 	return (
@@ -124,7 +142,7 @@ function RoleModal({ open, onClose, onSave, role, permissions }) {
 								const groupPerms = groupedPermissions[group];
 								const allSelected = groupPerms.every(p => selected.includes(p.key));
 								const someSelected = groupPerms.some(p => selected.includes(p.key));
-								
+
 								return (
 									<div key={group} className="bg-gray-50 rounded-lg p-4">
 										<div className="flex items-center justify-between mb-3">
@@ -143,17 +161,16 @@ function RoleModal({ open, onClose, onSave, role, permissions }) {
 											{groupPerms.map((p) => {
 												const isChecked = selected.includes(p.key);
 												const isContentRead = p.key === "content.read";
-												
+
 												return (
 													<label
 														key={p.key}
-														className={`flex items-center gap-2 text-sm border rounded-lg px-3 py-2.5 transition-all ${
-															isContentRead
+														className={`flex items-center gap-2 text-sm border rounded-lg px-3 py-2.5 transition-all ${isContentRead
 																? 'bg-green-50 border-green-300 cursor-not-allowed'
-																: isChecked 
-																	? 'bg-blue-50 border-blue-300 shadow-sm cursor-pointer' 
+																: isChecked
+																	? 'bg-blue-50 border-blue-300 shadow-sm cursor-pointer'
 																	: 'bg-white border-gray-200 hover:bg-gray-50 cursor-pointer'
-														}`}
+															}`}
 														title={isContentRead ? "This permission is required and cannot be removed" : ""}
 													>
 														<input
@@ -161,19 +178,17 @@ function RoleModal({ open, onClose, onSave, role, permissions }) {
 															checked={isChecked}
 															onChange={() => togglePermission(p.key)}
 															disabled={isContentRead}
-															className={`w-4 h-4 rounded focus:ring-2 ${
-																isContentRead
+															className={`w-4 h-4 rounded focus:ring-2 ${isContentRead
 																	? 'text-green-600 cursor-not-allowed'
 																	: 'text-blue-600 focus:ring-blue-500'
-															}`}
+																}`}
 														/>
-														<span className={`capitalize font-medium ${
-															isContentRead
+														<span className={`capitalize font-medium ${isContentRead
 																? 'text-green-900'
-																: isChecked 
-																	? 'text-blue-900' 
+																: isChecked
+																	? 'text-blue-900'
 																	: 'text-gray-700'
-														}`}>
+															}`}>
 															{p.action}
 															{isContentRead && (
 																<span className="text-[10px] ml-1 text-green-600">(Required)</span>
