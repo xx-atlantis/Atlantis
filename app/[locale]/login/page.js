@@ -180,15 +180,6 @@ const redirect = searchParams.get("redirect");
               <hr className="flex-1 border-gray-300" />
             </div>
 
-            {/* Google Login */}
-            <button
-              type="button"
-              className="w-full border border-gray-300 rounded-md py-2 flex items-center justify-center gap-2 text-sm hover:bg-gray-50 transition"
-            >
-              <img src="/google.png" alt="Google" width={18} height={18} />
-              {loginData?.google}
-            </button>
-
             {/* Footer Links */}
             <p className="text-center text-sm text-gray-500 mt-6">
               {loginData?.noAccount}{" "}

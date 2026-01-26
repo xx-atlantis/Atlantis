@@ -3,7 +3,7 @@ import { useLocale } from "@/app/components/LocaleProvider";
 import Link from "next/link";
 import Image from "next/image";
 import { usePageContent } from "@/app/context/PageContentProvider";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import toast from "react-hot-toast";
 // Firebase Imports
 import { RecaptchaVerifier, signInWithPhoneNumber } from "firebase/auth";
@@ -23,9 +23,9 @@ export default function SignupPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  
+
   // OTP & Phone State
-  const [phoneInput, setPhoneInput] = useState(""); // Raw input (e.g., 501234567)
+  const [phoneInput, setPhoneInput] = useState(""); 
   const [otp, setOtp] = useState("");
   const [otpSent, setOtpSent] = useState(false);
   const [isPhoneVerified, setIsPhoneVerified] = useState(false);
@@ -35,63 +35,99 @@ export default function SignupPage() {
   const [otpLoading, setOtpLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
 
+  // Ref to track if we have already mounted
+  const recaptchaContainerRef = useRef(null);
+
   if (!t) return null;
 
   // --------------------------
-  // Initialize Recaptcha
+  // Fix 1: Cleanup Recaptcha on Unmount
   // --------------------------
   useEffect(() => {
-    if (typeof window !== "undefined" && !window.recaptchaVerifier) {
-      window.recaptchaVerifier = new RecaptchaVerifier(auth, "recaptcha-container", {
-        size: "normal", // Change to "normal" if you want to force a challenge to build trust
-        callback: () => {},
-        "expired-callback": () => {
-          toast.error("Recaptcha expired. Please try again.");
-        },
-      });
-    }
+    // Cleanup function: If user leaves page, clear the verifier
+    return () => {
+      if (window.recaptchaVerifier) {
+        window.recaptchaVerifier.clear();
+        window.recaptchaVerifier = null;
+      }
+    };
   }, []);
 
   // --------------------------
-  // Step 1: Send OTP (Strict KSA Logic)
+  // Fix 2: Lazy Initialization
+  // --------------------------
+  const setupRecaptcha = () => {
+    // If already exists, do nothing
+    if (window.recaptchaVerifier) return;
+
+    // Ensure the container exists in the DOM
+    if (!recaptchaContainerRef.current) {
+      console.error("Recaptcha container not found");
+      return;
+    }
+
+    window.recaptchaVerifier = new RecaptchaVerifier(auth, recaptchaContainerRef.current, {
+      size: "normal", // or "invisible" for better mobile UX
+      callback: (response) => {
+        // reCAPTCHA solved, allow signInWithPhoneNumber.
+      },
+      "expired-callback": () => {
+        toast.error("Recaptcha expired. Please try again.");
+        // Reset so they can try again
+        if(window.recaptchaVerifier) {
+          window.recaptchaVerifier.clear();
+          window.recaptchaVerifier = null;
+        }
+      },
+    });
+  };
+
+  // --------------------------
+  // Step 1: Send OTP
   // --------------------------
   const handleSendOtp = async () => {
     setErrorMsg("");
-    
-    // 1. Clean Input: Remove spaces/dashes
+
+    // Validation
     let rawNumber = phoneInput.replace(/\D/g, '');
+    if (rawNumber.startsWith("05")) rawNumber = rawNumber.substring(1);
+    if (rawNumber.startsWith("966")) rawNumber = rawNumber.substring(3);
 
-    // 2. Format Logic: 
-    // If starts with '05', remove '0' -> '5...'
-    if (rawNumber.startsWith("05")) {
-      rawNumber = rawNumber.substring(1);
-    }
-    // If starts with '966', remove '966' -> '5...' (to re-add it cleanly later)
-    if (rawNumber.startsWith("966")) {
-      rawNumber = rawNumber.substring(3);
-    }
-
-    // 3. Validation: Must be 9 digits starting with '5'
     const ksaRegex = /^5\d{8}$/;
     if (!ksaRegex.test(rawNumber)) {
       toast.error(isRTL ? "يرجى إدخال رقم جوال سعودي صحيح (5xxxxxxxx)" : "Please enter a valid KSA mobile (5xxxxxxxx)");
       return;
     }
 
-    // 4. Construct Final E.164 Format
     const finalPhoneNumber = `+966${rawNumber}`;
 
     try {
       setOtpLoading(true);
+
+      // 1. Initialize Recaptcha JUST BEFORE sending
+      setupRecaptcha();
+      
       const appVerifier = window.recaptchaVerifier;
       
+      // 2. Send SMS
       const confirmation = await signInWithPhoneNumber(auth, finalPhoneNumber, appVerifier);
       
       setConfirmationResult(confirmation);
       setOtpSent(true);
       toast.success(isRTL ? "تم إرسال رمز التحقق" : "OTP sent successfully");
+      
+      // Optional: clear recaptcha widget visually after success if you want, 
+      // but usually better to keep it until verify is done.
+      
     } catch (error) {
       console.error("OTP Error:", error);
+      
+      // Reset Recaptcha on Error so they can try again
+      if (window.recaptchaVerifier) {
+        window.recaptchaVerifier.clear();
+        window.recaptchaVerifier = null;
+      }
+
       if (error.code === 'auth/invalid-phone-number') {
         toast.error("Invalid phone format.");
       } else if (error.code === 'auth/too-many-requests') {
@@ -99,15 +135,11 @@ export default function SignupPage() {
       } else {
         toast.error("Failed to send SMS. Try again.");
       }
-      if(window.recaptchaVerifier) window.recaptchaVerifier.clear();
     } finally {
       setOtpLoading(false);
     }
   };
 
-  // --------------------------
-  // Step 2: Verify OTP
-  // --------------------------
   const handleVerifyOtp = async () => {
     setErrorMsg("");
     if (!otp) return;
@@ -118,6 +150,13 @@ export default function SignupPage() {
       
       setIsPhoneVerified(true);
       setOtpSent(false); 
+      
+      // Clean up recaptcha after success
+      if (window.recaptchaVerifier) {
+        window.recaptchaVerifier.clear();
+        window.recaptchaVerifier = null;
+      }
+
       toast.success(isRTL ? "تم التحقق بنجاح" : "Phone verified successfully!");
     } catch (error) {
       console.error("Verify Error:", error);
@@ -127,40 +166,34 @@ export default function SignupPage() {
     }
   };
 
-  // --------------------------
-  // Final Submit Handler
-  // --------------------------
   async function handleSignup(e) {
     e.preventDefault();
+    // ... (Your existing signup logic remains exactly the same)
+    
+    // START EXISTING LOGIC COPY
     setErrorMsg("");
-
     if (!isPhoneVerified) {
       const msg = isRTL ? "يرجى التحقق من رقم الهاتف أولاً" : "Please verify your phone number first.";
       setErrorMsg(msg);
       toast.error(msg);
       return;
     }
-
     if (!email || !password || !firstName || !lastName) {
       const msg = t.errors?.required || "All fields are required.";
       setErrorMsg(msg);
       return;
     }
-
     if (password !== confirmPassword) {
       const msg = t.errors?.passwordMismatch || "Passwords do not match.";
       setErrorMsg(msg);
       return;
     }
-
-    // Format phone again for saving to DB
     let rawNumber = phoneInput.replace(/\D/g, '');
     if (rawNumber.startsWith("05")) rawNumber = rawNumber.substring(1);
     const finalSavedPhone = `+966${rawNumber}`;
 
     try {
       setLoading(true);
-
       const res = await fetch("/api/auth/signup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -168,12 +201,10 @@ export default function SignupPage() {
           name: `${firstName} ${lastName}`,
           email,
           password,
-          phone: finalSavedPhone, // Send the Clean +966 number
+          phone: finalSavedPhone,
         }),
       });
-
       const json = await res.json();
-
       if (!json.success) {
         setErrorMsg(json.error || "Signup failed.");
         toast.error(json.error || "Signup failed.");
@@ -189,11 +220,18 @@ export default function SignupPage() {
     } finally {
       setLoading(false);
     }
+    // END EXISTING LOGIC COPY
   }
 
   return (
     <section dir={isRTL ? "rtl" : "ltr"} className="min-h-screen flex flex-col lg:flex-row bg-gray-50">
-      <div id="recaptcha-container"></div>
+      
+      {/* Fix 3: Dedicated Container for Recaptcha 
+         We place this relative or fixed to ensure it doesn't break layout.
+      */}
+      <div className="flex justify-center">
+        <div ref={recaptchaContainerRef} id="recaptcha-container" className="my-2"></div>
+      </div>
 
       {/* Left Image */}
       <div className="relative hidden lg:flex w-1/2 bg-gray-200">
@@ -206,7 +244,7 @@ export default function SignupPage() {
       </div>
 
       {/* Right Form */}
-      <div className="flex flex-1 items-center justify-center px-6 py-12 bg-white">
+      <div className="flex flex-1 items-center justify-center px-6 py-12 bg-white relative">
         <div className="w-full max-w-sm">
           <div className="flex flex-col items-center mb-8">
             <img src="/logo.png" alt="Atlantis Logo" width={60} />
@@ -253,17 +291,13 @@ export default function SignupPage() {
               />
             </div>
 
-            {/* ================================== */}
-            {/* KSA PHONE INPUT SECTION            */}
-            {/* ================================== */}
+            {/* Phone Input */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 {isRTL ? "رقم الجوال" : "Mobile Number"}
               </label>
               
-              <div className="flex gap-2" dir="ltr"> {/* Always LTR for phone numbers */}
-                
-                {/* Static Prefix Box */}
+              <div className="flex gap-2" dir="ltr">
                 <div className="flex items-center justify-center bg-gray-100 border border-gray-300 border-r-0 rounded-l-md px-3 min-w-[80px]">
                   <span className="mr-2">🇸🇦</span>
                   <span className="text-gray-600 font-medium text-sm">+966</span>
@@ -273,10 +307,9 @@ export default function SignupPage() {
                   type="tel"
                   placeholder="5xxxxxxxx"
                   value={phoneInput}
-                  maxLength={9} // Limit to 9 digits (since we handle +966)
+                  maxLength={9}
                   disabled={isPhoneVerified || otpSent}
                   onChange={(e) => {
-                    // Only allow numbers
                     const val = e.target.value.replace(/\D/g, '');
                     setPhoneInput(val);
                   }}
@@ -304,9 +337,11 @@ export default function SignupPage() {
                   </div>
                 )}
               </div>
-              <p className="text-[10px] text-gray-400 mt-1 text-right ltr:text-left">
-                {isRTL ? "مثال: 501234567" : "Example: 501234567"}
-              </p>
+            </div>
+            
+            {/* Fix 4: Place Recaptcha Container visually under the phone field for mobile context */}
+            <div id="recaptcha-wrapper" className="w-full flex justify-center mt-2">
+                <div ref={recaptchaContainerRef}></div>
             </div>
 
             {/* OTP Input */}
@@ -335,7 +370,6 @@ export default function SignupPage() {
                 </div>
               </div>
             )}
-            {/* ================================== */}
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">{t.password}</label>
