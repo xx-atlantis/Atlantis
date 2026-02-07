@@ -5,7 +5,8 @@ import { useLocale } from "@/app/components/LocaleProvider";
 import { usePageContent } from "@/app/context/PageContentProvider";
 import { useRouter } from "next/navigation";
 
-export default function PricingPlans() {
+// 1. Accept optional props for custom CTA text and link
+export default function PricingPlans({ ctaText, ctaLink }) {
   const { locale } = useLocale();
   const { data } = usePageContent();
   const router = useRouter();
@@ -16,7 +17,17 @@ export default function PricingPlans() {
   const plans = plansData?.list || [];
   const mainTitle = plansData?.mainTitle || {};
 
-  const handleCta = () => router.push(`/${locale}/pricing-plans`);
+  // 2. Determine which text to display (Prop > CMS Data)
+  const buttonText = ctaText || plansData?.cta;
+
+  // 3. Update handler to use the prop link if provided
+  const handleCta = () => {
+    if (ctaLink) {
+      router.push(ctaLink);
+    } else {
+      router.push(`/${locale}/pricing-plans`);
+    }
+  };
 
   return (
     <section
@@ -59,7 +70,6 @@ export default function PricingPlans() {
               {plan.area}
             </p>
             {/* Features */}
-            {/* CHANGE: Replaced 'text-left' with 'text-start' to respect RTL */}
             <ul className="space-y-3 text-start mb-6 flex-1">
               {plan.features.map((feature, i) => (
                 <li key={i} className="flex items-start gap-3">
@@ -100,22 +110,24 @@ export default function PricingPlans() {
         ))}
       </div>
 
-<div className="w-full  max-w-7xl mx-auto px-4 sm:px-8 bg-gray-50 py-3  rounded-2xl flex flex-col md:flex-row items-center justify-center gap-8 mt-6">
-  <h4 className="text-lg font-bold">
-    {plansData.refundHeading}
-  </h4>
-  <p className="text-sm md:text-lg font-medium">
-    {plansData.refundText}
-  </p>
-</div>
+      <div className="w-full  max-w-7xl mx-auto px-4 sm:px-8 bg-gray-50 py-3  rounded-2xl flex flex-col md:flex-row items-center justify-center gap-8 mt-6">
+        <h4 className="text-lg font-bold">
+          {plansData.refundHeading}
+        </h4>
+        <p className="text-sm md:text-lg font-medium">
+          {plansData.refundText}
+        </p>
+      </div>
+
       {/* ===== CTA ===== */}
-      {plansData?.cta && (
+      {/* 4. Render if buttonText exists (either from prop or CMS) */}
+      {buttonText && (
         <div className="mt-12 sm:mt-16 flex justify-center">
           <button
             onClick={handleCta}
             className="flex items-center justify-center gap-2 bg-[#2D3247] text-white px-6 sm:px-8 py-3 sm:py-3.5 rounded-lg hover:bg-[#1e2231] transition text-sm sm:text-base font-medium w-11/12 md:w-auto"
           >
-            {plansData.cta} <ArrowRight size={18} />
+            {buttonText} <ArrowRight size={18} />
           </button>
         </div>
       )}
