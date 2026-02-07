@@ -13,7 +13,7 @@ const Pricing = () => {
         We include ${locale} to ensure the user stays in their current language.
       */}
       <PricingPlans 
-        ctaText="Get Started" 
+        ctaText="Start Your Project" 
         ctaLink={`/${locale}/start-a-project`} 
       />
     </div>
