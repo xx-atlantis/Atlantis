@@ -3,8 +3,8 @@ import "./globals.css";
 import { AdminAuthProvider } from "./context/AdminAuthContext";
 
 export const metadata = {
-	title: "Atlantis ( Multilingual Landing)",
-	description: "Single-page bilingual landing built with Next.js 16",
+	title: "ATLANTIS",
+	description: "Exterior & Interior Designs Company",
 };
 
 export default function RootLayout({ children }) {
