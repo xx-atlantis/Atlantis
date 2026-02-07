@@ -136,7 +136,7 @@ export default function Footer() {
       </div>
       <div className="max-w-7xl mx-auto mt-4 pt-6 border-t  border-gray-200 flex flex-col md:flex-row justify-between items-center gap-6 px-6 text-sm text-gray-500">
         <p className="text-center md:text-left">
-          © 2025 <span className="font-semibold text-[#2D3247]">Atlantis</span>.{" "}
+          © 2026 <span className="font-semibold text-[#2D3247]">Atlantis</span>.{" "}
           {footer?.copyright}
         </p>
         <div className="flex items-center flex-col md:flex-row">
