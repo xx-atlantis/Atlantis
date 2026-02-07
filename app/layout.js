@@ -1,37 +1,46 @@
+import { Tajawal } from 'next/font/google'; // Optimized font loader
 import { Toaster } from "react-hot-toast";
 import "./globals.css";
 import { AdminAuthProvider } from "./context/AdminAuthContext";
-// 1. Import the Google Analytics component
 import { GoogleAnalytics } from '@next/third-parties/google';
 
+// Configure the font once
+const tajawal = Tajawal({
+    subsets: ['latin', 'arabic'], // Downloads only what you need
+    weight: ['400', '700'],
+    variable: '--font-tajawal',   // Optional: useful for Tailwind
+    display: 'swap',
+});
+
 export const metadata = {
-    title: "ATLANTIS",
+    title: {
+        default: "ATLANTIS",
+        template: "%s | ATLANTIS" // Creates titles like "About | ATLANTIS" automatically
+    },
     description: "Exterior & Interior Designs Company",
-    // 2. Add Search Console Verification here
     verification: {
         google: "r85ymFdlzbgXaLsNprhlxr1nwzUC4wUhWqPICWEU0DI",
     },
+    // Added OpenGraph for better social sharing on WhatsApp/Twitter
+    openGraph: {
+        title: 'ATLANTIS',
+        description: 'Exterior & Interior Designs Company',
+        type: 'website',
+    }
 };
 
 export default function RootLayout({ children }) {
     return (
+        // The lang should be 'ar' if your content is mainly Arabic, or 'en' for English
         <html lang="en">
-            <head>
-                {/* Note: In Next.js, it is recommended to use 'next/font' instead of manual links, 
-                    but this works for now. */}
-                <link
-                    href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap"
-                    rel="stylesheet"
-                />
-            </head>
-            <body>
+            {/* The <head> link is removed because we use the import above */}
+            <body className={tajawal.className}>
                 <AdminAuthProvider>
                     {children}
                 </AdminAuthProvider>
                 
                 <Toaster position="bottom-right" reverseOrder={false} />
                 
-                {/* 3. Add the Analytics Component with your Measurement ID */}
                 <GoogleAnalytics gaId="G-BX1G329QJ0" />
             </body>
         </html>
