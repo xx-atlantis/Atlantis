@@ -10,6 +10,26 @@ export default function Footer() {
   const footer = data?.footer; // ← extract footer object
   const isRTL = locale === "ar";
 
+  // Defined social links with specific URLs
+  const socialLinks = [
+    {
+      name: "Facebook",
+      url: "https://www.facebook.com/atlantis.contractor",
+    },
+    {
+      name: "Linkedin",
+      url: "https://www.linkedin.com/in/atlantis-contracting-97778b38a/",
+    },
+    {
+      name: "Tiktok",
+      url: "https://www.tiktok.com/@atlantiscontracting",
+    },
+    {
+      name: "X",
+      url: "https://x.com/AtlantisCo10692",
+    },
+  ];
+
   return (
     <footer
       dir={isRTL ? "rtl" : "ltr"}
@@ -30,11 +50,17 @@ export default function Footer() {
 
           {/* Social Icons */}
           <div className="flex justify-start gap-4">
-            {["Tiktok", "Youtube", "Insta", "X"].map((icon, i) => (
-              <a key={i} href="#" className="hover:opacity-80 transition">
+            {socialLinks.map((social, i) => (
+              <a
+                key={i}
+                href={social.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:opacity-80 transition"
+              >
                 <img
-                  src={`/${icon}.png`}
-                  alt={icon}
+                  src={`/${social.name}.png`}
+                  alt={social.name}
                   className="w-5 h-5 sm:w-6 sm:h-6"
                 />
               </a>
@@ -140,33 +166,31 @@ export default function Footer() {
           {footer?.copyright}
         </p>
         <div className="flex items-center flex-col md:flex-row">
-        <div className="flex flex-col md:flex-row gap-2 md:gap-4 items-center">
-          <div><p>
-          CR Number:  4030528247
-        </p></div>
-        <div><p>
-          VAT Number: 310112048500003
-        </p></div>
-        </div>
-        <div className="grid grid-cols-3 md:flex md:flex-wrap justify-center items-center pl-2 gap-2 order-1 md:order-2">
-          {[
-            "/footerCreditcard.png",
-            "/footerVat.png",
-            "/moc.png"
-          ].map((src, i) => (
-            <div
-              key={i}
-              className="flex justify-center items-center bg-white rounded-md"
-              style={{ height: "42px", width: "auto" }}
-            >
-              <img
-                src={src}
-                alt="payment-icon"
-                className="h-7 object-contain"
-              />
+          <div className="flex flex-col md:flex-row gap-2 md:gap-4 items-center">
+            <div>
+              <p>CR Number: 4030528247</p>
             </div>
-          ))}
-        </div>
+            <div>
+              <p>VAT Number: 310112048500003</p>
+            </div>
+          </div>
+          <div className="grid grid-cols-3 md:flex md:flex-wrap justify-center items-center pl-2 gap-2 order-1 md:order-2">
+            {["/footerCreditcard.png", "/footerVat.png", "/moc.png"].map(
+              (src, i) => (
+                <div
+                  key={i}
+                  className="flex justify-center items-center bg-white rounded-md"
+                  style={{ height: "42px", width: "auto" }}
+                >
+                  <img
+                    src={src}
+                    alt="payment-icon"
+                    className="h-7 object-contain"
+                  />
+                </div>
+              )
+            )}
+          </div>
         </div>
       </div>
     </footer>
