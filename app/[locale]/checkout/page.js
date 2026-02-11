@@ -26,11 +26,8 @@ export default function CheckoutPage() {
 
   const [customer, setCustomer] = useState(null);
   const [loading, setLoading] = useState(false);
-  
-  // New State for Deposit vs Full Payment
-  const [paymentType, setPaymentType] = useState("full"); // "full" or "deposit"
+  const [paymentType, setPaymentType] = useState("full"); 
 
-  // Form States
   const [name, setName] = useState("");
   const [address, setAddress] = useState("");
   const [phone, setPhone] = useState("");
@@ -51,30 +48,34 @@ export default function CheckoutPage() {
   const { cartItems } = useCart();
   const safeCartItems = Array.isArray(cartItems) ? cartItems : [];
 
-  // 1. Logic for Determining Deposit Percentage
+  // --- FIXED: Deposit Percentage Logic ---
   const depositPercentage = useMemo(() => {
     if (cart.cartType !== "package") return 100;
+    
+    // We check the package title or price to identify the type
     const title = cart?.package?.title?.toLowerCase() || "";
+    
     if (title.includes("room")) return 50;
     if (title.includes("villa")) return 25;
     if (title.includes("apartment")) return 40;
-    return 100;
+    
+    return 100; // Fallback
   }, [cart]);
 
-  // 2. Calculations
+  // --- Calculations ---
   const subtotal = useMemo(() => {
     let base = 0;
     if (cart.cartType === "package") {
       const numericPrice = Number(cart?.package?.price?.replace(/\D/g, "")) || 0;
       const extraFee = Number(cart?.extraFee) || 0;
       base = numericPrice + extraFee;
+      
+      // If deposit is selected, calculate the partial subtotal
+      if (paymentType === "deposit") {
+        return (base * depositPercentage) / 100;
+      }
     } else {
       base = safeCartItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
-    }
-
-    // Apply deposit if selected
-    if (paymentType === "deposit" && cart.cartType === "package") {
-      return (base * depositPercentage) / 100;
     }
     return base;
   }, [cart, safeCartItems, paymentType, depositPercentage]);
@@ -116,7 +117,7 @@ export default function CheckoutPage() {
       address,
       notes,
       paymentMethod: selectedPayment,
-      paymentPlan: paymentType, // "full" or "deposit"
+      paymentPlan: paymentType, 
       depositPaid: paymentType === "deposit",
       subtotal,
       shipping,
@@ -131,6 +132,7 @@ export default function CheckoutPage() {
           name: i.name,
           price: i.price,
           quantity: i.quantity,
+          coverImage: i.coverImage,
         })),
       })
     };
@@ -154,7 +156,7 @@ export default function CheckoutPage() {
       let endpoint = "";
       if (selectedPayment === "paytabs") endpoint = "/api/paytabs/initiate";
       if (selectedPayment === "tabby") endpoint = "/api/tabby/initiate";
-      if (selectedPayment === "tamara") endpoint = "/api/tamara/checkout";
+      if (selectedPayment === "tamara") endpoint = "/api/tamara/checkout"; // RESTORED
 
       const paymentRes = await fetch(endpoint, {
         method: "POST",
@@ -165,11 +167,12 @@ export default function CheckoutPage() {
           lastName,
           phone: formattedPhone,
           email,
-          amount: total, // This is already calculated based on full or deposit
+          amount: total, 
           items: cart.cartType === "package" ? [{
             name: `${cart.package.title} (${paymentType === 'deposit' ? 'Deposit' : 'Full'})`,
             price: total,
-            quantity: 1
+            quantity: 1,
+            sku: cart.package.id || "pkg"
           }] : safeCartItems.map(i => ({ name: i.name, price: i.price, quantity: i.quantity, sku: i.id }))
         }),
       });
@@ -195,7 +198,7 @@ export default function CheckoutPage() {
       <div className="max-w-6xl mx-4 md:mx-auto grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-8">
         
         <div className="space-y-8">
-          {/* PAYMENT PLAN SELECTION (Only for Packages) */}
+          {/* PAYMENT PLAN SELECTION */}
           {cart.cartType === "package" && (
             <div className="border border-gray-200 bg-white rounded-xl p-6 md:p-8 shadow-sm">
               <h2 className="text-lg font-bold mb-6 text-[#2D3247]">
@@ -204,28 +207,28 @@ export default function CheckoutPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div 
                   onClick={() => setPaymentType("full")}
-                  className={`cursor-pointer p-4 border rounded-xl transition-all flex items-center gap-4 ${paymentType === "full" ? "border-[#2D3247] bg-gray-50 ring-1 ring-[#2D3247]" : "border-gray-200"}`}
+                  className={`cursor-pointer p-4 border rounded-xl transition-all flex items-center gap-4 ${paymentType === "full" ? "border-[#2D3247] bg-gray-50 ring-1 ring-[#2D3247]" : "border-gray-200 hover:border-gray-300"}`}
                 >
                   <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${paymentType === "full" ? "border-[#2D3247]" : "border-gray-300"}`}>
                     {paymentType === "full" && <div className="w-2.5 h-2.5 bg-[#2D3247] rounded-full" />}
                   </div>
                   <div>
                     <p className="font-bold text-sm">{isRTL ? "دفع كامل المبلغ" : "Full Payment"}</p>
-                    <p className="text-xs text-gray-500">{isRTL ? "ادفع الإجمالي الآن" : "Pay 100% now"}</p>
+                    <p className="text-xs text-gray-500">{isRTL ? "ادفع 100% الآن" : "Pay 100% now"}</p>
                   </div>
                   <CreditCard className="ms-auto text-gray-400" size={20} />
                 </div>
 
                 <div 
                   onClick={() => setPaymentType("deposit")}
-                  className={`cursor-pointer p-4 border rounded-xl transition-all flex items-center gap-4 ${paymentType === "deposit" ? "border-[#5E7E7D] bg-gray-50 ring-1 ring-[#5E7E7D]" : "border-gray-200"}`}
+                  className={`cursor-pointer p-4 border rounded-xl transition-all flex items-center gap-4 ${paymentType === "deposit" ? "border-[#5E7E7D] bg-gray-50 ring-1 ring-[#5E7E7D]" : "border-gray-200 hover:border-gray-300"}`}
                 >
                   <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${paymentType === "deposit" ? "border-[#5E7E7D]" : "border-gray-300"}`}>
                     {paymentType === "deposit" && <div className="w-2.5 h-2.5 bg-[#5E7E7D] rounded-full" />}
                   </div>
                   <div>
                     <p className="font-bold text-sm">{isRTL ? `دفع عربون (${depositPercentage}%)` : `Pay Deposit (${depositPercentage}%)`}</p>
-                    <p className="text-xs text-gray-500">{isRTL ? "والباقي لاحقاً" : "Rest later on"}</p>
+                    <p className="text-xs text-gray-500">{isRTL ? "والباقي عند التسليم" : "Rest later on"}</p>
                   </div>
                   <Wallet className="ms-auto text-gray-400" size={20} />
                 </div>
@@ -274,12 +277,6 @@ export default function CheckoutPage() {
                   <span>{isRTL ? "المجموع الفرعي" : "Subtotal"}</span>
                   <span>{subtotal.toFixed(2)} SAR</span>
                 </div>
-                {shipping > 0 && (
-                  <div className="flex justify-between">
-                    <span>{isRTL ? "الشحن" : "Shipping"}</span>
-                    <span>{shipping.toFixed(2)} SAR</span>
-                  </div>
-                )}
                 <div className="flex justify-between">
                   <span>{isRTL ? "الضريبة (15%)" : "VAT (15%)"}</span>
                   <span>{vat.toFixed(2)} SAR</span>
@@ -291,8 +288,8 @@ export default function CheckoutPage() {
                 <span>{total.toFixed(2)} SAR</span>
              </div>
              {paymentType === "deposit" && (
-               <p className="mt-2 text-[10px] text-orange-600 bg-orange-50 p-2 rounded">
-                 {isRTL ? "* سيتم دفع المبلغ المتبقي عند اكتمال مراحل المشروع" : "* Remaining balance to be paid as project stages progress."}
+               <p className="mt-4 text-[11px] text-emerald-700 bg-emerald-50 p-3 rounded-lg border border-emerald-100">
+                 {isRTL ? "ملاحظة: لقد اخترت دفع العربون فقط. سيتم طلب المبالغ المتبقية حسب تقدم المشروع." : "Note: You are paying the deposit only. Remaining balance will be requested as the project progresses."}
                </p>
              )}
           </div>
@@ -301,7 +298,7 @@ export default function CheckoutPage() {
             <h2 className="text-lg font-semibold mb-6">{checkout.payment.title}</h2>
             <div className="space-y-3">
               {/* PayTabs */}
-              <div onClick={() => setSelectedPayment("paytabs")} className={`border rounded-lg p-4 cursor-pointer transition-all ${selectedPayment === "paytabs" ? "border-[#2D3247] bg-gray-50 ring-1 ring-[#2D3247]" : "border-gray-200"}`}>
+              <div onClick={() => setSelectedPayment("paytabs")} className={`border rounded-lg p-4 cursor-pointer transition-all ${selectedPayment === "paytabs" ? "border-[#2D3247] bg-gray-50 ring-1 ring-[#2D3247]" : "border-gray-200 hover:border-gray-300"}`}>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <input type="radio" checked={selectedPayment === "paytabs"} readOnly className="accent-[#2D3247]" />
@@ -310,8 +307,9 @@ export default function CheckoutPage() {
                   <div className="flex gap-1"><img src="/icons/visa.png" className="h-4" /><img src="/icons/mada.png" className="h-4" /></div>
                 </div>
               </div>
+              
               {/* Tabby */}
-              <div onClick={() => setSelectedPayment("tabby")} className={`border rounded-lg p-4 cursor-pointer transition-all ${selectedPayment === "tabby" ? "border-[#3EEDBF] bg-emerald-50 ring-1 ring-[#3EEDBF]" : "border-gray-200"}`}>
+              <div onClick={() => setSelectedPayment("tabby")} className={`border rounded-lg p-4 cursor-pointer transition-all ${selectedPayment === "tabby" ? "border-[#3EEDBF] bg-emerald-50 ring-1 ring-[#3EEDBF]" : "border-gray-200 hover:border-gray-300"}`}>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <input type="radio" checked={selectedPayment === "tabby"} readOnly className="accent-[#3EEDBF]" />
@@ -320,13 +318,23 @@ export default function CheckoutPage() {
                   <img src="/icons/tabby.webp" className="h-6" />
                 </div>
               </div>
+
+              {/* Tamara */}
+              <div onClick={() => setSelectedPayment("tamara")} className={`border rounded-lg p-4 cursor-pointer transition-all ${selectedPayment === "tamara" ? "border-[#E4806D] bg-orange-50 ring-1 ring-[#E4806D]" : "border-gray-200 hover:border-gray-300"}`}>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <input type="radio" checked={selectedPayment === "tamara"} readOnly className="accent-[#E4806D]" />
+                    <span className="font-medium text-sm">{isRTL ? "تمارا" : "Tamara"}</span>
+                  </div>
+                  <img src="/icons/tamara.png" className="h-5" />
+                </div>
+              </div>
+
               {/* Bank Transfer */}
-              <div onClick={() => setSelectedPayment("bank_transfer")} className={`border rounded-lg p-4 cursor-pointer transition-all ${selectedPayment === "bank_transfer" ? "border-blue-600 bg-blue-50 ring-1 ring-blue-600" : "border-gray-200"}`}>
+              <div onClick={() => setSelectedPayment("bank_transfer")} className={`border rounded-lg p-4 cursor-pointer transition-all ${selectedPayment === "bank_transfer" ? "border-blue-600 bg-blue-50 ring-1 ring-blue-600" : "border-gray-200 hover:border-gray-300"}`}>
                 <div className="flex items-center gap-3">
                   <input type="radio" checked={selectedPayment === "bank_transfer"} readOnly className="accent-blue-600" />
-                  <div className="flex flex-col">
-                    <span className="font-medium text-sm">{isRTL ? "تحويل بنكي" : "Bank Transfer"}</span>
-                  </div>
+                  <span className="font-medium text-sm">{isRTL ? "تحويل بنكي" : "Bank Transfer"}</span>
                   <Landmark size={20} className="ms-auto text-gray-400" />
                 </div>
               </div>
@@ -335,7 +343,7 @@ export default function CheckoutPage() {
             <button
               onClick={handleCheckout}
               disabled={loading || !customer?.id}
-              className="mt-8 w-full py-3 text-sm font-bold bg-[#2D3247] text-white rounded-md hover:bg-[#1e2231] transition disabled:opacity-50 flex justify-center items-center gap-2"
+              className="mt-8 w-full py-4 text-sm font-bold bg-[#2D3247] text-white rounded-md hover:bg-[#1e2231] transition disabled:opacity-50 flex justify-center items-center gap-2"
             >
               {loading ? (
                 <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
