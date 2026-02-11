@@ -188,6 +188,7 @@ export default function LoginPage() {
   return (
     <>
       <section dir={isRTL ? "rtl" : "ltr"} className="min-h-screen flex flex-col lg:flex-row bg-gray-50">
+        {/* Left Side: Visuals */}
         <div className="relative hidden lg:flex w-1/2 bg-gray-200">
           <Image src={loginData.backgroundImage || "/hero.jpg"} alt="Hero" fill className="object-cover" priority />
           <div className="absolute inset-0 bg-black/40 flex items-end justify-center p-10">
@@ -195,6 +196,7 @@ export default function LoginPage() {
           </div>
         </div>
 
+        {/* Right Side: Form */}
         <div className="flex flex-1 items-center justify-center px-6 py-12 bg-white">
           <div className="w-full max-w-sm">
             <div className="flex flex-col items-center mb-8">
@@ -217,20 +219,33 @@ export default function LoginPage() {
                   </button>
                 </div>
               </div>
-              <button type="submit" disabled={loading} className="w-full bg-[#2D3247] text-white py-2.5 rounded-md text-sm hover:bg-[#1e2231] disabled:opacity-50 font-medium">
+              <button type="submit" disabled={loading} className="w-full bg-[#2D3247] text-white py-2.5 rounded-md text-sm hover:bg-[#1e2231] disabled:opacity-50 font-medium transition-colors">
                 {loading ? "..." : loginData.login}
               </button>
             </form>
+
+            {/* Signup Section */}
+            <div className="mt-8 text-center border-t pt-6">
+              <p className="text-sm text-gray-600">
+                {isRTL ? "ليس لديك حساب؟" : "Not a member?"}{" "}
+                <Link 
+                  href={`/${locale}/signup`} 
+                  className="text-[#2D3247] font-bold hover:underline transition-all"
+                >
+                  {isRTL ? "سجل الآن" : "Sign up here"}
+                </Link>
+              </p>
+            </div>
           </div>
         </div>
       </section>
 
+      {/* Forgot Password Modal */}
       {showForgotModal && (
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4 backdrop-blur-sm" onClick={closeModal}>
           <div dir={isRTL ? "rtl" : "ltr"} onClick={(e) => e.stopPropagation()} className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8 relative animate-[slideUp_0.3s_ease]">
             <button onClick={closeModal} className="absolute top-5 right-5 text-gray-400 hover:text-gray-700 transition-colors w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100">&times;</button>
             
-            {/* Progress Indicator */}
             <div className="flex items-center justify-center mb-6 gap-2">
               {[1, 2, 3].map((step) => (
                 <div key={step} className={`h-1.5 flex-1 rounded-full transition-all ${forgotStep >= step ? 'bg-[#2D3247]' : 'bg-gray-200'}`} />
@@ -307,14 +322,8 @@ export default function LoginPage() {
 
       <style jsx>{`
         @keyframes slideUp {
-          from {
-            opacity: 0;
-            transform: translateY(20px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
+          from { opacity: 0; transform: translateY(20px); }
+          to { opacity: 1; transform: translateY(0); }
         }
       `}</style>
     </>
