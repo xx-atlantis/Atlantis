@@ -95,7 +95,7 @@ export default function Footer() {
         </p>
         <div className="flex flex-wrap justify-center items-center gap-3">
           {[
-            "/bank-transfer.png",
+            "/bank.png",
             "/madapay.png",
             "/visa.png",
             "/tabby.png",
