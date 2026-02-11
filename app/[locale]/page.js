@@ -22,6 +22,7 @@ export default function LandingPage() {
       <WhyBestChoice />
       <ProjectsShowcase />
       <PricingPlans />
+      <CustomerReviews />
       <OurStyles />
     </PageContentProvider>
   );
