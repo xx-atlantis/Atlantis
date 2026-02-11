@@ -143,8 +143,8 @@ export default function Footer() {
             "/madapay.png",
             "/visa.png",
             "/tabby.png",
+            "/tamara.png",
             "/stc.png",
-            "/moc.png",
           ].map((src, i) => (
             <div
               key={i}
