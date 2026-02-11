@@ -55,7 +55,7 @@ export default function Header() {
     },
     {
       title: isRTL ? "معرض الأعمال" : "Portfolio",
-      link: "/our-projects", // Fallback link
+      link: "/our-portfolio", // Fallback link
       // UPDATED SUBMENU AS REQUESTED
       sublinks: [
         { title: isRTL ? "خدماتنا" : "Our Services", link: "/services" },
