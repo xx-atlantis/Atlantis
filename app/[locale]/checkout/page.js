@@ -53,14 +53,11 @@ export default function CheckoutPage() {
   // Logic: Calculate Deposit Percentage based on package title
   const depositPercentage = useMemo(() => {
     if (cart.cartType !== "package") return 100;
-    
     const title = cart?.package?.title?.toLowerCase() || "";
-    
     if (title.includes("room")) return 50;
     if (title.includes("villa")) return 25;
     if (title.includes("apartment")) return 40;
-    
-    return 100; // Fallback
+    return 100; 
   }, [cart]);
 
   // Logic: Calculate Subtotal, Shipping, VAT, Total
@@ -70,8 +67,6 @@ export default function CheckoutPage() {
       const numericPrice = Number(cart?.package?.price?.replace(/\D/g, "")) || 0;
       const extraFee = Number(cart?.extraFee) || 0;
       base = numericPrice + extraFee;
-      
-      // If deposit is selected, calculate the partial subtotal
       if (paymentType === "deposit") {
         return (base * depositPercentage) / 100;
       }
@@ -198,10 +193,10 @@ export default function CheckoutPage() {
     <section dir={isRTL ? "rtl" : "ltr"} className="py-20 bg-gray-50">
       <div className="max-w-6xl mx-4 md:mx-auto grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-8">
         
-        {/* --- LEFT COLUMN: Forms & Details --- */}
+        {/* LEFT COLUMN */}
         <div className="space-y-8">
           
-          {/* 1. Payment Plan Selection (Only for Packages) */}
+          {/* Payment Plan */}
           {cart.cartType === "package" && (
             <div className="border border-gray-200 bg-white rounded-xl p-6 md:p-8 shadow-sm">
               <h2 className="text-lg font-bold mb-6 text-[#2D3247]">
@@ -239,7 +234,7 @@ export default function CheckoutPage() {
             </div>
           )}
 
-          {/* 2. Invoice Form */}
+          {/* Invoice Form */}
           <div className="border border-gray-200 bg-white rounded-xl p-6 md:p-8 shadow-sm">
             {errorMsg && <p className="text-red-600 mb-4 font-medium bg-red-50 p-3 rounded text-sm">{errorMsg}</p>}
             <h2 className="text-lg font-semibold mb-6">{checkout?.invoice?.title}</h2>
@@ -265,10 +260,10 @@ export default function CheckoutPage() {
             </div>
           </div>
 
-          {/* 3. Bank Transfer Details (Conditionally Rendered) */}
+          {/* Bank Transfer Details - Updated to Brand Color #5e7e7d */}
           {selectedPayment === "bank_transfer" && (
-            <div className="border border-blue-200 bg-blue-50 rounded-xl p-6 md:p-8 shadow-sm animate-in fade-in slide-in-from-top-4 duration-300">
-              <div className="flex items-center gap-3 mb-4 text-blue-800">
+            <div className="border border-[#5e7e7d]/30 bg-[#5e7e7d]/5 rounded-xl p-6 md:p-8 shadow-sm animate-in fade-in slide-in-from-top-4 duration-300">
+              <div className="flex items-center gap-3 mb-4 text-[#5e7e7d]">
                 <Landmark size={24} />
                 <h2 className="text-lg font-bold">
                   {isRTL ? "تفاصيل التحويل البنكي" : "Bank Transfer Details"}
@@ -277,25 +272,25 @@ export default function CheckoutPage() {
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
                 <div className="space-y-1">
-                  <p className="text-blue-600 font-medium">{isRTL ? "اسم الحساب" : "Account Name"}</p>
+                  <p className="text-[#5e7e7d] font-medium opacity-80">{isRTL ? "اسم الحساب" : "Account Name"}</p>
                   <p className="font-bold text-gray-800">مؤسسة محيط أطلس للديكور</p>
                 </div>
                 <div className="space-y-1">
-                  <p className="text-blue-600 font-medium">{isRTL ? "البنك" : "Bank"}</p>
+                  <p className="text-[#5e7e7d] font-medium opacity-80">{isRTL ? "البنك" : "Bank"}</p>
                   <p className="font-bold text-gray-800">SNB | البنك الأهلي السعودي</p>
                 </div>
                 <div className="space-y-1">
-                  <p className="text-blue-600 font-medium">{isRTL ? "رقم الحساب" : "Account Number"}</p>
+                  <p className="text-[#5e7e7d] font-medium opacity-80">{isRTL ? "رقم الحساب" : "Account Number"}</p>
                   <p className="font-bold text-gray-800">01400024792710</p>
                 </div>
                 <div className="space-y-1">
-                  <p className="text-blue-600 font-medium">{isRTL ? "الآيبان (IBAN)" : "IBAN"}</p>
+                  <p className="text-[#5e7e7d] font-medium opacity-80">{isRTL ? "الآيبان (IBAN)" : "IBAN"}</p>
                   <p className="font-bold text-gray-800" dir="ltr">SA27 1000 0001 4000 2479 2710</p>
                 </div>
               </div>
 
-              <div className="mt-6 p-4 bg-white rounded-lg border border-blue-100">
-                <p className="text-xs text-blue-700 flex items-start gap-2">
+              <div className="mt-6 p-4 bg-white/60 rounded-lg border border-[#5e7e7d]/20">
+                <p className="text-xs text-[#5e7e7d] font-medium flex items-start gap-2">
                   <CheckCircle2 size={16} className="shrink-0" />
                   {isRTL 
                     ? "يرجى إرسال صورة إيصال التحويل عبر الواتساب لتأكيد الطلب: +966 53 787 8794" 
@@ -305,14 +300,14 @@ export default function CheckoutPage() {
             </div>
           )}
 
-          {/* 4. Additional Notes */}
+          {/* Additional Notes */}
           <div className="border border-gray-200 bg-white rounded-xl p-6 md:p-8 shadow-sm">
             <h2 className="text-lg font-semibold mb-4">{checkout.additional.title}</h2>
             <textarea value={notes} onChange={(e) => setNotes(e.target.value)} placeholder={checkout.additional.placeholder} className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm h-24 resize-none focus:border-[#2D3247] outline-none" />
           </div>
         </div>
 
-        {/* --- RIGHT COLUMN: Summary & Payment Methods --- */}
+        {/* RIGHT COLUMN */}
         <div className="space-y-8">
           <div className="border border-gray-200 rounded-xl p-6 shadow-sm bg-white">
              <h2 className="text-lg font-semibold mb-4">{isRTL ? "ملخص الطلب" : "Order Summary"}</h2>
@@ -332,7 +327,7 @@ export default function CheckoutPage() {
                 <span>{total.toFixed(2)} SAR</span>
              </div>
              {paymentType === "deposit" && (
-               <p className="mt-4 text-[11px] text-emerald-700 bg-emerald-50 p-3 rounded-lg border border-emerald-100">
+               <p className="mt-4 text-[11px] text-[#5e7e7d] bg-[#5e7e7d]/5 p-3 rounded-lg border border-[#5e7e7d]/10">
                  {isRTL ? "ملاحظة: لقد اخترت دفع العربون فقط. سيتم طلب المبالغ المتبقية حسب تقدم المشروع." : "Note: You are paying the deposit only. Remaining balance will be requested as the project progresses."}
                </p>
              )}
@@ -374,12 +369,12 @@ export default function CheckoutPage() {
                 </div>
               </div>
 
-              {/* Bank Transfer */}
-              <div onClick={() => setSelectedPayment("bank_transfer")} className={`border rounded-lg p-4 cursor-pointer transition-all ${selectedPayment === "bank_transfer" ? "border-blue-600 bg-blue-50 ring-1 ring-blue-600" : "border-gray-200 hover:border-gray-300"}`}>
+              {/* Bank Transfer - Updated to Brand Color #5e7e7d */}
+              <div onClick={() => setSelectedPayment("bank_transfer")} className={`border rounded-lg p-4 cursor-pointer transition-all ${selectedPayment === "bank_transfer" ? "border-[#5e7e7d] bg-[#5e7e7d]/5 ring-1 ring-[#5e7e7d]" : "border-gray-200 hover:border-gray-300"}`}>
                 <div className="flex items-center gap-3">
-                  <input type="radio" checked={selectedPayment === "bank_transfer"} readOnly className="accent-blue-600" />
+                  <input type="radio" checked={selectedPayment === "bank_transfer"} readOnly className="accent-[#5e7e7d]" />
                   <span className="font-medium text-sm">{isRTL ? "تحويل بنكي" : "Bank Transfer"}</span>
-                  <Landmark size={20} className="ms-auto text-gray-400" />
+                  <Landmark size={20} className={`ms-auto ${selectedPayment === 'bank_transfer' ? 'text-[#5e7e7d]' : 'text-gray-400'}`} />
                 </div>
               </div>
             </div>
