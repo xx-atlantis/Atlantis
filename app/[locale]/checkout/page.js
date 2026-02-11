@@ -4,9 +4,8 @@ import { useLocale } from "@/app/components/LocaleProvider";
 import { usePageContent } from "@/app/context/PageContentProvider";
 import { useCart } from "@/app/context/CartContext";
 import { useState, useMemo, useEffect } from "react";
-import { SaudiRiyal, Landmark, CheckCircle2 } from "lucide-react"; // Added Landmark icon
+import { SaudiRiyal, Landmark, CheckCircle2, CreditCard, Wallet } from "lucide-react";
 
-// --- HELPER: Fix Saudi Phone Numbers ---
 const formatSaudiPhone = (input) => {
   if (!input) return "";
   let cleaned = input.replace(/\D/g, "");
@@ -27,6 +26,9 @@ export default function CheckoutPage() {
 
   const [customer, setCustomer] = useState(null);
   const [loading, setLoading] = useState(false);
+  
+  // New State for Deposit vs Full Payment
+  const [paymentType, setPaymentType] = useState("full"); // "full" or "deposit"
 
   // Form States
   const [name, setName] = useState("");
@@ -35,8 +37,6 @@ export default function CheckoutPage() {
   const [email, setEmail] = useState("");
   const [notes, setNotes] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
-
-  // Payment State (Default: PayTabs)
   const [selectedPayment, setSelectedPayment] = useState("paytabs");
 
   useEffect(() => {
@@ -51,15 +51,33 @@ export default function CheckoutPage() {
   const { cartItems } = useCart();
   const safeCartItems = Array.isArray(cartItems) ? cartItems : [];
 
-  // Calculations
+  // 1. Logic for Determining Deposit Percentage
+  const depositPercentage = useMemo(() => {
+    if (cart.cartType !== "package") return 100;
+    const title = cart?.package?.title?.toLowerCase() || "";
+    if (title.includes("room")) return 50;
+    if (title.includes("villa")) return 25;
+    if (title.includes("apartment")) return 40;
+    return 100;
+  }, [cart]);
+
+  // 2. Calculations
   const subtotal = useMemo(() => {
+    let base = 0;
     if (cart.cartType === "package") {
       const numericPrice = Number(cart?.package?.price?.replace(/\D/g, "")) || 0;
       const extraFee = Number(cart?.extraFee) || 0;
-      return numericPrice + extraFee;
+      base = numericPrice + extraFee;
+    } else {
+      base = safeCartItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
     }
-    return safeCartItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
-  }, [cart, safeCartItems]);
+
+    // Apply deposit if selected
+    if (paymentType === "deposit" && cart.cartType === "package") {
+      return (base * depositPercentage) / 100;
+    }
+    return base;
+  }, [cart, safeCartItems, paymentType, depositPercentage]);
 
   const shipping = cart.cartType === "package" ? 0 : (subtotal > 500 ? 0 : 25);
   const vat = subtotal * 0.15;
@@ -89,40 +107,32 @@ export default function CheckoutPage() {
     const firstName = nameParts[0];
     const lastName = nameParts.slice(1).join(" ") || "Customer";
 
-    const orderPayload = cart.cartType === "package" ? {
+    const orderPayload = {
       customerId: customer.id,
-      orderType: "package",
+      orderType: cart.cartType || "shop",
       customerName: name,
       customerEmail: email,
       customerPhone: formattedPhone,
       address,
       notes,
       paymentMethod: selectedPayment,
+      paymentPlan: paymentType, // "full" or "deposit"
+      depositPaid: paymentType === "deposit",
       subtotal,
       shipping,
       vat,
       total,
-      packageDetails: cart.package,
-      projectSteps: cart.steps,
-    } : {
-      customerId: customer.id,
-      orderType: "shop",
-      customerName: name,
-      customerEmail: email,
-      customerPhone: formattedPhone,
-      address,
-      notes,
-      paymentMethod: selectedPayment,
-      subtotal,
-      shipping,
-      vat,
-      total,
-      items: safeCartItems.map((i) => ({
-        productId: i.id,
-        name: i.name,
-        price: i.price,
-        quantity: i.quantity,
-      })),
+      ...(cart.cartType === "package" ? {
+        packageDetails: cart.package,
+        projectSteps: cart.steps,
+      } : {
+        items: safeCartItems.map((i) => ({
+          productId: i.id,
+          name: i.name,
+          price: i.price,
+          quantity: i.quantity,
+        })),
+      })
     };
 
     try {
@@ -135,15 +145,12 @@ export default function CheckoutPage() {
       const json = await res.json();
       if (!json.success) throw new Error(json.message || "Order creation failed");
 
-      // --- BANK TRANSFER LOGIC ---
       if (selectedPayment === "bank_transfer") {
         localStorage.removeItem("cart");
-        // Redirect to a success page with order ID
         window.location.href = `/${locale}/order-success?orderId=${json.orderId}&method=bank`;
         return;
       }
 
-      // --- ONLINE PAYMENT LOGIC ---
       let endpoint = "";
       if (selectedPayment === "paytabs") endpoint = "/api/paytabs/initiate";
       if (selectedPayment === "tabby") endpoint = "/api/tabby/initiate";
@@ -158,8 +165,12 @@ export default function CheckoutPage() {
           lastName,
           phone: formattedPhone,
           email,
-          amount: total,
-          items: safeCartItems.map(i => ({ name: i.name, price: i.price, quantity: i.quantity, sku: i.id }))
+          amount: total, // This is already calculated based on full or deposit
+          items: cart.cartType === "package" ? [{
+            name: `${cart.package.title} (${paymentType === 'deposit' ? 'Deposit' : 'Full'})`,
+            price: total,
+            quantity: 1
+          }] : safeCartItems.map(i => ({ name: i.name, price: i.price, quantity: i.quantity, sku: i.id }))
         }),
       });
 
@@ -172,7 +183,6 @@ export default function CheckoutPage() {
       } else {
         throw new Error(paymentData.message || "Payment initiation failed");
       }
-
     } catch (err) {
       setErrorMsg(isRTL ? `حدث خطأ: ${err.message}` : `Payment Error: ${err.message}`);
     } finally {
@@ -182,16 +192,48 @@ export default function CheckoutPage() {
 
   return (
     <section dir={isRTL ? "rtl" : "ltr"} className="py-20 bg-gray-50">
-      {!customer?.id && (
-        <div className="max-w-6xl bg-[#2D3247] text-white p-2 mx-auto rounded-md mb-4 text-center text-sm">
-          {isRTL ? "يرجى تسجيل الدخول قبل المتابعة" : "Please Login Before filling this form."}
-        </div>
-      )}
-
       <div className="max-w-6xl mx-4 md:mx-auto grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-8">
         
-        {/* LEFT: FORMS */}
         <div className="space-y-8">
+          {/* PAYMENT PLAN SELECTION (Only for Packages) */}
+          {cart.cartType === "package" && (
+            <div className="border border-gray-200 bg-white rounded-xl p-6 md:p-8 shadow-sm">
+              <h2 className="text-lg font-bold mb-6 text-[#2D3247]">
+                {isRTL ? "اختر خطة الدفع" : "Select Payment Plan"}
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div 
+                  onClick={() => setPaymentType("full")}
+                  className={`cursor-pointer p-4 border rounded-xl transition-all flex items-center gap-4 ${paymentType === "full" ? "border-[#2D3247] bg-gray-50 ring-1 ring-[#2D3247]" : "border-gray-200"}`}
+                >
+                  <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${paymentType === "full" ? "border-[#2D3247]" : "border-gray-300"}`}>
+                    {paymentType === "full" && <div className="w-2.5 h-2.5 bg-[#2D3247] rounded-full" />}
+                  </div>
+                  <div>
+                    <p className="font-bold text-sm">{isRTL ? "دفع كامل المبلغ" : "Full Payment"}</p>
+                    <p className="text-xs text-gray-500">{isRTL ? "ادفع الإجمالي الآن" : "Pay 100% now"}</p>
+                  </div>
+                  <CreditCard className="ms-auto text-gray-400" size={20} />
+                </div>
+
+                <div 
+                  onClick={() => setPaymentType("deposit")}
+                  className={`cursor-pointer p-4 border rounded-xl transition-all flex items-center gap-4 ${paymentType === "deposit" ? "border-[#5E7E7D] bg-gray-50 ring-1 ring-[#5E7E7D]" : "border-gray-200"}`}
+                >
+                  <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${paymentType === "deposit" ? "border-[#5E7E7D]" : "border-gray-300"}`}>
+                    {paymentType === "deposit" && <div className="w-2.5 h-2.5 bg-[#5E7E7D] rounded-full" />}
+                  </div>
+                  <div>
+                    <p className="font-bold text-sm">{isRTL ? `دفع عربون (${depositPercentage}%)` : `Pay Deposit (${depositPercentage}%)`}</p>
+                    <p className="text-xs text-gray-500">{isRTL ? "والباقي لاحقاً" : "Rest later on"}</p>
+                  </div>
+                  <Wallet className="ms-auto text-gray-400" size={20} />
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* INVOICE FORM */}
           <div className="border border-gray-200 bg-white rounded-xl p-6 md:p-8 shadow-sm">
             {errorMsg && <p className="text-red-600 mb-4 font-medium bg-red-50 p-3 rounded text-sm">{errorMsg}</p>}
             <h2 className="text-lg font-semibold mb-6">{checkout?.invoice?.title}</h2>
@@ -225,21 +267,39 @@ export default function CheckoutPage() {
 
         {/* RIGHT: SUMMARY & PAYMENT */}
         <div className="space-y-8">
-          {/* Summary Box (Package or Shop) - Kept your existing logic */}
           <div className="border border-gray-200 rounded-xl p-6 shadow-sm bg-white">
-             {/* ... (Your existing summary code stays here) ... */}
              <h2 className="text-lg font-semibold mb-4">{isRTL ? "ملخص الطلب" : "Order Summary"}</h2>
+             <div className="space-y-2 text-sm text-gray-600">
+                <div className="flex justify-between">
+                  <span>{isRTL ? "المجموع الفرعي" : "Subtotal"}</span>
+                  <span>{subtotal.toFixed(2)} SAR</span>
+                </div>
+                {shipping > 0 && (
+                  <div className="flex justify-between">
+                    <span>{isRTL ? "الشحن" : "Shipping"}</span>
+                    <span>{shipping.toFixed(2)} SAR</span>
+                  </div>
+                )}
+                <div className="flex justify-between">
+                  <span>{isRTL ? "الضريبة (15%)" : "VAT (15%)"}</span>
+                  <span>{vat.toFixed(2)} SAR</span>
+                </div>
+             </div>
+             <hr className="my-4 border-gray-100" />
              <div className="flex justify-between text-base font-bold text-[#2D3247]">
-                <span>{isRTL ? "الإجمالي" : "Total"}</span>
+                <span>{isRTL ? "الإجمالي المستحق" : "Total Due"}</span>
                 <span>{total.toFixed(2)} SAR</span>
              </div>
+             {paymentType === "deposit" && (
+               <p className="mt-2 text-[10px] text-orange-600 bg-orange-50 p-2 rounded">
+                 {isRTL ? "* سيتم دفع المبلغ المتبقي عند اكتمال مراحل المشروع" : "* Remaining balance to be paid as project stages progress."}
+               </p>
+             )}
           </div>
 
-          {/* PAYMENT SELECTION */}
           <div className="border border-gray-200 bg-white rounded-xl p-6 md:p-8 shadow-sm">
             <h2 className="text-lg font-semibold mb-6">{checkout.payment.title}</h2>
             <div className="space-y-3">
-              
               {/* PayTabs */}
               <div onClick={() => setSelectedPayment("paytabs")} className={`border rounded-lg p-4 cursor-pointer transition-all ${selectedPayment === "paytabs" ? "border-[#2D3247] bg-gray-50 ring-1 ring-[#2D3247]" : "border-gray-200"}`}>
                 <div className="flex items-center justify-between">
@@ -250,7 +310,6 @@ export default function CheckoutPage() {
                   <div className="flex gap-1"><img src="/icons/visa.png" className="h-4" /><img src="/icons/mada.png" className="h-4" /></div>
                 </div>
               </div>
-
               {/* Tabby */}
               <div onClick={() => setSelectedPayment("tabby")} className={`border rounded-lg p-4 cursor-pointer transition-all ${selectedPayment === "tabby" ? "border-[#3EEDBF] bg-emerald-50 ring-1 ring-[#3EEDBF]" : "border-gray-200"}`}>
                 <div className="flex items-center justify-between">
@@ -261,48 +320,15 @@ export default function CheckoutPage() {
                   <img src="/icons/tabby.webp" className="h-6" />
                 </div>
               </div>
-
-              {/* Tamara */}
-              <div onClick={() => setSelectedPayment("tamara")} className={`border rounded-lg p-4 cursor-pointer transition-all ${selectedPayment === "tamara" ? "border-[#E4806D] bg-orange-50 ring-1 ring-[#E4806D]" : "border-gray-200"}`}>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <input type="radio" checked={selectedPayment === "tamara"} readOnly className="accent-[#E4806D]" />
-                    <span className="font-medium text-sm">{isRTL ? "تمارا" : "Tamara"}</span>
-                  </div>
-                  <img src="/icons/tamara.png" className="h-5" />
-                </div>
-              </div>
-
               {/* Bank Transfer */}
-              <div 
-                onClick={() => setSelectedPayment("bank_transfer")} 
-                className={`border rounded-lg p-4 cursor-pointer transition-all ${selectedPayment === "bank_transfer" ? "border-blue-600 bg-blue-50 ring-1 ring-blue-600" : "border-gray-200"}`}
-              >
+              <div onClick={() => setSelectedPayment("bank_transfer")} className={`border rounded-lg p-4 cursor-pointer transition-all ${selectedPayment === "bank_transfer" ? "border-blue-600 bg-blue-50 ring-1 ring-blue-600" : "border-gray-200"}`}>
                 <div className="flex items-center gap-3">
                   <input type="radio" checked={selectedPayment === "bank_transfer"} readOnly className="accent-blue-600" />
                   <div className="flex flex-col">
                     <span className="font-medium text-sm">{isRTL ? "تحويل بنكي" : "Bank Transfer"}</span>
-                    <span className="text-[10px] text-gray-500">{isRTL ? "التحويل المباشر لحسابنا" : "Direct transfer to our account"}</span>
                   </div>
                   <Landmark size={20} className="ms-auto text-gray-400" />
                 </div>
-
-                {/* Bank Details Dropdown (Visible only when selected) */}
-                {selectedPayment === "bank_transfer" && (
-                  <div className="mt-4 pt-4 border-t border-blue-100 text-[11px] md:text-xs space-y-2 animate-fadeIn">
-                    <div className="bg-white p-3 rounded border border-blue-100 space-y-1 text-gray-700">
-                      <p className="font-bold text-blue-700 mb-1">{isRTL ? "تفاصيل الحساب:" : "Account Details:"}</p>
-                      <p><strong>{isRTL ? "اسم الحساب:" : "NAME:"}</strong> مؤسسة محيط أطلس للديكور</p>
-                      <p><strong>{isRTL ? "البنك:" : "BANK:"}</strong> SNB</p>
-                      <p><strong>{isRTL ? "رقم الحساب:" : "ACC #:"}</strong> 01400024792710</p>
-                      <p className="break-all font-mono"><strong>IBAN:</strong> SA2710000001400024792710</p>
-                    </div>
-                    <div className="flex items-center gap-2 text-emerald-700 font-medium">
-                      <CheckCircle2 size={14} />
-                      <p>{isRTL ? "يرجى مشاركة الإيصال عبر الواتساب:" : "Share receipt via WhatsApp:"} +966537878794</p>
-                    </div>
-                  </div>
-                )}
               </div>
             </div>
 
@@ -314,7 +340,7 @@ export default function CheckoutPage() {
               {loading ? (
                 <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
               ) : (
-                selectedPayment === "bank_transfer" ? (isRTL ? "تأكيد الطلب" : "Confirm Order") : checkout.payment.checkout
+                isRTL ? "تأكيد والدفع" : "Confirm & Pay"
               )}
             </button>
           </div>
