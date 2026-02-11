@@ -46,18 +46,16 @@ export default function PricingPlans({ ctaText, ctaLink }) {
         {plans.map((plan, index) => (
           <div
             key={index}
-            // UPDATED CLASSNAME LOGIC HERE:
-            className={`relative rounded-2xl p-6 sm:p-8 flex flex-col justify-between shadow-sm border min-h-[480px] transition-all duration-300 hover:scale-[1.02] 
-            hover:border-yellow-100 hover:shadow-md hover:bg-[#6D94941A] 
-            ${
-              plan.recommended
-                ? "border-yellow-100 shadow-md bg-[#6D94941A]" // Default style for Recommended
-                : "border-gray-100 bg-gray-50" // Default style for others
-            }`}
+            // UPDATED CLASSNAME:
+            // 1. All cards share the same base style (gray background, gray border).
+            // 2. All cards share the same hover effect (greenish tint, yellow border).
+            className="relative rounded-2xl p-6 sm:p-8 flex flex-col justify-between shadow-sm border min-h-[480px] transition-all duration-300 
+            bg-gray-50 border-gray-100 
+            hover:scale-[1.02] hover:border-yellow-100 hover:shadow-md hover:bg-[#6D94941A]"
           >
-            {/* Recommended Badge */}
+            {/* Recommended Badge (Only appears if recommended is true) */}
             {plan.recommended && (
-              <span className="absolute top-3 right-3 bg-yellow-400 text-gray-800 text-[11px] sm:text-xs font-medium px-2 sm:px-3 py-0.5 sm:py-1 rounded-full">
+              <span className="absolute top-3 right-3 bg-yellow-400 text-gray-800 text-[11px] sm:text-xs font-medium px-2 sm:px-3 py-0.5 sm:py-1 rounded-full shadow-sm z-10">
                 {plansData?.recommended || "Recommended"}
               </span>
             )}
