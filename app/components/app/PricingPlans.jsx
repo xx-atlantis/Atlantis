@@ -53,13 +53,6 @@ export default function PricingPlans({ ctaText, ctaLink }) {
             bg-gray-50 border-gray-100 
             hover:scale-[1.02] hover:border-yellow-100 hover:shadow-md hover:bg-[#6D94941A]"
           >
-            {/* Recommended Badge (Only appears if recommended is true) */}
-            {plan.recommended && (
-              <span className="absolute top-3 right-3 bg-yellow-400 text-gray-800 text-[11px] sm:text-xs font-medium px-2 sm:px-3 py-0.5 sm:py-1 rounded-full shadow-sm z-10">
-                {plansData?.recommended || "Recommended"}
-              </span>
-            )}
-
             {/* Title */}
             <h3 className="text-lg sm:text-xl font-semibold text-[#5E7E7D] mb-2">
               {plan.title}
