@@ -4,7 +4,7 @@ import { useLocale } from "@/app/components/LocaleProvider";
 import { usePageContent } from "@/app/context/PageContentProvider";
 import { useCart } from "@/app/context/CartContext";
 import { useState, useMemo, useEffect } from "react";
-import { CheckCircle2, CreditCard, Wallet, Sparkles } from "lucide-react";
+import { CheckCircle2, CreditCard, Wallet, Sparkles, Landmark } from "lucide-react";
 
 // Helper: Saudi Riyal Icon/Text component to prevent errors
 const SaudiRiyal = ({ size = 14 }) => (
@@ -177,6 +177,13 @@ export default function CheckoutPage() {
       const json = await res.json();
       if (!json.success || !json.orderId) throw new Error(json.message || "Order creation failed");
 
+      // Handle Bank Transfer separately - No Payment Gateway needed
+      if (selectedPayment === "bank_transfer") {
+        localStorage.removeItem("cart");
+        window.location.href = `/${locale}/order-success?orderId=${json.orderId}&method=bank`;
+        return;
+      }
+
       let endpoint = "";
       if (selectedPayment === "paytabs") endpoint = "/api/paytabs/initiate";
       if (selectedPayment === "tabby") endpoint = "/api/tabby/initiate";
@@ -329,7 +336,47 @@ export default function CheckoutPage() {
             </div>
           )}
 
-          {/* 4. Additional Information */}
+          {/* 4. Bank Transfer Details (Conditionally Rendered) - Updated to #5e7e7d */}
+          {selectedPayment === "bank_transfer" && (
+            <div className="border border-[#5e7e7d]/30 bg-[#5e7e7d]/5 rounded-xl p-6 md:p-8 shadow-sm animate-in fade-in slide-in-from-top-4 duration-300">
+              <div className="flex items-center gap-3 mb-4 text-[#5e7e7d]">
+                <Landmark size={24} />
+                <h2 className="text-lg font-bold">
+                  {isRTL ? "تفاصيل التحويل البنكي" : "Bank Transfer Details"}
+                </h2>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
+                <div className="space-y-1">
+                  <p className="text-[#5e7e7d] font-medium opacity-80">{isRTL ? "اسم الحساب" : "Account Name"}</p>
+                  <p className="font-bold text-gray-800">مؤسسة محيط أطلس للديكور</p>
+                </div>
+                <div className="space-y-1">
+                  <p className="text-[#5e7e7d] font-medium opacity-80">{isRTL ? "البنك" : "Bank"}</p>
+                  <p className="font-bold text-gray-800">SNB | البنك الأهلي السعودي</p>
+                </div>
+                <div className="space-y-1">
+                  <p className="text-[#5e7e7d] font-medium opacity-80">{isRTL ? "رقم الحساب" : "Account Number"}</p>
+                  <p className="font-bold text-gray-800">01400024792710</p>
+                </div>
+                <div className="space-y-1">
+                  <p className="text-[#5e7e7d] font-medium opacity-80">{isRTL ? "الآيبان (IBAN)" : "IBAN"}</p>
+                  <p className="font-bold text-gray-800" dir="ltr">SA27 1000 0001 4000 2479 2710</p>
+                </div>
+              </div>
+
+              <div className="mt-6 p-4 bg-white/60 rounded-lg border border-[#5e7e7d]/20">
+                <p className="text-xs text-[#5e7e7d] font-medium flex items-start gap-2">
+                  <CheckCircle2 size={16} className="shrink-0" />
+                  {isRTL 
+                    ? "يرجى إرسال صورة إيصال التحويل عبر الواتساب لتأكيد الطلب: +966 53 787 8794" 
+                    : "Please share the transfer receipt via WhatsApp to confirm your order: +966 53 787 8794"}
+                </p>
+              </div>
+            </div>
+          )}
+
+          {/* 5. Additional Information */}
           <div className="border border-gray-200 bg-white rounded-xl p-6 md:p-8 shadow-sm">
             <h2 className="text-lg font-semibold mb-4">{checkout.additional.title}</h2>
             <textarea value={notes} onChange={(e) => setNotes(e.target.value)} placeholder={checkout.additional.placeholder} className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm h-24 resize-none focus:border-[#2D3247] outline-none" />
@@ -451,15 +498,16 @@ export default function CheckoutPage() {
                 </div>
               </div>
             )}
-
-         
         </div>
+
+        {/* PAYMENT METHODS SELECTION */}
          <div className="border border-gray-200 bg-white rounded-xl p-6 md:p-8 shadow-sm">
             <h2 className="text-lg font-semibold mb-6">
               {checkout.payment.title}
             </h2>
 
             <div className="space-y-4">
+              {/* PayTabs */}
               <div
                 className={`border rounded-lg p-4 cursor-pointer transition-all ${selectedPayment === "paytabs"
                   ? "border-[#2D3247] bg-gray-50 ring-1 ring-[#2D3247]"
@@ -489,6 +537,7 @@ export default function CheckoutPage() {
                </div>
               </div>
 
+              {/* Tabby */}
               <div
                 className={`border rounded-lg p-4 cursor-pointer transition-all ${selectedPayment === "tabby"
                   ? "border-[#3EEDBF] bg-emerald-50 ring-1 ring-[#3EEDBF]"
@@ -514,6 +563,7 @@ export default function CheckoutPage() {
                 </div>
               </div>
 
+              {/* Tamara */}
               <div
                 className={`border rounded-lg p-4 cursor-pointer transition-all ${selectedPayment === "tamara"
                   ? "border-[#E4806D] bg-orange-50 ring-1 ring-[#E4806D]"
@@ -538,6 +588,19 @@ export default function CheckoutPage() {
                   <img src="/icons/tamara.png" alt="Tamara" className="h-6 object-contain" />
                   </div>
                </div>
+
+              {/* Bank Transfer - UPDATED WITH #5e7e7d */}
+              <div 
+                onClick={() => setSelectedPayment("bank_transfer")} 
+                className={`border rounded-lg p-4 cursor-pointer transition-all ${selectedPayment === "bank_transfer" ? "border-[#5e7e7d] bg-[#5e7e7d]/5 ring-1 ring-[#5e7e7d]" : "border-gray-200 hover:border-gray-300"}`}
+              >
+                <div className="flex items-center gap-3">
+                  <input type="radio" checked={selectedPayment === "bank_transfer"} onChange={() => setSelectedPayment("bank_transfer")} className="accent-[#5e7e7d] w-4 h-4" />
+                  <span className="font-medium text-sm">{isRTL ? "تحويل بنكي" : "Bank Transfer"}</span>
+                  <Landmark size={20} className={`ms-auto ${selectedPayment === 'bank_transfer' ? 'text-[#5e7e7d]' : 'text-gray-400'}`} />
+                </div>
+              </div>
+
             </div>
 
             <button
