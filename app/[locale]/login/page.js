@@ -11,6 +11,14 @@ import { useSearchParams } from "next/navigation";
 import { RecaptchaVerifier, signInWithPhoneNumber } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 
+// Eye Icons Components
+const EyeIcon = () => (
+  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
+);
+const EyeOffIcon = () => (
+  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88L4.573 4.574m14.853 14.853L14.243 14.243" /></svg>
+);
+
 export default function LoginPage() {
   const { locale } = useLocale();
   const { data } = usePageContent();
@@ -20,9 +28,14 @@ export default function LoginPage() {
   const isRTL = locale === "ar";
   const loginData = data?.login;
 
+  // States
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false); // New state for login
+  const [showNewPassword, setShowNewPassword] = useState(false); // New state for reset
   const [loading, setLoading] = useState(false);
+  
+  // Modal States
   const [showForgotModal, setShowForgotModal] = useState(false);
   const [forgotStep, setForgotStep] = useState(1);
   const [phoneInput, setPhoneInput] = useState("");
@@ -58,6 +71,7 @@ export default function LoginPage() {
     setOtp("");
     setNewPassword("");
     setConfirmNewPassword("");
+    setShowNewPassword(false);
     setConfirmationResult(null);
     setResendTimer(0);
     if (window.recaptchaVerifier) {
@@ -188,7 +202,6 @@ export default function LoginPage() {
   return (
     <>
       <section dir={isRTL ? "rtl" : "ltr"} className="min-h-screen flex flex-col lg:flex-row bg-gray-50">
-        {/* Left Side: Visuals */}
         <div className="relative hidden lg:flex w-1/2 bg-gray-200">
           <Image src={loginData.backgroundImage || "/hero.jpg"} alt="Hero" fill className="object-cover" priority />
           <div className="absolute inset-0 bg-black/40 flex items-end justify-center p-10">
@@ -196,7 +209,6 @@ export default function LoginPage() {
           </div>
         </div>
 
-        {/* Right Side: Form */}
         <div className="flex flex-1 items-center justify-center px-6 py-12 bg-white">
           <div className="w-full max-w-sm">
             <div className="flex flex-col items-center mb-8">
@@ -212,7 +224,23 @@ export default function LoginPage() {
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">{loginData?.password}</label>
-                <input type="password" value={password} placeholder="Enter your password" onChange={(e) => setPassword(e.target.value)} className="w-full border rounded-md px-3 py-2 text-sm focus:ring-1 focus:ring-[#5E7E7D]" required />
+                <div className="relative">
+                  <input 
+                    type={showPassword ? "text" : "password"} 
+                    value={password} 
+                    placeholder="Enter your password" 
+                    onChange={(e) => setPassword(e.target.value)} 
+                    className={`w-full border rounded-md px-3 py-2 text-sm focus:ring-1 focus:ring-[#5E7E7D] ${isRTL ? 'pl-10' : 'pr-10'}`} 
+                    required 
+                  />
+                  <button 
+                    type="button" 
+                    onClick={() => setShowPassword(!showPassword)} 
+                    className={`absolute inset-y-0 ${isRTL ? 'left-3' : 'right-3'} flex items-center text-gray-400 hover:text-gray-600`}
+                  >
+                    {showPassword ? <EyeOffIcon /> : <EyeIcon />}
+                  </button>
+                </div>
                 <div className="text-right mt-1">
                   <button type="button" onClick={() => setShowForgotModal(true)} className="text-xs text-[#2D3247] hover:underline">
                     {loginData?.forgot || "Forgot Password?"}
@@ -224,14 +252,10 @@ export default function LoginPage() {
               </button>
             </form>
 
-            {/* Signup Section */}
             <div className="mt-8 text-center border-t pt-6">
               <p className="text-sm text-gray-600">
                 {isRTL ? "ليس لديك حساب؟" : "Not a member?"}{" "}
-                <Link 
-                  href={`/${locale}/signup`} 
-                  className="text-[#2D3247] font-bold hover:underline transition-all"
-                >
+                <Link href={`/${locale}/signup`} className="text-[#2D3247] font-bold hover:underline transition-all">
                   {isRTL ? "سجل الآن" : "Sign up here"}
                 </Link>
               </p>
@@ -240,7 +264,6 @@ export default function LoginPage() {
         </div>
       </section>
 
-      {/* Forgot Password Modal */}
       {showForgotModal && (
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4 backdrop-blur-sm" onClick={closeModal}>
           <div dir={isRTL ? "rtl" : "ltr"} onClick={(e) => e.stopPropagation()} className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8 relative animate-[slideUp_0.3s_ease]">
@@ -265,11 +288,6 @@ export default function LoginPage() {
                 {forgotStep === 2 && (isRTL ? "التحقق من الهاتف" : "Verify Phone")}
                 {forgotStep === 3 && (isRTL ? "كلمة مرور جديدة" : "New Password")}
               </h3>
-              <p className="text-sm text-gray-500">
-                {forgotStep === 1 && (isRTL ? "أدخل رقم الجوال المسجل" : "Enter your registered phone number")}
-                {forgotStep === 2 && (isRTL ? "أدخل رمز التحقق المرسل" : "Enter the verification code sent")}
-                {forgotStep === 3 && (isRTL ? "قم بإنشاء كلمة مرور قوية" : "Create a strong password")}
-              </p>
             </div>
 
             {forgotStep === 1 && (
@@ -278,7 +296,7 @@ export default function LoginPage() {
                   <div className="bg-gray-100 border border-gray-300 px-4 py-3 rounded-lg text-sm font-semibold text-gray-700">+966</div>
                   <input type="tel" placeholder="5xxxxxxxx" value={phoneInput} maxLength={9} onChange={(e) => setPhoneInput(e.target.value.replace(/\D/g, ""))} className="flex-1 border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-[#2D3247] focus:border-transparent transition-all" />
                 </div>
-                <button onClick={handleVerifyPhone} disabled={forgotLoading || phoneInput.length < 9} className="w-full bg-[#2D3247] text-white py-3 rounded-lg font-semibold hover:bg-[#1e2231] disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg hover:shadow-xl">
+                <button onClick={handleVerifyPhone} disabled={forgotLoading || phoneInput.length < 9} className="w-full bg-[#2D3247] text-white py-3 rounded-lg font-semibold hover:bg-[#1e2231] disabled:opacity-50 transition-all shadow-lg">
                   {forgotLoading ? "..." : (isRTL ? "إرسال الرمز" : "Send Code")}
                 </button>
               </div>
@@ -290,11 +308,11 @@ export default function LoginPage() {
                   <div ref={recaptchaRef} className="flex justify-center my-4"></div>
                 ) : (
                   <>
-                    <input type="text" maxLength={6} placeholder="• • • • • •" value={otp} onChange={(e) => setOtp(e.target.value.replace(/\D/g, ""))} className="w-full border-2 border-gray-300 rounded-lg px-4 py-4 text-center text-3xl font-bold tracking-[0.5em] focus:ring-2 focus:ring-[#2D3247] focus:border-transparent transition-all" />
-                    <button onClick={handleVerifyOtp} disabled={forgotLoading || otp.length < 6} className="w-full bg-[#2D3247] text-white py-3 rounded-lg font-semibold hover:bg-[#1e2231] disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg hover:shadow-xl">
+                    <input type="text" maxLength={6} placeholder="• • • • • •" value={otp} onChange={(e) => setOtp(e.target.value.replace(/\D/g, ""))} className="w-full border-2 border-gray-300 rounded-lg px-4 py-4 text-center text-3xl font-bold tracking-[0.5em] focus:ring-2 focus:ring-[#2D3247] transition-all" />
+                    <button onClick={handleVerifyOtp} disabled={forgotLoading || otp.length < 6} className="w-full bg-[#2D3247] text-white py-3 rounded-lg font-semibold hover:bg-[#1e2231] disabled:opacity-50 transition-all shadow-lg">
                       {forgotLoading ? "..." : (isRTL ? "تحقق" : "Verify")}
                     </button>
-                    <button onClick={() => sendOtp()} disabled={resendTimer > 0} className="w-full text-sm text-[#2D3247] hover:underline disabled:text-gray-400 disabled:no-underline transition-all">
+                    <button onClick={() => sendOtp()} disabled={resendTimer > 0} className="w-full text-sm text-[#2D3247] hover:underline disabled:text-gray-400 transition-all">
                       {resendTimer > 0 ? `${isRTL ? "إعادة إرسال في" : "Resend in"} ${resendTimer}s` : (isRTL ? "إعادة إرسال الرمز" : "Resend Code")}
                     </button>
                   </>
@@ -305,13 +323,23 @@ export default function LoginPage() {
             {forgotStep === 3 && (
               <div className="space-y-4">
                 <div className="relative">
-                  <input type="password" placeholder={isRTL ? "كلمة المرور الجديدة" : "New Password"} value={newPassword} onChange={(e) => setNewPassword(e.target.value)} className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-[#2D3247] focus:border-transparent transition-all" />
-                  {newPassword && <span className={`absolute ${isRTL ? 'left-3' : 'right-3'} top-1/2 -translate-y-1/2 text-xs ${newPassword.length >= 6 ? 'text-green-600' : 'text-red-500'}`}>
-                    {newPassword.length >= 6 ? '✓' : `${newPassword.length}/6`}
-                  </span>}
+                  <input 
+                    type={showNewPassword ? "text" : "password"} 
+                    placeholder={isRTL ? "كلمة المرور الجديدة" : "New Password"} 
+                    value={newPassword} 
+                    onChange={(e) => setNewPassword(e.target.value)} 
+                    className={`w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-[#2D3247] transition-all ${isRTL ? 'pl-10' : 'pr-10'}`} 
+                  />
+                  <button 
+                    type="button" 
+                    onClick={() => setShowNewPassword(!showNewPassword)} 
+                    className={`absolute inset-y-0 ${isRTL ? 'left-3' : 'right-3'} flex items-center text-gray-400 hover:text-gray-600`}
+                  >
+                    {showNewPassword ? <EyeOffIcon /> : <EyeIcon />}
+                  </button>
                 </div>
-                <input type="password" placeholder={isRTL ? "تأكيد كلمة المرور" : "Confirm Password"} value={confirmNewPassword} onChange={(e) => setConfirmNewPassword(e.target.value)} className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-[#2D3247] focus:border-transparent transition-all" />
-                <button onClick={handleResetPassword} disabled={forgotLoading || !newPassword || !confirmNewPassword} className="w-full bg-[#2D3247] text-white py-3 rounded-lg font-semibold hover:bg-[#1e2231] disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg hover:shadow-xl">
+                <input type="password" placeholder={isRTL ? "تأكيد كلمة المرور" : "Confirm Password"} value={confirmNewPassword} onChange={(e) => setConfirmNewPassword(e.target.value)} className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-[#2D3247] transition-all" />
+                <button onClick={handleResetPassword} disabled={forgotLoading || !newPassword || !confirmNewPassword} className="w-full bg-[#2D3247] text-white py-3 rounded-lg font-semibold hover:bg-[#1e2231] disabled:opacity-50 transition-all shadow-lg">
                   {forgotLoading ? "..." : (isRTL ? "حفظ كلمة المرور" : "Save Password")}
                 </button>
               </div>
