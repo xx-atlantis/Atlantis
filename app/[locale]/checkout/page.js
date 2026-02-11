@@ -92,7 +92,9 @@ export default function CheckoutPage() {
     return base;
   }, [cart, safeCartItems, paymentType, depositPercentage]);
 
-  const shipping = cart.cartType === "package" ? 0 : (subtotal > 500 ? 0 : 25);
+  // Shipping removed (Set to 0)
+  const shipping = 0;
+  
   const vat = subtotal * 0.15;
   const total = subtotal + shipping + vat;
 
