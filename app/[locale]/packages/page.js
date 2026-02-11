@@ -26,12 +26,10 @@ export default function OrderSummary() {
 
   const { type, form, hasAdditionalFee, additionalFeeAmount } = projectData;
   
-  // FIX: Ensure packagePrice is treated as a clean number
   const packagePrice = selectedPackage ? parseFloat(String(selectedPackage.price).replace(/[^0-9.]/g, '')) : 0;
   const extraFee = hasAdditionalFee ? parseFloat(additionalFeeAmount || 199) : 0;
   const grandTotal = packagePrice + extraFee;
 
-  // FIXED: Sequencing logic to ensure step_0, step_1, step_2... then final_0, final_1...
   const selections = Object.entries(form)
     .filter(([key]) => key.startsWith("step_") || key.startsWith("final_"))
     .map(([key, data]) => ({ key, data }))
@@ -54,17 +52,23 @@ export default function OrderSummary() {
     // 2. Prepare cart data
     const feeEntry = Object.values(form).find(item => item.cardName === "no");
     
-    // FIX: Explicitly structure the cart data to ensure the package name and final math are stored
+    // Determine the type image (Villa, Apartment, etc.) from the selections or fallback
+    const typeImage = selections.find(s => s.data.cardImageUrl)?.data.cardImageUrl || "/images/placeholder-pkg.jpg";
+
     const cartData = {
       cartType: "package",
+      // Save EVERYTHING from selectedPackage + the specific type image
       package: {
         ...selectedPackage,
-        price: packagePrice // Store the parsed numeric price
+        image: typeImage, 
+        price: packagePrice,
+        displayPrice: selectedPackage.price // keep original for display if needed
       },
       steps: form,
       extraFee,
       totalPrice: grandTotal,
-      feeReason: feeEntry?.cardDescription || (isRTL ? "رسوم إضافية" : "Service fee")
+      feeReason: feeEntry?.cardDescription || (isRTL ? "رسوم إضافية" : "Service fee"),
+      propertyType: type
     };
     
     localStorage.setItem("cart", JSON.stringify(cartData));
@@ -76,11 +80,9 @@ export default function OrderSummary() {
       const authData = await res.json();
       
       if (authData.success && authData.token) {
-        // Session is valid, go to checkout
         router.push(`/${locale}/checkout`);
         return authData;
       } else {
-        // Session invalid: Redirect to login with return path
         const currentPath = window.location.pathname;
         router.push(`/${locale}/login?redirect=${encodeURIComponent(currentPath)}`);
         throw new Error("Unauthorized");
@@ -133,10 +135,10 @@ export default function OrderSummary() {
 
               {form.uploadedPlan?.value && (
                 <div className="bg-white p-4 rounded-[2rem] shadow-sm border border-gray-100 relative group overflow-hidden">
-                   <img src={form.uploadedPlan.value} className="w-full h-32 object-cover rounded-[1.5rem] brightness-90 group-hover:scale-105 transition-transform duration-700" alt="Floor Plan" />
-                   <div className="absolute inset-0 bg-black/20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                      <p className="text-white font-bold text-sm">View Floor Plan</p>
-                   </div>
+                    <img src={form.uploadedPlan.value} className="w-full h-32 object-cover rounded-[1.5rem] brightness-90 group-hover:scale-105 transition-transform duration-700" alt="Floor Plan" />
+                    <div className="absolute inset-0 bg-black/20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                       <p className="text-white font-bold text-sm">View Floor Plan</p>
+                    </div>
                 </div>
               )}
             </div>
