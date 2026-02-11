@@ -5,7 +5,6 @@ import { useLocale } from "@/app/components/LocaleProvider";
 import { usePageContent } from "@/app/context/PageContentProvider";
 import { useRouter } from "next/navigation";
 
-// 1. Accept optional props for custom CTA text and link
 export default function PricingPlans({ ctaText, ctaLink }) {
   const { locale } = useLocale();
   const { data } = usePageContent();
@@ -17,10 +16,8 @@ export default function PricingPlans({ ctaText, ctaLink }) {
   const plans = plansData?.list || [];
   const mainTitle = plansData?.mainTitle || {};
 
-  // 2. Determine which text to display (Prop > CMS Data)
   const buttonText = ctaText || plansData?.cta;
 
-  // 3. Update handler to use the prop link if provided
   const handleCta = () => {
     if (ctaLink) {
       router.push(ctaLink);
@@ -49,10 +46,13 @@ export default function PricingPlans({ ctaText, ctaLink }) {
         {plans.map((plan, index) => (
           <div
             key={index}
-            className={`relative rounded-2xl p-6 sm:p-8 flex flex-col justify-between shadow-sm border min-h-[480px] transition-transform hover:scale-[1.02] ${
+            // UPDATED CLASSNAME LOGIC HERE:
+            className={`relative rounded-2xl p-6 sm:p-8 flex flex-col justify-between shadow-sm border min-h-[480px] transition-all duration-300 hover:scale-[1.02] 
+            hover:border-yellow-100 hover:shadow-md hover:bg-[#6D94941A] 
+            ${
               plan.recommended
-                ? "border-yellow-100 shadow-md bg-[#6D94941A]"
-                : "border-gray-100 bg-gray-50"
+                ? "border-yellow-100 shadow-md bg-[#6D94941A]" // Default style for Recommended
+                : "border-gray-100 bg-gray-50" // Default style for others
             }`}
           >
             {/* Recommended Badge */}
@@ -139,7 +139,6 @@ export default function PricingPlans({ ctaText, ctaLink }) {
       </div>
 
       {/* ===== CTA ===== */}
-      {/* 4. Render if buttonText exists (either from prop or CMS) */}
       {buttonText && (
         <div className="mt-12 sm:mt-16 flex justify-center">
           <button
