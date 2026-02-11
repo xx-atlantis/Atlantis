@@ -4,8 +4,9 @@ import { useLocale } from "@/app/components/LocaleProvider";
 import { usePageContent } from "@/app/context/PageContentProvider";
 import { useCart } from "@/app/context/CartContext";
 import { useState, useMemo, useEffect } from "react";
-import { SaudiRiyal, Landmark, CheckCircle2, CreditCard, Wallet } from "lucide-react";
+import { Landmark, CheckCircle2, CreditCard, Wallet } from "lucide-react";
 
+// Helper: Format phone number to Saudi international format
 const formatSaudiPhone = (input) => {
   if (!input) return "";
   let cleaned = input.replace(/\D/g, "");
@@ -36,6 +37,7 @@ export default function CheckoutPage() {
   const [errorMsg, setErrorMsg] = useState("");
   const [selectedPayment, setSelectedPayment] = useState("paytabs");
 
+  // Load customer and cart data from local storage
   useEffect(() => {
     const stored = localStorage.getItem("customer");
     if (stored) {
@@ -48,11 +50,10 @@ export default function CheckoutPage() {
   const { cartItems } = useCart();
   const safeCartItems = Array.isArray(cartItems) ? cartItems : [];
 
-  // --- FIXED: Deposit Percentage Logic ---
+  // Logic: Calculate Deposit Percentage based on package title
   const depositPercentage = useMemo(() => {
     if (cart.cartType !== "package") return 100;
     
-    // We check the package title or price to identify the type
     const title = cart?.package?.title?.toLowerCase() || "";
     
     if (title.includes("room")) return 50;
@@ -62,7 +63,7 @@ export default function CheckoutPage() {
     return 100; // Fallback
   }, [cart]);
 
-  // --- Calculations ---
+  // Logic: Calculate Subtotal, Shipping, VAT, Total
   const subtotal = useMemo(() => {
     let base = 0;
     if (cart.cartType === "package") {
@@ -156,7 +157,7 @@ export default function CheckoutPage() {
       let endpoint = "";
       if (selectedPayment === "paytabs") endpoint = "/api/paytabs/initiate";
       if (selectedPayment === "tabby") endpoint = "/api/tabby/initiate";
-      if (selectedPayment === "tamara") endpoint = "/api/tamara/checkout"; // RESTORED
+      if (selectedPayment === "tamara") endpoint = "/api/tamara/checkout";
 
       const paymentRes = await fetch(endpoint, {
         method: "POST",
@@ -197,8 +198,10 @@ export default function CheckoutPage() {
     <section dir={isRTL ? "rtl" : "ltr"} className="py-20 bg-gray-50">
       <div className="max-w-6xl mx-4 md:mx-auto grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-8">
         
+        {/* --- LEFT COLUMN: Forms & Details --- */}
         <div className="space-y-8">
-          {/* PAYMENT PLAN SELECTION */}
+          
+          {/* 1. Payment Plan Selection (Only for Packages) */}
           {cart.cartType === "package" && (
             <div className="border border-gray-200 bg-white rounded-xl p-6 md:p-8 shadow-sm">
               <h2 className="text-lg font-bold mb-6 text-[#2D3247]">
@@ -236,7 +239,7 @@ export default function CheckoutPage() {
             </div>
           )}
 
-          {/* INVOICE FORM */}
+          {/* 2. Invoice Form */}
           <div className="border border-gray-200 bg-white rounded-xl p-6 md:p-8 shadow-sm">
             {errorMsg && <p className="text-red-600 mb-4 font-medium bg-red-50 p-3 rounded text-sm">{errorMsg}</p>}
             <h2 className="text-lg font-semibold mb-6">{checkout?.invoice?.title}</h2>
@@ -262,13 +265,54 @@ export default function CheckoutPage() {
             </div>
           </div>
 
+          {/* 3. Bank Transfer Details (Conditionally Rendered) */}
+          {selectedPayment === "bank_transfer" && (
+            <div className="border border-blue-200 bg-blue-50 rounded-xl p-6 md:p-8 shadow-sm animate-in fade-in slide-in-from-top-4 duration-300">
+              <div className="flex items-center gap-3 mb-4 text-blue-800">
+                <Landmark size={24} />
+                <h2 className="text-lg font-bold">
+                  {isRTL ? "تفاصيل التحويل البنكي" : "Bank Transfer Details"}
+                </h2>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
+                <div className="space-y-1">
+                  <p className="text-blue-600 font-medium">{isRTL ? "اسم الحساب" : "Account Name"}</p>
+                  <p className="font-bold text-gray-800">مؤسسة محيط أطلس للديكور</p>
+                </div>
+                <div className="space-y-1">
+                  <p className="text-blue-600 font-medium">{isRTL ? "البنك" : "Bank"}</p>
+                  <p className="font-bold text-gray-800">SNB | البنك الأهلي السعودي</p>
+                </div>
+                <div className="space-y-1">
+                  <p className="text-blue-600 font-medium">{isRTL ? "رقم الحساب" : "Account Number"}</p>
+                  <p className="font-bold text-gray-800">01400024792710</p>
+                </div>
+                <div className="space-y-1">
+                  <p className="text-blue-600 font-medium">{isRTL ? "الآيبان (IBAN)" : "IBAN"}</p>
+                  <p className="font-bold text-gray-800" dir="ltr">SA27 1000 0001 4000 2479 2710</p>
+                </div>
+              </div>
+
+              <div className="mt-6 p-4 bg-white rounded-lg border border-blue-100">
+                <p className="text-xs text-blue-700 flex items-start gap-2">
+                  <CheckCircle2 size={16} className="shrink-0" />
+                  {isRTL 
+                    ? "يرجى إرسال صورة إيصال التحويل عبر الواتساب لتأكيد الطلب: +966 53 787 8794" 
+                    : "Please share the transfer receipt via WhatsApp to confirm your order: +966 53 787 8794"}
+                </p>
+              </div>
+            </div>
+          )}
+
+          {/* 4. Additional Notes */}
           <div className="border border-gray-200 bg-white rounded-xl p-6 md:p-8 shadow-sm">
             <h2 className="text-lg font-semibold mb-4">{checkout.additional.title}</h2>
             <textarea value={notes} onChange={(e) => setNotes(e.target.value)} placeholder={checkout.additional.placeholder} className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm h-24 resize-none focus:border-[#2D3247] outline-none" />
           </div>
         </div>
 
-        {/* RIGHT: SUMMARY & PAYMENT */}
+        {/* --- RIGHT COLUMN: Summary & Payment Methods --- */}
         <div className="space-y-8">
           <div className="border border-gray-200 rounded-xl p-6 shadow-sm bg-white">
              <h2 className="text-lg font-semibold mb-4">{isRTL ? "ملخص الطلب" : "Order Summary"}</h2>
@@ -304,7 +348,7 @@ export default function CheckoutPage() {
                     <input type="radio" checked={selectedPayment === "paytabs"} readOnly className="accent-[#2D3247]" />
                     <span className="font-medium text-sm">{isRTL ? "بطاقة ائتمان / مدى" : "Credit / Debit / Mada"}</span>
                   </div>
-                  <div className="flex gap-1"><img src="/icons/visa.png" className="h-4" /><img src="/icons/mada.png" className="h-4" /></div>
+                  <div className="flex gap-1"><img src="/icons/visa.png" className="h-4" alt="Visa" /><img src="/icons/mada.png" className="h-4" alt="Mada" /></div>
                 </div>
               </div>
               
@@ -315,7 +359,7 @@ export default function CheckoutPage() {
                     <input type="radio" checked={selectedPayment === "tabby"} readOnly className="accent-[#3EEDBF]" />
                     <span className="font-medium text-sm">{isRTL ? "تابي" : "Tabby"}</span>
                   </div>
-                  <img src="/icons/tabby.webp" className="h-6" />
+                  <img src="/icons/tabby.webp" className="h-6" alt="Tabby" />
                 </div>
               </div>
 
@@ -326,7 +370,7 @@ export default function CheckoutPage() {
                     <input type="radio" checked={selectedPayment === "tamara"} readOnly className="accent-[#E4806D]" />
                     <span className="font-medium text-sm">{isRTL ? "تمارا" : "Tamara"}</span>
                   </div>
-                  <img src="/icons/tamara.png" className="h-5" />
+                  <img src="/icons/tamara.png" className="h-5" alt="Tamara" />
                 </div>
               </div>
 
