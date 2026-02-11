@@ -1,218 +1,299 @@
 "use client";
 
 import { useState } from "react";
-import { Check, X, Plus, Trash2, Save } from "lucide-react";
+import { 
+  Check, X, Plus, Trash2, Star, 
+  LayoutGrid, Building, Home, Save 
+} from "lucide-react";
 
-// --- 1. The Child Component: Individual Category Editor ---
-function CategoryEditorCard({ categoryData, onUpdate, locale = "en" }) {
-  const isAr = locale === "ar";
-
-  // Helper to update top-level fields (Price, Unit)
-  const handleChange = (field, value) => {
-    onUpdate({ ...categoryData, [field]: value });
+// --- 1. The Individual Package Card (Editable) ---
+function PackageCard({ pkg, onUpdate, onDelete, onToggleRecommended }) {
+  
+  // Update a top-level field (title, price, unit)
+  const handleFieldChange = (field, value) => {
+    onUpdate({ ...pkg, [field]: value });
   };
 
-  // Helper to update a specific feature's text
-  const handleFeatureTextChange = (index, newText) => {
-    const newFeatures = [...categoryData.features];
-    newFeatures[index].text = newText;
-    handleChange("features", newFeatures);
+  // Feature: Update Text
+  const handleFeatureText = (index, text) => {
+    const newFeatures = [...pkg.features];
+    newFeatures[index].text = text;
+    handleFieldChange("features", newFeatures);
   };
 
-  // Helper to toggle if a feature is included (Green Check) or excluded (Red X)
+  // Feature: Toggle Included/Excluded
   const toggleFeatureStatus = (index) => {
-    const newFeatures = [...categoryData.features];
+    const newFeatures = [...pkg.features];
     newFeatures[index].included = !newFeatures[index].included;
-    handleChange("features", newFeatures);
+    handleFieldChange("features", newFeatures);
   };
 
-  // Helper to DELETE a feature row
-  const deleteFeature = (index) => {
-    const newFeatures = categoryData.features.filter((_, i) => i !== index);
-    handleChange("features", newFeatures);
-  };
-
-  // Helper to ADD a new empty feature row
+  // Feature: Add New Row
   const addFeature = () => {
-    const newFeatures = [...categoryData.features, { text: "", included: true }];
-    handleChange("features", newFeatures);
+    const newFeatures = [...pkg.features, { text: "", included: true }];
+    handleFieldChange("features", newFeatures);
+  };
+
+  // Feature: Delete Row
+  const removeFeature = (index) => {
+    const newFeatures = pkg.features.filter((_, i) => i !== index);
+    handleFieldChange("features", newFeatures);
   };
 
   return (
-    <div className="flex flex-col h-full p-6 bg-white border border-slate-200 rounded-2xl shadow-sm hover:shadow-md transition-shadow">
-      {/* Header: Category Name (Fixed) */}
-      <div className="mb-6 border-b pb-4">
-        <h3 className="text-xl font-bold text-gray-800 uppercase tracking-wide">
-          {categoryData.name}
-        </h3>
-        <p className="text-xs text-slate-400 mt-1">
-          Edit details for {categoryData.name} packages
-        </p>
+    <div className={`relative flex flex-col p-5 bg-white rounded-2xl border-2 transition-all ${
+      pkg.isRecommended ? "border-blue-600 shadow-lg ring-1 ring-blue-100" : "border-slate-200"
+    }`}>
+      
+      {/* Top Actions: Recommended Badge & Delete */}
+      <div className="flex justify-between items-start mb-4">
+        <button
+          onClick={onToggleRecommended}
+          className={`px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1.5 border transition-colors ${
+            pkg.isRecommended 
+              ? "bg-blue-600 text-white border-blue-600" 
+              : "bg-slate-50 text-slate-400 border-slate-200 hover:border-blue-300"
+          }`}
+        >
+          <Star size={12} fill={pkg.isRecommended ? "currentColor" : "none"} />
+          {pkg.isRecommended ? "Recommended" : "Set Recommended"}
+        </button>
+
+        <button 
+          onClick={onDelete}
+          className="p-2 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+          title="Delete this package"
+        >
+          <Trash2 size={18} />
+        </button>
       </div>
 
-      {/* Inputs: Price & Unit */}
-      <div className="grid grid-cols-2 gap-4 mb-6">
+      {/* Package Title & Price Inputs */}
+      <div className="space-y-3 mb-6">
         <div>
-          <label className="text-[10px] uppercase font-bold text-slate-400 block mb-1">
-            Price (SAR)
-          </label>
+          <label className="text-[10px] uppercase font-bold text-slate-400 block mb-1">Package Title</label>
           <input
-            type="number"
-            value={categoryData.price}
-            onChange={(e) => handleChange("price", e.target.value)}
-            className="w-full p-2 bg-slate-50 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none font-semibold"
-            placeholder="0"
+            value={pkg.title}
+            onChange={(e) => handleFieldChange("title", e.target.value)}
+            className="w-full p-2 text-lg font-bold border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+            placeholder="e.g. Standard"
           />
         </div>
-        <div>
-          <label className="text-[10px] uppercase font-bold text-slate-400 block mb-1">
-            Unit Label
-          </label>
-          <input
-            type="text"
-            value={categoryData.unit}
-            onChange={(e) => handleChange("unit", e.target.value)}
-            className="w-full p-2 bg-slate-50 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm"
-            placeholder="e.g. / Room"
-          />
-        </div>
-      </div>
-
-      {/* Features List Editor */}
-      <div className="flex-1 space-y-3">
-        <label className="text-[10px] uppercase font-bold text-slate-400 block">
-          Features List
-        </label>
         
-        {categoryData.features.map((feature, idx) => (
+        <div className="flex gap-3">
+          <div className="flex-1">
+            <label className="text-[10px] uppercase font-bold text-slate-400 block mb-1">Price</label>
+            <input
+              type="number"
+              value={pkg.price}
+              onChange={(e) => handleFieldChange("price", e.target.value)}
+              className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+              placeholder="0"
+            />
+          </div>
+          <div className="w-1/3">
+            <label className="text-[10px] uppercase font-bold text-slate-400 block mb-1">Unit</label>
+            <input
+              value={pkg.unit}
+              onChange={(e) => handleFieldChange("unit", e.target.value)}
+              className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm text-slate-500"
+              placeholder="/ Room"
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Features List */}
+      <div className="flex-1 space-y-2">
+        <label className="text-[10px] uppercase font-bold text-slate-400 block">Features</label>
+        {pkg.features.map((feature, idx) => (
           <div key={idx} className="flex items-center gap-2 group">
-            {/* Toggle Status Button */}
             <button
-              type="button"
               onClick={() => toggleFeatureStatus(idx)}
-              title={feature.included ? "Mark as Excluded" : "Mark as Included"}
-              className={`shrink-0 w-8 h-8 rounded-lg flex items-center justify-center transition-colors ${
-                feature.included 
-                  ? "bg-green-100 text-green-600 border border-green-200" 
-                  : "bg-red-50 text-red-400 border border-red-100"
+              className={`shrink-0 w-6 h-6 rounded flex items-center justify-center border transition-colors ${
+                feature.included ? "bg-green-500 border-green-500 text-white" : "bg-white border-slate-300 text-slate-300"
               }`}
             >
-              {feature.included ? <Check size={16} /> : <X size={16} />}
+              {feature.included ? <Check size={14} /> : <X size={14} />}
             </button>
-
-            {/* Feature Text Input */}
+            
             <input
               value={feature.text}
-              onChange={(e) => handleFeatureTextChange(idx, e.target.value)}
-              className="flex-1 p-2 text-sm border rounded-lg focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
-              placeholder="Feature description..."
+              onChange={(e) => handleFeatureText(idx, e.target.value)}
+              className="flex-1 p-1 text-sm border-b border-transparent hover:border-slate-200 focus:border-blue-500 outline-none bg-transparent"
+              placeholder="Feature description"
             />
 
-            {/* Delete Button (Only shows on hover for cleaner UI) */}
-            <button
-              onClick={() => deleteFeature(idx)}
-              className="opacity-0 group-hover:opacity-100 p-2 text-slate-400 hover:text-red-500 transition-opacity"
-              title="Remove Feature"
+            <button 
+              onClick={() => removeFeature(idx)}
+              className="opacity-0 group-hover:opacity-100 text-slate-300 hover:text-red-500 transition-opacity"
             >
-              <Trash2 size={16} />
+              <X size={14} />
             </button>
           </div>
         ))}
-
-        {/* Add New Feature Button */}
+        
         <button
           onClick={addFeature}
-          className="w-full mt-4 py-2 flex items-center justify-center gap-2 text-sm font-medium text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors border border-dashed border-blue-200"
+          className="mt-2 text-xs font-semibold text-blue-600 flex items-center gap-1 hover:underline"
         >
-          <Plus size={16} />
-          Add Feature Row
+          <Plus size={12} /> Add Feature
         </button>
       </div>
     </div>
   );
 }
 
-// --- 2. The Parent Component: Main Admin View ---
-export default function PricingAdmin() {
-  // Initial Data State: 3 Categories, 1 Package each
-  const [categories, setCategories] = useState([
-    {
-      id: "room",
-      name: "Room", // Category Name
-      price: "50",
-      unit: "/ Room",
-      features: [
-        { text: "Deep Cleaning", included: true },
-        { text: "Sanitization", included: true },
-        { text: "Furniture Moving", included: false },
-      ],
-    },
-    {
-      id: "apartment",
-      name: "Apartment", // Category Name
-      price: "250",
-      unit: "/ Flat",
-      features: [
-        { text: "Deep Cleaning", included: true },
-        { text: "Kitchen & Bath", included: true },
-        { text: "Balcony Cleaning", included: true },
-      ],
-    },
-    {
-      id: "villa",
-      name: "Villa", // Category Name
-      price: "800",
-      unit: "/ Villa",
-      features: [
-        { text: "Full Deep Clean", included: true },
-        { text: "Garden Maintenance", included: true },
-        { text: "Water Tank Cleaning", included: true },
-        { text: "Roof Cleaning", included: false },
-      ],
-    },
-  ]);
+// --- 2. Main Manager Component with Tabs ---
+export default function PricingManager() {
+  const [activeTab, setActiveTab] = useState("room");
 
-  // Handler to update a specific category in the state
-  const handleUpdateCategory = (id, updatedData) => {
-    setCategories((prev) =>
-      prev.map((cat) => (cat.id === id ? updatedData : cat))
-    );
+  // Initial Data State
+  const [data, setData] = useState({
+    room: [
+      { id: 1, title: "Standard Clean", price: "50", unit: "/ Room", isRecommended: false, features: [{ text: "Dusting", included: true }, { text: "Mopping", included: true }] },
+      { id: 2, title: "Deep Clean", price: "120", unit: "/ Room", isRecommended: true, features: [{ text: "Dusting", included: true }, { text: "Deep Scrub", included: true }] },
+    ],
+    apartment: [
+      { id: 1, title: "Studio", price: "200", unit: "/ Flat", isRecommended: true, features: [{ text: "Full Clean", included: true }] },
+    ],
+    villa: [
+      { id: 1, title: "Small Villa", price: "500", unit: "/ Villa", isRecommended: false, features: [{ text: "Interior & Exterior", included: true }] },
+    ],
+  });
+
+  // --- Actions ---
+
+  const handleUpdatePackage = (pkgId, newPkgData) => {
+    setData(prev => ({
+      ...prev,
+      [activeTab]: prev[activeTab].map(pkg => pkg.id === pkgId ? newPkgData : pkg)
+    }));
   };
 
-  // Mock Save Function
-  const handleSaveAll = () => {
-    console.log("Saving to Database:", categories);
-    alert("Packages saved! Check console for data.");
+  const handleAddPackage = () => {
+    const newPkg = {
+      id: Date.now(), // simple unique ID
+      title: "New Package",
+      price: "",
+      unit: activeTab === 'room' ? '/ Room' : (activeTab === 'apartment' ? '/ Flat' : '/ Villa'),
+      isRecommended: false,
+      features: [{ text: "Basic Service", included: true }, { text: "Premium Add-on", included: false }]
+    };
+
+    setData(prev => ({
+      ...prev,
+      [activeTab]: [...prev[activeTab], newPkg]
+    }));
   };
+
+  const handleDeletePackage = (pkgId) => {
+    if(!window.confirm("Are you sure you want to delete this package?")) return;
+    setData(prev => ({
+      ...prev,
+      [activeTab]: prev[activeTab].filter(pkg => pkg.id !== pkgId)
+    }));
+  };
+
+  const handleSetRecommended = (pkgId) => {
+    // Logic: Only one recommended package allowed per category? 
+    // If yes, set all others to false. If no, just toggle. 
+    // Let's assume you want only 1 recommended, so we reset others.
+    setData(prev => ({
+      ...prev,
+      [activeTab]: prev[activeTab].map(pkg => ({
+        ...pkg,
+        isRecommended: pkg.id === pkgId ? !pkg.isRecommended : false
+      }))
+    }));
+  };
+
+  // --- Render Helpers ---
+  const tabs = [
+    { id: "room", label: "Room Packages", icon: LayoutGrid },
+    { id: "apartment", label: "Apartment Packages", icon: Building },
+    { id: "villa", label: "Villa Packages", icon: Home },
+  ];
 
   return (
     <div className="min-h-screen bg-slate-50 p-8">
-      <div className="max-w-7xl mx-auto">
+      <div className="max-w-6xl mx-auto">
         
-        {/* Page Header */}
-        <div className="flex justify-between items-center mb-8">
+        {/* Header */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Pricing Manager</h1>
-            <p className="text-slate-500">Manage packages for Room, Apartment, and Villa</p>
+            <h1 className="text-3xl font-bold text-gray-900">Pricing Management</h1>
+            <p className="text-slate-500">Add, edit, or remove packages for each category.</p>
           </div>
-          <button 
-            onClick={handleSaveAll}
-            className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 transition-colors shadow-lg shadow-blue-200"
-          >
-            <Save size={18} />
-            Save Changes
+          <button className="flex items-center gap-2 px-6 py-3 bg-gray-900 text-white font-semibold rounded-xl hover:bg-gray-800 transition-shadow shadow-lg">
+            <Save size={18} /> Save Changes
           </button>
         </div>
 
-        {/* The 3 Columns Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {categories.map((category) => (
-            <CategoryEditorCard
-              key={category.id}
-              categoryData={category}
-              onUpdate={(newData) => handleUpdateCategory(category.id, newData)}
-            />
-          ))}
+        {/* Custom Tabs */}
+        <div className="flex gap-2 p-1 bg-white rounded-xl border border-slate-200 mb-8 w-full md:w-fit shadow-sm">
+          {tabs.map((tab) => {
+            const Icon = tab.icon;
+            const isActive = activeTab === tab.id;
+            return (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-3 rounded-lg text-sm font-semibold transition-all ${
+                  isActive 
+                    ? "bg-blue-50 text-blue-600 shadow-sm ring-1 ring-blue-100" 
+                    : "text-slate-500 hover:bg-slate-50 hover:text-slate-700"
+                }`}
+              >
+                <Icon size={16} />
+                {tab.label}
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Content Area */}
+        <div className="space-y-6">
+          <div className="flex items-center justify-between">
+            <h2 className="text-xl font-bold text-slate-800 capitalize">
+              {activeTab} Packages ({data[activeTab].length})
+            </h2>
+            <button 
+              onClick={handleAddPackage}
+              className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors border border-blue-200"
+            >
+              <Plus size={16} /> Add New Package
+            </button>
+          </div>
+
+          {/* Grid of Packages */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            
+            {/* Map through the packages of the ACTIVE tab */}
+            {data[activeTab].map((pkg) => (
+              <PackageCard 
+                key={pkg.id} 
+                pkg={pkg}
+                onUpdate={(newData) => handleUpdatePackage(pkg.id, newData)}
+                onDelete={() => handleDeletePackage(pkg.id)}
+                onToggleRecommended={() => handleSetRecommended(pkg.id)}
+              />
+            ))}
+
+            {/* Empty State Helper */}
+            {data[activeTab].length === 0 && (
+              <div className="col-span-full py-12 flex flex-col items-center justify-center text-slate-400 border-2 border-dashed border-slate-200 rounded-2xl bg-slate-50/50">
+                <LayoutGrid size={48} className="mb-4 opacity-20" />
+                <p>No packages found for {activeTab}.</p>
+                <button 
+                  onClick={handleAddPackage}
+                  className="mt-2 text-blue-600 font-semibold hover:underline"
+                >
+                  Create your first package
+                </button>
+              </div>
+            )}
+          </div>
         </div>
 
       </div>
