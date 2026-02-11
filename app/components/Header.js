@@ -178,7 +178,7 @@ export default function Header() {
         <div className="flex items-center gap-3 lg:gap-4">
           
           {/* 3. CART ICON (Mobile & Desktop) */}
-          <Link href={`/${locale}/cart`} className="relative p-2 text-gray-700 hover:text-[#2D3247] transition">
+          <Link href={`/${locale}/checkout`} className="relative p-2 text-gray-700 hover:text-[#2D3247] transition">
             <ShoppingBag size={22} />
             {cartCount > 0 && (
               <span className="absolute top-0 right-0 bg-red-500 text-white text-[10px] font-bold h-4 w-4 flex items-center justify-center rounded-full">
