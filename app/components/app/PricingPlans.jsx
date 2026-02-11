@@ -25,7 +25,7 @@ export default function PricingPlans({ ctaText, ctaLink }) {
     if (ctaLink) {
       router.push(ctaLink);
     } else {
-      router.push(`/${locale}/pricing-plans`);
+      router.push(`/${locale}/start-a-project`);
     }
   };
 
