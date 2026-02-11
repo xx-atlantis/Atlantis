@@ -1,0 +1,270 @@
+datasource db {
+	provider = "mongodb"
+	url = env("DATABASE_URL")
+}
+
+generator client {
+	provider = "prisma-client-js"
+}
+
+enum Locale {
+	en
+	ar
+}
+
+enum SectionType {
+	HERO
+	TEXT
+	LIST
+	GRID
+	JSON
+}
+
+model Page {
+	id String @id @default(auto()) @map("_id") @db.ObjectId
+	slug String @unique
+	name String
+
+	sections PageSection[]
+	createdAt DateTime @default(now())
+	updatedAt DateTime @updatedAt
+}
+
+model Section {
+	id String @id @default(auto()) @map("_id") @db.ObjectId
+	key String @unique
+	type SectionType
+	translations SectionTranslation[]
+	pages PageSection[]
+}
+
+model PageSection {
+	id String @id @default(auto()) @map("_id") @db.ObjectId
+
+	pageId String @db.ObjectId
+	sectionId String @db.ObjectId
+	order Int?
+
+	page Page @relation(fields: [pageId], references: [id])
+	section Section @relation(fields: [sectionId], references: [id])
+}
+
+model SectionTranslation {
+	id String @id @default(auto()) @map("_id") @db.ObjectId
+	sectionId String @db.ObjectId
+	locale Locale
+	content Json
+
+	section Section @relation(fields: [sectionId], references: [id])
+
+	@@unique([locale, sectionId])
+}
+
+model Blog {
+	id String @id @default(auto()) @map("_id") @db.ObjectId
+	slug String @unique
+	cover String? // blog card image
+	published Boolean @default(true)
+
+	createdAt DateTime @default(now())
+	updatedAt DateTime @updatedAt
+
+	translations BlogTranslation[]
+}
+
+model BlogTranslation {
+	id String @id @default(auto()) @map("_id") @db.ObjectId
+	blogId String @db.ObjectId
+	locale Locale
+	title String
+	excerpt String?
+	content Json // paragraphs, headings, lists, images
+	publishedAt DateTime?
+	metaTitle String?
+	metaDescription String?
+
+	blog Blog @relation(fields: [blogId], references: [id])
+
+	@@unique([blogId, locale])
+}
+
+model PortfolioProject {
+	id String @id @default(auto()) @map("_id") @db.ObjectId
+	slug String @unique
+	cover String?
+	published Boolean @default(true)
+	createdAt DateTime @default(now())
+	updatedAt DateTime @updatedAt
+
+	translations PortfolioTranslation[]
+}
+
+model PortfolioTranslation {
+	id String @id @default(auto()) @map("_id") @db.ObjectId
+	locale String // "en" | "ar"
+	title String
+	excerpt String?
+	content Json // block-based content
+	publishedAt DateTime?
+
+	project PortfolioProject @relation(fields: [projectId], references: [id], onDelete: Cascade)
+	projectId String
+
+	@@unique([projectId, locale])
+}
+
+model Permission {
+	id String @id @default(auto()) @map("_id") @db.ObjectId
+	key String @unique
+	createdAt DateTime @default(now())
+
+	roles RolePermission[]
+}
+
+model Role {
+	id String @id @default(auto()) @map("_id") @db.ObjectId
+	name String @unique
+	createdAt DateTime @default(now())
+
+	permissions RolePermission[]
+	admins AdminRole[]
+}
+
+model RolePermission {
+	id String @id @default(auto()) @map("_id") @db.ObjectId
+	roleId String @db.ObjectId
+	permissionId String @db.ObjectId
+
+	role Role @relation(fields: [roleId], references: [id], onDelete: Cascade)
+	permission Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+
+	@@unique([roleId, permissionId])
+}
+
+model Admin {
+	id String @id @default(auto()) @map("_id") @db.ObjectId
+	email String @unique
+	password String
+	isActive Boolean @default(true)
+
+	roles AdminRole[]
+
+	createdAt DateTime @default(now())
+	updatedAt DateTime @updatedAt
+}
+
+model AdminRole {
+	id String @id @default(auto()) @map("_id") @db.ObjectId
+	adminId String @db.ObjectId
+	roleId String @db.ObjectId
+
+	admin Admin @relation(fields: [adminId], references: [id], onDelete: Cascade)
+	role Role @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+	@@unique([adminId, roleId])
+}
+
+model Category {
+	id String @id @default(auto()) @map("_id") @db.ObjectId
+	products Product[]
+	translations CategoryTranslation[]
+	createdAt DateTime @default(now())
+	updatedAt DateTime @updatedAt
+}
+
+model CategoryTranslation {
+	id String @id @default(auto()) @map("_id") @db.ObjectId
+	categoryId String @db.ObjectId
+	locale Locale
+	name String
+
+	category Category @relation(fields: [categoryId], references: [id])
+
+	@@unique([locale, categoryId])
+}
+
+model Product {
+	id String @id @default(auto()) @map("_id") @db.ObjectId
+	categoryId String @db.ObjectId
+
+	price Float
+	sku String?
+	inStock Boolean @default(true)
+	coverImage String
+	images String[]
+
+	translations ProductTranslation[]
+	category Category @relation(fields: [categoryId], references: [id])
+
+	createdAt DateTime @default(now())
+	updatedAt DateTime @updatedAt
+}
+
+model ProductTranslation {
+	id String @id @default(auto()) @map("_id") @db.ObjectId
+	productId String @db.ObjectId
+	locale Locale
+
+	name String
+	short_description String?
+	material String?
+	variant Json?
+
+	product Product @relation(fields: [productId], references: [id])
+
+	@@unique([locale, productId])
+}
+
+model Customer {
+	id String @id @default(auto()) @map("_id") @db.ObjectId
+	name String?
+	email String @unique
+	password String?
+	phone String?
+	avatar String?
+	verified Boolean @default(false)
+
+	createdAt DateTime @default(now())
+	updatedAt DateTime @updatedAt
+}
+
+model Order {
+	id String @id @default(auto()) @map("_id") @db.ObjectId
+	customerId String? @db.ObjectId
+	customerEmail String
+	customerName String?
+	customerPhone String?
+	address String?
+	orderType String @default("shop")
+	items OrderItem[]
+	packageDetails Json?
+	projectSteps Json?
+	subtotal Float @default(0)
+	shipping Float @default(0)
+	vat Float @default(0)
+	total Float @default(0)
+
+	// Payment Information
+	paymentStatus String @default("pending")
+	paymentMethod String?
+	paymentId String? // <--- ADDED THIS FIELD (Required for Tabby)
+
+	orderStatus String @default("pending")
+
+	createdAt DateTime @default(now())
+	updatedAt DateTime @updatedAt
+}
+
+model OrderItem {
+	id String @id @default(auto()) @map("_id") @db.ObjectId
+	orderId String @db.ObjectId
+	order Order @relation(fields: [orderId], references: [id])
+
+	productId String @db.ObjectId
+	name String
+	coverImage String?
+	price Float
+	quantity Int @default(1)
+	variant Json?
+	material String?
+}

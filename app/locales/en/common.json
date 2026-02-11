@@ -1,0 +1,2060 @@
+{
+    "login": {
+        "loginTitle": "Welcome Back",
+        "signupTitle": "Sign Up",
+        "loginSubtitle": "Glad to see you again. Login to your account below",
+        "signupSubtitle": "Enter your details below to create your account and get started",
+        "firstName": "First Name",
+        "firstNamePlaceholder": "John",
+        "lastName": "Last Name",
+        "lastNamePlaceholder": "Doe",
+        "email": "Email",
+        "emailPlaceholder": "johndoe@example.com",
+        "password": "Password",
+        "passwordPlaceholder": "Enter Password",
+        "confirmPassword": "Confirm Password",
+        "forgot": "Forgot Password?",
+        "login": "Login",
+        "google": "Login with Google",
+        "noAccount": "Don’t have an account?",
+        "signup": "Sign up",
+        "slogan": "Transform Your Space With Our Stunning Interior Design Services, Now Closer Than Ever"
+    },
+    "header": {
+        "links": [
+            {
+                "title": "Home",
+                "url": "/"
+            },
+            {
+                "title": "How it Works",
+                "url": "/how-it-works"
+            },
+            {
+                "title": "Portfolio",
+                "url": "/portfolio"
+            },
+            {
+                "title": "Shop",
+                "url": "/shop"
+            },
+            {
+                "title": "Plans & Prices",
+                "url": "/pricing-plans"
+            },
+            {
+                "title": "Blog",
+                "url": "/blog"
+            },
+            {
+                "title": "Contact us",
+                "url": "/contact-us"
+            }
+        ],
+        "cta": "Start Your Project",
+        "login": "Log in"
+    },
+    "hero": {
+        "heroImage": "/hero.jpg",
+        "brand": "Atlantis",
+        "title": "Top Interior Designers from Jeddah to Dammam, Creating Exceptional Designs across Saudi Arabia.",
+        "button": "Start Your Project"
+    },
+    "howitworks": {
+        "heroImage": "/hero.jpg",
+        "brand": "Atlantis",
+        "title": "Transform Your Space With Our Stunning Interior Design Services, Now Closer Than Ever",
+        "smallTitle": "HOW We WORKS",
+        "mainTitle": "We provide online interior design services in 3 simple steps",
+        "steps": [
+            {
+                "title": "Start with an inspiring design session 🖐️",
+                "desc": "Book your 30-minute virtual consultation with our interior designers to share your ideas."
+            },
+            {
+                "title": "See your space come to life 👌",
+                "desc": "Receive realistic 3D interior designs with up to three free revisions to ensure you are 100% satisfied."
+            },
+            {
+                "title": "Get your final design 📦",
+                "desc": "Receive your complete design package within 7–10 business days, ready for execution without delays."
+            }
+        ]
+    },
+    "whybest": {
+        "title": "Fast, Luxury, Flexible Interior Design Services",
+        "cta": "See How it Works",
+        "features": [
+            {
+                "title": "Turn your ideas into reality quickly",
+                "desc": "From your first online design consultation to final project delivery within 7–10 days, every step is calculated to exceed your expectations"
+            },
+            {
+                "title": "Luxury designs that fit your budget",
+                "desc": "Clear design packages start from SAR 499 per room, VAT included, with no hidden costs helping you invest wisely in your space."
+            },
+            {
+                "title": "Full comfort and flexibility from any city",
+                "desc": "Easily access and use our services from the comfort of your home as we guide you through each step of the design process."
+            }
+        ]
+    },
+    "projects": {
+    "smallTitle": "OUR PROJECTS",
+    "mainTitle": {
+        "normal": "Transforming Spaces from Ordinary to",
+        "highlight": "Exceptional"
+    },
+    "list": [
+        {
+            "title": "Living Room",
+            "before": "/portfolio/living.webp",
+            "after": "/portfolio/living2.webp",
+            "review": {
+                "name": "Ashwaq Bander",
+                "avatar": "/avatars/ashwaq-bander.webp",
+                "location": "Riyadh, Saudi Arabia",
+                "text": "Atlantis is the best interior design firm I’ve ever dealt with. Their creative designs and amazing prices made choosing them the best decision. The team is fantastic — I’m very thankful for the experience and hope to collaborate again."
+            }
+        },
+        {
+            "title": "Bedroom",
+            "before": "/portfolio/bedroom.webp",
+            "after": "/portfolio/bedroom2.webp",
+            "review": {
+                "name": "Nouf Al-Johaini",
+                "avatar": "/avatars/nouf-al-johaini.webp",
+                "location": "Jeddah, Saudi Arabia",
+                "text": "Atlantis exceeded my expectations. Their creative ideas and budget-friendly approach made everything smooth from the start. Engineer Reema, Engineer Ahmed, and Engineer Omnia were very cooperative. I loved the result and definitely plan to work with them again"
+            }
+        },
+        {
+            "title": "Kitchen",
+            "before": "/portfolio/kitchen.webp",
+            "after": "/portfolio/kitchen2.webp",
+            "review": {
+                "name": "Amal Alahmari",
+                "avatar": "/avatars/amal-alahmari.webp",
+                "location": "Riyadh, Saudi Arabia",
+                "text": "My experience with Atlantis was amazing. Their designs are refined and very affordable. Special thanks to Engineer Reema, Engineer Abdullah, and Ms. Noor for all their efforts. The team’s professionalism and attention to every detail was clear. I look forward to working with them on future projects"
+            }
+        },
+        {
+            "title": "Bedroom",
+            "before": "/portfolio/bedroom.webp",
+            "after": "/portfolio/bedroom2.webp",
+            "review": {
+                "name": "Nouf Al-Johaini",
+                "avatar": "/avatars/nouf-al-johaini.webp",
+                "location": "Riyadh, Saudi Arabia",
+                "text": "From start to finish, working with Atlantis was excellent. Their interior designs are elegant, prices are reasonable, and everything went seamlessly. The final result was beyond my expectations"
+            }
+        },
+        {
+            "title": "Office Room",
+            "before": "/portfolio/office.webp",
+            "after": "/portfolio/office2.webp",
+            "review": {
+                "name": "Osama Bukhari",
+                "avatar": "/avatars/osama-bukhari.webp",
+                "location": "Riyadh, Saudi Arabia",
+                "text": "Atlantis delivered on every promise throughout my project. Their attention to detail and well-thought-out solutions made a big difference in my experience. The team was clear in communication, highly professional, and made the whole process smooth and enjoyable"
+            }
+        }
+    ]
+},
+    "plans": {
+        "smallTitle": "OUR PLANS",
+        "refundHeading": "Golden Guarantee:",
+        "refundText": "Full refund within 24 hours after the first meeting if you choose not to continue",
+        "mainTitle": {
+            "normal": "Designing made",
+            "highlight": "Accessible"
+        },
+        "recommended": "Recommended",
+        "perRoom": "/ Room",
+        "cta": "See Pricing",
+        "list": [
+            {
+                "title": "Room Package",
+                "price": "SAR 999 ",
+                "oldPrice": "(Was SAR 1,500)",
+                "area": "Up to 20 SQM",
+                "tax": "Including VAT 15%",
+                "features": [
+                    {
+                        "text": "Pre-consultation meeting 1 Hour Pre-design Consultation 1:1 with your designer",
+                        "included": true
+                    },
+                    {
+                        "text": "3 Design concepts Streamline design direction with references, and material suggestions",
+                        "included": true
+                    },
+                    {
+                        "text": "Furniture Space Planning 6 different options for strategically furniture planning and fixtures",
+                        "included": true
+                    },
+                    {
+                        "text": "Mood board 6 different mood boards that aligns with your project's style and goals",
+                        "included": true
+                    },
+                    {
+                        "text": "Material selections Material Selection Board Expertly Balances Functionality, Durability, Aesthetics, And Cost",
+                        "included": true
+                    },
+                    {
+                        "text": "Ultra-realistic 3D images Realistic 3D Renders showinghigh resolution details of your design",
+                        "included": true
+                    },
+                    {
+                        "text": "Working drawings Up to 12 detailed 2D working drawings for execution",
+                        "included": true
+                    },
+                    {
+                        "text": "360-Degree Project View Stunning 4K resolution view of the entire space and its surroundings",
+                        "included": true
+                    },
+                    {
+                        "text": "Landscaping Design Beautiful and functional outdoor spaces by integrating plants, hardscapes, and lighting.",
+                        "included": true
+                    },
+                    {
+                        "text": "Landscaping Design Beautiful and functional outdoor spaces by integrating plants, hardscapes, and lighting.",
+                        "included": true
+                    },
+                    {
+                        "text": "Flexible Payment Option: Pay only 50% upfront to start.",
+                        "included": true
+                    },
+                    {
+                        "text": "Revisions: Upto two free revisions",
+                        "included": true
+                    }
+                ]
+            },
+            {
+                "title": "Apartment Package",
+                "price": "SAR 11,990",
+                "oldPrice": "(was SAR 16,000)",
+                "recommended": true,
+                "area": "Up to 300 SQM",
+                "tax": "Including VAT 15%",
+                "features": [
+                    {
+                        "text": "Pre-consultation meeting 1 Hour Pre-design Consultation 1:1 with your designer",
+                        "included": true
+                    },
+                    {
+                        "text": "3 Design concepts Streamline design direction with references, and material suggestions",
+                        "included": true
+                    },
+                    {
+                        "text": "Furniture Space Planning 6 different options for strategically furniture planning and fixtures",
+                        "included": true
+                    },
+                    {
+                        "text": "Mood board6 different mood boards that aligns with your project's style and goals",
+                        "included": true
+                    },
+                    {
+                        "text": "Material selections Material Selection Board Expertly Balances Functionality, Durability, Aesthetics, And Cost",
+                        "included": true
+                    },
+                    {
+                        "text": "Ultra-realistic 3D images Realistic 3D Renders showinghigh resolution details of your design",
+                        "included": true
+                    },
+                    {
+                        "text": "Working drawings Up to 12 detailed 2D working drawings for execution",
+                        "included": true
+                    },
+                    {
+                        "text": "360-Degree Project View Stunning 4K resolution view of the entire space and its surroundings",
+                        "included": true
+                    },
+                    {
+                        "text": "360-Degree Project View Stunning 4K resolution view of the entire space and its surroundings",
+                        "included": true
+                    },
+                    {
+                        "text": "Landscaping Design Beautiful and functional outdoor spaces by integrating plants, hardscapes, and lighting.",
+                        "included": true
+                    },
+                    {
+                        "text": "Flexible Payment Option: Pay only 40% upfront to start.",
+                        "included": true
+                    },
+                    {
+                        "text": "Revisions: Upto two free revisions",
+                        "included": true
+                    }
+                ]
+            },
+            {
+                "title": "Villa Package",
+                "price": "SAR 19,990",
+                "oldPrice": "(was SAR 25,000)",
+                "area": "Up to 600 SQM",
+                "tax": "Including VAT 15%",
+                "features": [
+                    {
+                        "text": "Pre-consultation meeting 1 Hour Pre-design Consultation 1:1 with your designer",
+                        "included": true
+                    },
+                    {
+                        "text": "3 Design concepts Streamline design direction with references, and material suggestions",
+                        "included": true
+                    },
+                    {
+                        "text": "Furniture Space Planning 6 different options for strategically furniture planning and fixtures",
+                        "included": true
+                    },
+                    {
+                        "text": "Mood board6 different mood boards that aligns with your project's style and goals",
+                        "included": true
+                    },
+                    {
+                        "text": "Material selections Material Selection Board Expertly Balances Functionality, Durability, Aesthetics, And Cost",
+                        "included": true
+                    },
+                    {
+                        "text": "Ultra-realistic 3D images Realistic 3D Renders showinghigh resolution details of your design",
+                        "included": true
+                    },
+                    {
+                        "text": "Working drawings Up to 12 detailed 2D working drawings for execution",
+                        "included": true
+                    },
+                    {
+                        "text": "360-Degree Project View Stunning 4K resolution view of the entire space and its surroundings",
+                        "included": true
+                    },
+                    {
+                        "text": "Landscaping Design Beautiful and functional outdoor spaces by integrating plants, hardscapes, and lighting.",
+                        "included": true
+                    },
+                    {
+                        "text": "Landscaping Design Beautiful and functional outdoor spaces by integrating plants, hardscapes, and lighting.",
+                        "included": true
+                    },
+                    {
+                        "text": "Flexible Payment Option: Pay only 25% upfront to start.",
+                        "included": true
+                    },
+                    {
+                        "text": "Revisions: Upto two free revisions",
+                        "included": true
+                    }
+                ]
+            }
+        ]
+    },
+    "styles": {
+        "smallTitle": "OUR STYLES",
+        "mainTitle": {
+            "normal": "Get Inspired with Our",
+            "highlight": "Designs"
+        },
+        "cta": "See Our Portfolio",
+        "list": [
+            {
+                "title": "Zen Style",
+                "image": "/zenStyle.webp"
+            },
+            {
+                "title": "Neo classic",
+                "image": "/neoClssic.webp"
+            },
+            {
+                "title": "Mid Century Style",
+                "image": "/midCentry.webp"
+            }
+        ]
+    },
+    "footer": {
+        "description": "Atlantis is a leading interior design platform in Saudi Arabia, offering modern bedroom designs, luxury villa décor, and practical apartment solutions online.",
+        "useful": {
+            "title": "Useful Links",
+            "links": [
+                {
+                    "name": "Home",
+                    "url": "/"
+                },
+                {
+                    "name": "How it Works",
+                    "url": "/how-it-works"
+                },
+                {
+                    "name": "About us",
+                    "url": "/about-us"
+                },
+                {
+                    "name": "Shop",
+                    "url": "/shop"
+                },
+                {
+                    "name": "Plans & Prices",
+                    "url": "/pricing-plans"
+                },
+                {
+                    "name": "Contact us",
+                    "url": "/contact-us"
+                }
+            ]
+        },
+        "company": {
+            "title": "Company News",
+            "links": [
+                {
+                    "name": "Blog",
+                    "url": "/blog"
+                },
+                {
+                    "name": "FAQ",
+                    "url": "/faqs"
+                },
+                {
+                    "name": "Privacy Policy",
+                    "url": "/privacy-policy"
+                },
+                {
+                    "name": "Terms & Conditions",
+                    "url": "/terms-and-condition"
+                }
+            ]
+        },
+        "subscribe": {
+            "heading": "Subscribe now and let your space reflect your style with Atlantis.",
+            "desc": "Discover why our clients always choose us first.",
+            "placeholder": "Enter Email address",
+            "button": "Subscribe",
+            "payment": "Payment Methods"
+        },
+        "copyright": "All Rights Reserved"
+    },
+    "portfolio": {
+        "tabs": {
+            "modern": "Modern",
+            "boho": "Boho",
+            "industrial": "Industrial",
+            "midcentury": "Mid Century",
+            "classic": "Modern Classic",
+            "zen": "Zen"
+        },
+        "sections": {
+            "boho": {
+                "title": "Boho Style",
+                "description": "Discover our Bohemian designs, where bold colors and natural materials blend to create a cozy, inviting space that promotes relaxation.",
+                "button": "Start Your Project",
+                "heroImg": "/portfolio/tabs/boho.png",
+                "materialsTitle": "Materials",
+                "composition": "Composition",
+                "elements": "Elements",
+                "materials": [
+                    {
+                        "name": "Planets",
+                        "img": "/elements/plants.png"
+                    },
+                    {
+                        "name": "Rattan",
+                        "img": "/elements/ratan.png"
+                    },
+                    {
+                        "name": "Dried Flowers",
+                        "img": "/elements/dried-flowers.png"
+                    },
+                    {
+                        "name": "Wood",
+                        "img": "/elements/wood.png"
+                    },
+                    {
+                        "name": "Design Fonts",
+                        "img": "/elements/design-fonts.png"
+                    },
+                    {
+                        "name": "Fabrics",
+                        "img": "/elements/fabrics.png"
+                    },
+                    {
+                        "name": "Carpets",
+                        "img": "/elements/carpets.png"
+                    }
+                ]
+            },
+            "modern": {
+                "title": "Modern Style",
+                "description": "Clean lines, minimal décor, and sleek materials create a sophisticated and functional living environment.",
+                "button": "Explore Designs",
+                "heroImg": "/modern.jpg",
+                "materialsTitle": "Materials",
+                "composition": "Composition",
+                "elements": "Elements",
+                "materials": [
+                    {
+                        "name": "Planets",
+                        "img": "/elements/plants.png"
+                    },
+                    {
+                        "name": "Rattan",
+                        "img": "/elements/ratan.png"
+                    },
+                    {
+                        "name": "Dried Flowers",
+                        "img": "/elements/dried-flowers.png"
+                    },
+                    {
+                        "name": "Wood",
+                        "img": "/elements/wood.png"
+                    },
+                    {
+                        "name": "Design Fonts",
+                        "img": "/elements/design-fonts.png"
+                    },
+                    {
+                        "name": "Fabrics",
+                        "img": "/elements/fabrics.png"
+                    },
+                    {
+                        "name": "Carpets",
+                        "img": "/elements/carpets.png"
+                    }
+                ]
+            },
+            "industrial": {
+                "title": "Industrial Style",
+                "description": "Inspired by old factories and warehouses, this style combines raw materials, exposed structures, and a bold character.",
+                "button": "Start Industrial Project",
+                "heroImg": "/industrial.webp",
+                "materialsTitle": "Materials",
+                "composition": "Composition",
+                "elements": "Elements",
+                "materials": [
+                    {
+                        "name": "Planets",
+                        "img": "/elements/plants.png"
+                    },
+                    {
+                        "name": "Rattan",
+                        "img": "/elements/ratan.png"
+                    },
+                    {
+                        "name": "Dried Flowers",
+                        "img": "/elements/dried-flowers.png"
+                    },
+                    {
+                        "name": "Wood",
+                        "img": "/elements/wood.png"
+                    },
+                    {
+                        "name": "Design Fonts",
+                        "img": "/elements/design-fonts.png"
+                    },
+                    {
+                        "name": "Fabrics",
+                        "img": "/elements/fabrics.png"
+                    },
+                    {
+                        "name": "Carpets",
+                        "img": "/elements/carpets.png"
+                    }
+                ]
+            },
+            "midcentury": {
+                "title": "Mid Century Style",
+                "description": "A nostalgic return to the 1950s and 60s, featuring organic shapes, warm wood tones, and statement furniture pieces.",
+                "button": "Start Your Design",
+                "heroImg": "/midCentury.webp",
+                "materialsTitle": "Materials",
+                "composition": "Composition",
+                "elements": "Elements",
+                "materials": [
+                    {
+                        "name": "Planets",
+                        "img": "/elements/plants.png"
+                    },
+                    {
+                        "name": "Rattan",
+                        "img": "/elements/ratan.png"
+                    },
+                    {
+                        "name": "Dried Flowers",
+                        "img": "/elements/dried-flowers.png"
+                    },
+                    {
+                        "name": "Wood",
+                        "img": "/elements/wood.png"
+                    },
+                    {
+                        "name": "Design Fonts",
+                        "img": "/elements/design-fonts.png"
+                    },
+                    {
+                        "name": "Fabrics",
+                        "img": "/elements/fabrics.png"
+                    },
+                    {
+                        "name": "Carpets",
+                        "img": "/elements/carpets.png"
+                    }
+                ]
+            },
+            "classic": {
+                "title": "Modern Classic",
+                "description": "A timeless blend of traditional elegance and contemporary luxury, highlighting balance and symmetry.",
+                "button": "Get Inspired",
+                "heroImg": "/portfolio/tabs/modern-classic.png",
+                "materialsTitle": "Materials",
+                "composition": "Composition",
+                "elements": "Elements",
+                "materials": [
+                    {
+                        "name": "Planets",
+                        "img": "/elements/plants.png"
+                    },
+                    {
+                        "name": "Rattan",
+                        "img": "/elements/ratan.png"
+                    },
+                    {
+                        "name": "Dried Flowers",
+                        "img": "/elements/dried-flowers.png"
+                    },
+                    {
+                        "name": "Wood",
+                        "img": "/elements/wood.png"
+                    },
+                    {
+                        "name": "Design Fonts",
+                        "img": "/elements/design-fonts.png"
+                    },
+                    {
+                        "name": "Fabrics",
+                        "img": "/elements/fabrics.png"
+                    },
+                    {
+                        "name": "Carpets",
+                        "img": "/elements/carpets.png"
+                    }
+                ]
+            },
+            "zen": {
+                "title": "Zen Style",
+                "description": "Minimal, calm, and harmonious — Zen interiors use natural materials and soft lighting to promote serenity.",
+                "button": "Start Peaceful Design",
+                "heroImg": "/portfolio/tabs/zen-style.png",
+                "materialsTitle": "Materials",
+                "composition": "Composition",
+                "elements": "Elements",
+                "materials": [
+                    {
+                        "name": "Planets",
+                        "img": "/elements/plants.png"
+                    },
+                    {
+                        "name": "Rattan",
+                        "img": "/elements/ratan.png"
+                    },
+                    {
+                        "name": "Dried Flowers",
+                        "img": "/elements/dried-flowers.png"
+                    },
+                    {
+                        "name": "Wood",
+                        "img": "/elements/wood.png"
+                    },
+                    {
+                        "name": "Design Fonts",
+                        "img": "/elements/design-fonts.png"
+                    },
+                    {
+                        "name": "Fabrics",
+                        "img": "/elements/fabrics.png"
+                    },
+                    {
+                        "name": "Carpets",
+                        "img": "/elements/carpets.png"
+                    }
+                ]
+            }
+        }
+    },
+    "contactus": {
+        "smallTitle": "CONTACT US",
+        "mainTitle": "Contact us to get a solution for your design needs.",
+        "form": {
+            "name": "Name",
+            "email": "Email",
+            "subject": "Subject",
+            "message": "Your Message",
+            "button": "Send"
+        }
+    },
+    "blog": {
+        "section": {
+            "heroImage": "/hero.jpg",
+            "mainTitle": "Transforming Spaces: A Case Study on Lina’s Urban Oasis in Riyadh, Saudi Arabia",
+            "tag": "Our Blog",
+            "title": "Recent Stories"
+        },
+        "posts": [
+            {
+                "title": "The Convenience Of Virtual Services: How Online Interior Design Services Save Time And Money",
+                "date": "7/8/2024",
+                "img": "/blog-img.png"
+            },
+            {
+                "title": "How Much Does A Bathroom Renovation Cost? Your Expert Guide To Making The Most Of Your Budget",
+                "date": "7/8/2024",
+                "img": "/blog-img.png"
+            },
+            {
+                "title": "How Much Does A Bathroom Renovation Cost? Your Expert Guide To Making The Most Of Your Budget",
+                "date": "7/8/2024",
+                "img": "/blog-img.png"
+            },
+            {
+                "title": "How Much Does A Bathroom Renovation Cost? Your Expert Guide To Making The Most Of Your Budget",
+                "date": "7/8/2024",
+                "img": "/blog-img.png"
+            },
+            {
+                "title": "How Much Does A Bathroom Renovation Cost? Your Expert Guide To Making The Most Of Your Budget",
+                "date": "7/8/2024",
+                "img": "/blog-img.png"
+            },
+            {
+                "title": "How Much Does A Bathroom Renovation Cost? Your Expert Guide To Making The Most Of Your Budget",
+                "date": "7/8/2024",
+                "img": "/blog-img.png"
+            },
+            {
+                "title": "How Much Does A Bathroom Renovation Cost? Your Expert Guide To Making The Most Of Your Budget",
+                "date": "7/8/2024",
+                "img": "/blog-img.png"
+            },
+            {
+                "title": "How Much Does A Bathroom Renovation Cost? Your Expert Guide To Making The Most Of Your Budget",
+                "date": "7/8/2024",
+                "img": "/blog-img.png"
+            },
+            {
+                "title": "How Much Does A Bathroom Renovation Cost? Your Expert Guide To Making The Most Of Your Budget",
+                "date": "7/8/2024",
+                "img": "/blog-img.png"
+            }
+        ]
+    },
+    "blogDetails": {
+        "category": "Before & After:",
+        "title": "Joyful Dopamine Decorating",
+        "date": "7/19/2024",
+        "image": "/blog-img.png",
+        "content": [
+            {
+                "type": "paragraph",
+                "text": "Ever wondered about the bathroom renovation cost and how to get the most value for your money? Our latest guide breaks down the expenses and offers savvy tips to maximize your budget. Let’s break down the expenses and discover how to budget for your dream space."
+            },
+            {
+                "type": "heading",
+                "text": "When planning a bathroom remodel"
+            },
+            {
+                "type": "paragraph",
+                "text": "It’s crucial to understand where your money will go. Here are the major expense areas to consider."
+            },
+            {
+                "type": "list",
+                "items": [
+                    "Designing: The average cost of hiring a professional designer ranges from $50 to $200 per hour. You can also opt for flexible services that offer flat-rate affordable design packages.",
+                    "Demolition: The cost of bathroom demolition is often overlooked but necessary for any major renovation. It’s crucial to work with professionals to remove old fixtures and materials safely.",
+                    "Materials: It’s wise to shop around and compare prices to find the best deals without compromising on quality. Additionally, consider the longevity and durability of materials to ensure your investment lasts."
+                ]
+            },
+            {
+                "type": "image",
+                "src": "/hero.jpg",
+                "alt": "Bathroom design layout"
+            },
+            {
+                "type": "heading",
+                "text": "Joyful Dopamine Decorating"
+            },
+            {
+                "type": "paragraph",
+                "text": "Ever wondered about the bathroom renovation cost and how to get the most value for your money? Our latest guide breaks down the expenses and offers savvy tips to maximize your budget. Let’s break down the expenses and discover how to budget for your dream space."
+            },
+            {
+                "type": "list",
+                "items": [
+                    "Designing: The average cost of hiring a professional designer ranges from $50 to $200 per hour. You can also opt for flexible services that offer flat-rate affordable design packages.",
+                    "Demolition: The cost of bathroom demolition is often overlooked but necessary for any major renovation. It’s crucial to work with professionals to remove old fixtures and materials safely.",
+                    "Materials: It’s wise to shop around and compare prices to find the best deals without compromising on quality. Additionally, consider the longevity and durability of materials to ensure your investment lasts."
+                ]
+            }
+        ]
+    },
+    "startproject": {
+        "backgroundImage": "/hero.jpg",
+        "mainTitle": "Start Your Interior Design Project",
+        "subtitle": "Choose the type of property you want to design.",
+        "kinds": [
+            {
+                "title": "Room",
+                "subtitle": "Perfect for redesigning individual spaces.",
+                "image": "/room.jpg",
+                "name": "room"
+            },
+            {
+                "title": "Villa",
+                "subtitle": "Ideal for full-scale luxury home design.",
+                "image": "/villa.jpg",
+                "name": "villa"
+            },
+            {
+                "title": "Apartment",
+                "subtitle": "Smart and beautiful designs for apartments of any size.",
+                "image": "/apartment.jpg",
+                "name": "apartment"
+            }
+        ]
+    },
+    "roomSteps": {
+        "kindImage": "/room.jpg",
+        "introTitle": "Your project",
+        "introSubtitle": "You can choose your preferred design type and we can combine more than one type to suit your needs, which we will discuss in detail in the initial consultation with our designers.",
+        "steps": [
+            {
+                "title": "What design is best for you for this space?",
+                "options": [
+                    {
+                        "cardTitle": "Modern",
+                        "cardDescription": "",
+                        "cardImageUrl": "/modern.jpg",
+                        "cardName": "modern"
+                    },
+                    {
+                        "cardTitle": "ZEN",
+                        "cardDescription": "",
+                        "cardImageUrl": "/zen.jpg",
+                        "cardName": "zen"
+                    },
+                    {
+                        "cardTitle": "Boho",
+                        "cardDescription": "",
+                        "cardImageUrl": "/boho.jpg",
+                        "cardName": "boho"
+                    },
+                    {
+                        "cardTitle": "Industrial",
+                        "cardDescription": "",
+                        "cardImageUrl": "/industrial.jpg",
+                        "cardName": "industrial"
+                    },
+                    {
+                        "cardTitle": "Mid Century",
+                        "cardDescription": "",
+                        "cardImageUrl": "/midcentruy.jpg",
+                        "cardName": "midcentury"
+                    },
+                    {
+                        "cardTitle": "Modern Classic",
+                        "cardDescription": "",
+                        "cardImageUrl": "/modern-classic.jpg",
+                        "cardName": "modern-classic"
+                    }
+                ]
+            },
+            {
+                "title": "Is the architectural plan available?",
+                "options": [
+                    {
+                        "cardTitle": "No",
+                        "cardDescription": "I need to measure room",
+                        "cardDescription2": "(Additional fee is 199 SAR/Room)",
+                        "cardName": "no"
+                    },
+                    {
+                        "cardTitle": "Yes",
+                        "cardDescription": "Please Upload the File",
+                        "cardName": "yes"
+                    }
+                ]
+            },
+            {
+                "title": "Define your needs in the specified space?",
+                "options": [
+                    {
+                        "cardTitle": "Bed",
+                        "cardDescription": "",
+                        "cardImageUrl": "/bedroom.jpg",
+                        "cardName": "bed"
+                    },
+                    {
+                        "cardTitle": "Desk Drawer",
+                        "cardDescription": "",
+                        "cardImageUrl": "/dining.jpg",
+                        "cardName": "desk"
+                    },
+                    {
+                        "cardTitle": "Office",
+                        "cardDescription": "",
+                        "cardImageUrl": "/office.jpg",
+                        "cardName": "office"
+                    },
+                    {
+                        "cardTitle": "Sofa",
+                        "cardDescription": "",
+                        "cardImageUrl": "/mixed.jpg",
+                        "cardName": "sofa"
+                    },
+                    {
+                        "cardTitle": "Television",
+                        "cardDescription": "",
+                        "cardImageUrl": "/classic.jpg",
+                        "cardName": "television"
+                    },
+                    {
+                        "cardTitle": "Studio",
+                        "cardDescription": "",
+                        "cardImageUrl": "/hero.jpg",
+                        "cardName": "studio"
+                    }
+                ]
+            }
+        ],
+        "finalSteps": [
+            {
+                "title": "When do you want this done?",
+                "selectPlaceholder": "Select timeline",
+                "options": [
+                    {
+                        "label": "7 to 8 Days",
+                        "value": "7to8"
+                    },
+                    {
+                        "label": "Within a Month",
+                        "value": "month"
+                    },
+                    {
+                        "label": "1 to 3 Months",
+                        "value": "1to3"
+                    },
+                    {
+                        "label": "Another",
+                        "value": "another"
+                    }
+                ]
+            },
+            {
+                "title": "What is your budget?",
+                "selectPlaceholder": "Select budget",
+                "options": [
+                    {
+                        "label": "Less than 9000 SAR",
+                        "value": "lt9000"
+                    },
+                    {
+                        "label": "Between 9,000 SAR to 15,000 SAR",
+                        "value": "9to15"
+                    },
+                    {
+                        "label": "Between 15,000 SAR to 25,000 SAR",
+                        "value": "15to25"
+                    },
+                    {
+                        "label": "Above 25,000 SAR",
+                        "value": "gt25000"
+                    }
+                ]
+            }
+        ],
+        "submitLabel": "Proceed"
+    },
+    "villaSteps": {
+        "kindImage": "/villa.jpg",
+        "introTitle": "Your project",
+        "introSubtitle": "You can choose your preferred design type and we can combine more than one type to suit your needs, which we will discuss in detail in the initial consultation with our designers.",
+        "steps": [
+            {
+                "title": "What design is best for you for this villa?",
+                "options": [
+                    {
+                        "cardTitle": "Modern",
+                        "cardDescription": "",
+                        "cardImageUrl": "/modern.jpg",
+                        "cardName": "modern"
+                    },
+                    {
+                        "cardTitle": "ZEN",
+                        "cardDescription": "",
+                        "cardImageUrl": "/zen.jpg",
+                        "cardName": "zen"
+                    },
+                    {
+                        "cardTitle": "Boho",
+                        "cardDescription": "",
+                        "cardImageUrl": "/boho.jpg",
+                        "cardName": "boho"
+                    },
+                    {
+                        "cardTitle": "Industrial",
+                        "cardDescription": "",
+                        "cardImageUrl": "/industrial.jpg",
+                        "cardName": "industrial"
+                    },
+                    {
+                        "cardTitle": "Mid Century",
+                        "cardDescription": "",
+                        "cardImageUrl": "/midcentruy.jpg",
+                        "cardName": "midcentury"
+                    },
+                    {
+                        "cardTitle": "Modern Classic",
+                        "cardDescription": "",
+                        "cardImageUrl": "/modern-classic.jpg",
+                        "cardName": "modern-classic"
+                    }
+                ]
+            },
+            {
+                "title": "Is the architectural plan available?",
+                "options": [
+                    {
+                        "cardTitle": "No",
+                        "cardDescription": "I need to measure villa layout",
+                        "cardDescription2": "(Additional fee applies per area)",
+                        "cardName": "no"
+                    },
+                    {
+                        "cardTitle": "Yes",
+                        "cardDescription": "Please upload the floor plan",
+                        "cardName": "yes"
+                    }
+                ]
+            },
+            {
+                "title": "Define your needs in this villa",
+                "options": [
+                    {
+                        "cardTitle": "Majlis",
+                        "cardImageUrl": "/living.jpg",
+                        "cardName": "majlis"
+                    },
+                    {
+                        "cardTitle": "Guest Room",
+                        "cardImageUrl": "/room.jpg",
+                        "cardName": "guestroom"
+                    },
+                    {
+                        "cardTitle": "Outdoor Area",
+                        "cardImageUrl": "/hero.jpg",
+                        "cardName": "outdoor"
+                    },
+                    {
+                        "cardTitle": "Living Room",
+                        "cardImageUrl": "/living.jpg",
+                        "cardName": "living"
+                    },
+                    {
+                        "cardTitle": "Family Hall",
+                        "cardImageUrl": "/dining.jpg",
+                        "cardName": "familyhall"
+                    },
+                    {
+                        "cardTitle": "Home Office",
+                        "cardImageUrl": "/mixed.jpg",
+                        "cardName": "office"
+                    }
+                ]
+            }
+        ],
+        "finalSteps": [
+            {
+                "title": "When do you want this done?",
+                "selectPlaceholder": "Select timeline",
+                "options": [
+                    {
+                        "label": "2 to 4 Weeks",
+                        "value": "2to4"
+                    },
+                    {
+                        "label": "1 to 2 Months",
+                        "value": "1to2m"
+                    },
+                    {
+                        "label": "3 to 6 Months",
+                        "value": "3to6m"
+                    },
+                    {
+                        "label": "Another",
+                        "value": "another"
+                    }
+                ]
+            },
+            {
+                "title": "What is your budget?",
+                "selectPlaceholder": "Select budget",
+                "options": [
+                    {
+                        "label": "Less than 20,000 SAR",
+                        "value": "lt20000"
+                    },
+                    {
+                        "label": "20,000 - 50,000 SAR",
+                        "value": "20to50"
+                    },
+                    {
+                        "label": "50,000 - 100,000 SAR",
+                        "value": "50to100"
+                    },
+                    {
+                        "label": "Above 100,000 SAR",
+                        "value": "gt100"
+                    }
+                ]
+            }
+        ],
+        "submitLabel": "Proceed"
+    },
+    "apartmentSteps": {
+        "kindImage": "/apartment.jpg",
+        "introTitle": "Your project",
+        "introSubtitle": "You can choose your preferred design type and we can combine more than one type to suit your needs.",
+        "steps": [
+            {
+                "title": "What design is best for your apartment?",
+                "options": [
+                    {
+                        "cardTitle": "Modern",
+                        "cardDescription": "",
+                        "cardImageUrl": "/modern.jpg",
+                        "cardName": "modern"
+                    },
+                    {
+                        "cardTitle": "ZEN",
+                        "cardDescription": "",
+                        "cardImageUrl": "/zen.jpg",
+                        "cardName": "zen"
+                    },
+                    {
+                        "cardTitle": "Boho",
+                        "cardDescription": "",
+                        "cardImageUrl": "/boho.jpg",
+                        "cardName": "boho"
+                    },
+                    {
+                        "cardTitle": "Industrial",
+                        "cardDescription": "",
+                        "cardImageUrl": "/industrial.jpg",
+                        "cardName": "industrial"
+                    },
+                    {
+                        "cardTitle": "Mid Century",
+                        "cardDescription": "",
+                        "cardImageUrl": "/midcentruy.jpg",
+                        "cardName": "midcentury"
+                    },
+                    {
+                        "cardTitle": "Modern Classic",
+                        "cardDescription": "",
+                        "cardImageUrl": "/modern-classic.jpg",
+                        "cardName": "modern-classic"
+                    }
+                ]
+            },
+            {
+                "title": "Is the architectural plan available?",
+                "options": [
+                    {
+                        "cardTitle": "No",
+                        "cardDescription": "I need to measure the apartment layout",
+                        "cardDescription2": "(Additional fee applies)",
+                        "cardName": "no"
+                    },
+                    {
+                        "cardTitle": "Yes",
+                        "cardDescription": "Please upload the plan",
+                        "cardName": "yes"
+                    }
+                ]
+            },
+            {
+                "title": "Define your needs in this apartment",
+                "options": [
+                    {
+                        "cardTitle": "Living Area",
+                        "cardImageUrl": "/living.jpg",
+                        "cardName": "living"
+                    },
+                    {
+                        "cardTitle": "Bedroom",
+                        "cardImageUrl": "/bedroom.jpg",
+                        "cardName": "bedroom"
+                    },
+                    {
+                        "cardTitle": "Work Corner",
+                        "cardImageUrl": "/office.jpg",
+                        "cardName": "workcorner"
+                    },
+                    {
+                        "cardTitle": "Dining",
+                        "cardImageUrl": "/dining.jpg",
+                        "cardName": "dining"
+                    },
+                    {
+                        "cardTitle": "Storage",
+                        "cardImageUrl": "/room.jpg",
+                        "cardName": "storage"
+                    },
+                    {
+                        "cardTitle": "TV Wall",
+                        "cardImageUrl": "/mixed.jpg",
+                        "cardName": "tvwall"
+                    }
+                ]
+            }
+        ],
+        "finalSteps": [
+            {
+                "title": "When do you want this done?",
+                "selectPlaceholder": "Select timeline",
+                "options": [
+                    {
+                        "label": "1 to 2 Weeks",
+                        "value": "1to2w"
+                    },
+                    {
+                        "label": "2 to 4 Weeks",
+                        "value": "2to4w"
+                    },
+                    {
+                        "label": "1 to 2 Months",
+                        "value": "1to2m"
+                    },
+                    {
+                        "label": "Another",
+                        "value": "another"
+                    }
+                ]
+            },
+            {
+                "title": "What is your budget?",
+                "selectPlaceholder": "Select budget",
+                "options": [
+                    {
+                        "label": "Less than 10,000 SAR",
+                        "value": "lt10000"
+                    },
+                    {
+                        "label": "10,000 - 18,000 SAR",
+                        "value": "10to18"
+                    },
+                    {
+                        "label": "18,000 - 30,000 SAR",
+                        "value": "18to30"
+                    },
+                    {
+                        "label": "Above 30,000 SAR",
+                        "value": "gt30000"
+                    }
+                ]
+            }
+        ],
+        "submitLabel": "Proceed"
+    },
+    "shop": {
+        "pageTitle": "Shop Interior",
+        "pageSubtitle": "Curated collection of modern furniture & decor.",
+        "filters": {
+            "title": "Filters",
+            "categories": "Category",
+            "priceRange": "Price Range",
+            "material": "Material",
+            "color": "Color",
+            "inStock": "In Stock Only",
+            "applyFilters": "Apply Filters",
+            "clearFilters": "Clear All Filters"
+        },
+        "sorting": {
+            "label": "Sort By",
+            "options": {
+                "newest": "Newest Arrivals",
+                "priceLowHigh": "Price: Low to High",
+                "priceHighLow": "Price: High to Low"
+            }
+        },
+        "emptyState": {
+            "title": "No products found",
+            "description": "We couldn't find any items matching your current filters. Try adjusting your search criteria.",
+            "clearFiltersBtn": "Clear all filters"
+        },
+        "mobile": {
+            "openFilters": "Filters",
+            "closeFilters": "Close Filters"
+        }
+    },
+    "services": {
+        "mainTitle": "Turn your vision into reality with Atlantis’ expert touch.",
+        "button": "Contact us",
+        "items": [
+            {
+                "title": "Virtual tour",
+                "description": "Modern My Sessions Our Japanese Zen design ideas feature calm colors, simplicity, and modernity, creating a serene space perfect for relaxation and meditation. Start Your",
+                "image": "/servicesVirtual.webp"
+            },
+            {
+                "title": "Natural landscapes",
+                "description": "Our landscape design services blend creativity with functionality. From gardens to outdoor spaces, Atlantis designs sustainable landscapes that reflect Saudi Arabia’s modern lifestyle while adding",
+                "image": "/servicesLandscape.jpg"
+            },
+            {
+                "title": "Furniture services",
+                "description": "Modern My Sessions Atlantis offers customized furniture solutions tailored to your style and space. We provide modern, practical, and elegant furniture designs that elevate interiors",
+                "image": "/servicesFurniture.webp"
+            },
+            {
+                "title": "Finishing",
+                "description": "Modern My Sessions Atlantis delivers impeccable project finishing, ensuring every detail is perfected. Our expert team provides high-quality results that meet Saudi standards and elevate",
+                "image": "/servicesFinishing.jpg"
+            },
+            {
+                "title": "Exterior design",
+                "description": "Modern My Sessions From facades to outdoor living, Atlantis delivers exterior designs that are modern, sustainable, and aligned with Saudi Arabia’s architectural vision. Enhance curb",
+                "image": "/servicesExterior.jpg"
+            },
+            {
+                "title": "Interior design",
+                "description": "Modern My Sessions Our interior design service transforms ideas into reality with a modern Saudi touch. Atlantis combines functionality, elegance, and culture to create interiors",
+                "image": "/servicesInterior.webp"
+            }
+        ]
+    },
+    "solutions": {
+        "smallTitle": "Our Solutions",
+        "mainTitle": "Why We Are The Best Choice",
+        "button": "Start Your Project",
+        "items": [
+            {
+                "icon": "/oursolutionicon1.png",
+                "title": "Creative Solutions",
+                "description": "Our services are at the forefront of innovation, providing fresh and effective approaches to design."
+            },
+            {
+                "icon": "/oursolutionicon2.png",
+                "title": "Tailored Packages",
+                "description": "We offer quick-to-purchase packages customized to your needs, designed for an easy decision-making process."
+            },
+            {
+                "icon": "/oursolutionicon3.png",
+                "title": "Experience-Driven Design",
+                "description": "We provide multiple ways to transform your design into a meaningful and enjoyable experience."
+            },
+            {
+                "icon": "/oursolutionicon4.png",
+                "title": "Flexible Upgrades",
+                "description": "Each service package includes options for upgrading project delivery, ensuring you get exactly what you envision."
+            },
+            {
+                "icon": "/oursolutionicon5.png",
+                "title": "Professional Operations",
+                "description": "Our operations are handled with the utmost professionalism, with our team acting as your project manager throughout every stage."
+            },
+            {
+                "icon": "/oursolutionicon6.png",
+                "title": "Lasting Impact",
+                "description": "We are committed to making your house a lasting home that brings a smile to your face every day."
+            }
+        ]
+    },
+    "ourprojects": {
+        "hero": {
+            "image": "/portfolio/tabs/boho.png",
+            "title": "Explore our Curated Portfolio",
+            "description": "Discover our collection to effortlessly visualize and craft your space that perfectly suits your needs.",
+            "button": "Start Your Project"
+        },
+        "section": {
+            "smallTitle": "Our Portfolio",
+            "mainTitle": "Choose One to Start Exploring"
+        },
+        "items": [
+            {
+                "title": "Roof and Outdoor Spaces",
+                "image": "/living2.jpg"
+            },
+            {
+                "title": "Business Project",
+                "image": "/portfolio/office2.webp"
+            },
+            {
+                "title": "Villa",
+                "image": "/living1.jpg"
+            },
+            {
+                "title": "Flat",
+                "image": "/portfolio/living2.webp"
+            }
+        ],
+        "allprojects": {
+            "smallTitle": "Our Projects",
+            "mainTitle": "Imagine The Possibilities For Your Home",
+            "filterLabel": "All Projects",
+            "filterButton": "Filter",
+            "projects": [
+                {
+                    "title": "Zen Style",
+                    "description": "Zen style is a Japanese-inspired design that emphasizes simplicity, natural",
+                    "image": "/zenStyle.webp",
+                    "link": "/portfolio?tab=zen"
+                },
+                {
+                    "title": "Neo Classic",
+                    "description": "Neo-classic style blends classical design elements with modern touches, creating",
+                    "image": "/neoClssic.webp",
+                    "link": "/portfolio?tab=classic"
+                },
+                {
+                    "title": "Mid Century Style",
+                    "description": "Mid-century style, originating in the mid-20th century, is known for",
+                    "image": "/midCentry.webp",
+                    "link": "/portfolio?tab=midcentry"
+                },
+                {
+                    "title": "Industrial Style",
+                    "description": "Explore our industrial design ideas, inspired by brave character, to",
+                    "image": "/industrial.webp",
+                    "link": "/portfolio?tab=industrial"
+                },
+                {
+                    "title": "Boho Style",
+                    "description": "Boho, short for “bohemian,” is an interior design style that",
+                    "image": "/boho.webp",
+                    "link": "/portfolio?tab=boho"
+                },
+                {
+                    "title": "Modern Style",
+                    "description": "Modern interior design embodies renewal and sophistication, blending sleek aesthetics",
+                    "image": "/modern.webp",
+                    "link": "/portfolio?tab=modern"
+                }
+            ]
+        }
+    },
+    "packages": {
+        "heading": "Select your package",
+        "recommended": "Recommended",
+        "perRoom": "/ Room",
+        "select": "Select",
+        "selected": "Selected",
+        "list": [
+            {
+                "title": "Basic Package",
+                "price": "299 SAR",
+                "oldPrice": "500 SAR",
+                "recommended": false,
+                "features": [
+                    {
+                        "text": "The mood and taste of the customer",
+                        "included": true
+                    },
+                    {
+                        "text": "Architectural plan and furniture distribution",
+                        "included": true
+                    },
+                    {
+                        "text": "Coordinating décor with furniture pieces",
+                        "included": true
+                    },
+                    {
+                        "text": "Follow up with the designers team",
+                        "included": true
+                    },
+                    {
+                        "text": "Design a 3D model",
+                        "included": false
+                    },
+                    {
+                        "text": "360° virtual tour to see the details",
+                        "included": false
+                    },
+                    {
+                        "text": "2 modifications to the 3D design",
+                        "included": false
+                    }
+                ]
+            },
+            {
+                "title": "Standard Package",
+                "price": "499 SAR",
+                "oldPrice": "800 SAR",
+                "recommended": true,
+                "features": [
+                    {
+                        "text": "The mood and taste of the customer",
+                        "included": true
+                    },
+                    {
+                        "text": "Architectural plan and furniture distribution",
+                        "included": true
+                    },
+                    {
+                        "text": "Coordinating décor with furniture pieces",
+                        "included": true
+                    },
+                    {
+                        "text": "Follow up with the designers team",
+                        "included": true
+                    },
+                    {
+                        "text": "Design a 3D model",
+                        "included": true
+                    },
+                    {
+                        "text": "360° virtual tour to see the details",
+                        "included": true
+                    },
+                    {
+                        "text": "2 modifications to the 3D design",
+                        "included": false
+                    }
+                ]
+            },
+            {
+                "title": "Premium Package",
+                "price": "899 SAR",
+                "oldPrice": "1500 SAR",
+                "recommended": false,
+                "features": [
+                    {
+                        "text": "The mood and taste of the customer",
+                        "included": true
+                    },
+                    {
+                        "text": "Architectural plan and furniture distribution",
+                        "included": true
+                    },
+                    {
+                        "text": "Coordinating décor with furniture pieces",
+                        "included": true
+                    },
+                    {
+                        "text": "Follow up with the designers team",
+                        "included": true
+                    },
+                    {
+                        "text": "Design a 3D model",
+                        "included": true
+                    },
+                    {
+                        "text": "360° virtual tour to see the details",
+                        "included": true
+                    },
+                    {
+                        "text": "2 modifications to the 3D design",
+                        "included": true
+                    }
+                ]
+            }
+        ]
+    },
+    "ordersummary": {
+        "title": "Order Summary",
+        "summary": [
+            {
+                "label": "Room Type",
+                "value": "Living Room"
+            },
+            {
+                "label": "Design Style",
+                "value": "Modern Zen"
+            },
+            {
+                "label": "Do you have an architectural plan?",
+                "value": "Yes"
+            },
+            {
+                "label": "Furniture Items",
+                "value": "Bed and Drawer"
+            },
+            {
+                "label": "Need Custom 3D Model?",
+                "value": "Yes"
+            },
+            {
+                "label": "Project Duration",
+                "value": "Within a Month"
+            },
+            {
+                "label": "Budget Range",
+                "value": "Between 9,000 SAR to 15,000 SAR"
+            }
+        ],
+        "amount": "Amount",
+        "amountValue": "65.00 SAR",
+        "tax": "TAX",
+        "taxValue": "65.00 SAR",
+        "total": "Order Total",
+        "totalValue": "499 SAR",
+        "checkout": "Checkout"
+    },
+    "checkout": {
+        "invoice": {
+            "title": "Invoice Details",
+            "first": "First Name",
+            "last": "Last Name",
+            "firstPlaceholder": "Name",
+            "lastPlaceholder": "Name",
+            "location": "Location",
+            "locationPlaceholder": "Street / City",
+            "phone": "Phone",
+            "phonePlaceholder": "Phone Number",
+            "email": "Email",
+            "emailPlaceholder": "Email"
+        },
+        "additional": {
+            "title": "Additional Information",
+            "label": "Notes",
+            "placeholder": "Write any notes or instructions..."
+        },
+        "summary": {
+            "title": "Order Summary",
+            "items": [
+                "Living Room",
+                "Modern Zen",
+                "Yes",
+                "Bed and Drawer",
+                "Yes",
+                "Within a Month",
+                "Between 9,000 SAR to 15,000 SAR"
+            ],
+            "amount": "Amount",
+            "amountValue": "65.00 SAR",
+            "tax": "TAX",
+            "taxValue": "65.00 SAR",
+            "total": "Order Total",
+            "totalValue": "499 SAR"
+        },
+        "payment": {
+            "title": "Choose a Payment Method",
+            "methods": [
+                {
+                    "id": "bank",
+                    "name": "Bank Transfer",
+                    "icon": "/bank-transfer.png"
+                },
+                {
+                    "id": "mada",
+                    "name": "Mada",
+                    "icon": "/madapay.png"
+                },
+                {
+                    "id": "visa",
+                    "name": "Credit Card",
+                    "icon": "/visa.png"
+                },
+                {
+                    "id": "stc",
+                    "name": "Stc Pay",
+                    "icon": "/stc.png"
+                },
+                {
+                    "id": "apple",
+                    "name": "Apple Pay",
+                    "icon": "/apple-pay.png"
+                },
+                {
+                    "id": "tabby",
+                    "name": "Split it on 4 without any extra fees",
+                    "icon": "/tabby.png"
+                }
+            ],
+            "checkout": "Checkout"
+        }
+    },
+    "virtualtour": {
+        "smallTitle": "Virtual Tours",
+        "mainTitle": "Atlantis Real Estate Interactive Sales System",
+        "description": "Explore Atlantis’ curated portfolio powered by Digital Twin innovations, replacing outdated paper-driven workflows with a seamless digital platform.",
+        "videoUrl": "/videos/virtual-tour.mp4",
+        "thumbnail": "/portfolio-hero.jpg",
+        "bottomText": "A Prop-Tech product that can skyrocket your sales and marketing with less effort for your real estate and investment purposes.",
+        "consultButton": "Book your free Consultation",
+        "steps": [
+            {
+                "title": "Get The Project Estimation",
+                "description": "Share your project details by booking a 30-minute consultation or emailing us with information on project timeline, virtual tour requirements, unit availability, analytics, and budget. We respect your time and will provide an estimate proposal within 72 hours."
+            },
+            {
+                "title": "Monitor Project Development",
+                "description": "We guide every stage, with a project timeline requiring at least 6 weeks, determined by milestones based on agreed features like interactive tools, 3D visualization, animations, or site development."
+            },
+            {
+                "title": "Successful Project Delivery",
+                "description": "We ensure your 3D Interactive Virtual Tour project is thoroughly tested for design, features, usage, and quality. By enhancing your project experience, your sales and marketing team stays updated, translating to increased income."
+            }
+        ],
+        "features": {
+            "smallTitle": "Features",
+            "mainTitle": "Digital Twin Innovations",
+            "description": "Redefining real estate with a truly seamless digital experience.",
+            "items": [
+                {
+                    "icon": "/oursolutionicon1.png",
+                    "title": "3D Web Interactive Sales System",
+                    "description": "Explore projects on a customized map with real-time updates, including distances and travel times to nearby landmarks."
+                },
+                {
+                    "icon": "/oursolutionicon2.png",
+                    "title": "Interactive Interior Walkthrough",
+                    "description": "Experience an immersive tour of your client future unit with measurements, design, and layouts."
+                },
+                {
+                    "icon": "/oursolutionicon3.png",
+                    "title": "Availability And Filtration",
+                    "description": "CRM Integration ensures real-time updates, filtering according to your client's preferences."
+                },
+                {
+                    "icon": "/oursolutionicon4.png",
+                    "title": "Virtual Meeting",
+                    "description": "Save time by having an online meeting with your customers as they explore the project."
+                },
+                {
+                    "icon": "/oursolutionicon5.png",
+                    "title": "Call Back & Buy Now",
+                    "description": "Allow clients to book units online and receive instant callbacks for their queries."
+                },
+                {
+                    "icon": "/oursolutionicon6.png",
+                    "title": "Shareable",
+                    "description": "All features are shareable and can be integrated into your website or CRM."
+                }
+            ]
+        },
+        "projects": {
+            "smallTitle": "Our Projects",
+            "mainTitle": "Explore our diverse range of previous projects now",
+            "list": [
+            {
+                "title": "Zen Style",
+                "image": "/zenStyle.webp"
+            },
+            {
+                "title": "Neo classic",
+                "image": "/neoClssic.webp"
+            },
+            {
+                "title": "Mid Century Style",
+                "image": "/midCentry.webp"
+            }
+        ],
+            "button": "Book your free Consultation"
+        }
+    },
+    "faq": {
+        "smallTitle": "FAQ",
+        "mainTitle": "Let us Help you",
+        "items": [
+            {
+                "question": "What design services do you offer?",
+                "answer": " We provide a complete online interior design service: space planning, furniture and paint selection, 3D design, VR simulation, full execution drawings (AutoCAD & PDF), and bill of quantities for accurate implementation."
+            },
+            {
+                "question": "How can I start an online interior design project with Atlantis?",
+                "answer": " It’s simple! Book an online consultation with our designers, choose the package that suits you (Basic, Enhanced, or Premium), and we’ll create a dedicated group for your project to track progress and answer your questions step by step."
+            },
+            {
+                "question": "How long does it take to complete an interior design project? Is there a faster option for urgent cases?",
+                "answer": " Typically, the initial design and execution drawings take 5–10 weeks, depending on the project size and complexity. For urgent cases, we offer an expedited design option without compromising on quality or cost."
+            },
+            {
+                "question": "Do you provide realistic 3D designs for spaces?",
+                "answer": " Yes! Both Enhanced and Premium packages include 3D design to give you a clear preview of your space before execution. The Premium package even offers a full 360° walkthrough for an immersive experience."
+            },
+            {
+                "question": "Do you provide realistic 3D designs for spaces?",
+                "answer": " Yes! Both Enhanced and Premium packages include 3D design to give you a clear preview of your space before execution. The Premium package even offers a full 360° walkthrough for an immersive experience."
+            },
+            {
+                "question": "How much does it cost to design a single room with Atlantis? Are prices tax-inclusive?",
+                "answer": " Our packages are priced per square meter:</br>Basic: 18 SAR/m²</br>Enhanced: 33 SAR/m²</br>Premium: 45 SAR/m²Prices are inclusive of VAT. Services vary by package, and we can provide you with a tailored quote after reviewing your project details."
+            },
+            {
+                "question": "What’s the difference between the Basic, Enhanced, and Premium packages?",
+                "answer": "Basic: Space planning & basic element selection, no 3D or detailed execution drawings.</br>Enhanced: Full planning + furniture selection + 3D model (without 360° view).</br>Premium: Customized design + 3D + 12 execution boards + full 360° walkthrough + detailed follow-up."
+            },
+            {
+                "question": "Are your design services available online for all cities in Saudi Arabia?",
+                "answer": " All our services are online and available across Saudi Arabia and even internationally."
+            },
+            {
+                "question": "Do you help with choosing furniture, colors, and materials? Do you provide warranties?",
+                "answer": " Yes. Our designers suggest the right furniture, paints, and materials. Our furniture is crafted from beechwood, high-density foam, and imported fabrics, with a 10-year warranty."
+            },
+            {
+                "question": "Can I see my home design before actual execution?",
+                "answer": " Yes, we provide 3D images, VR simulation, and a complete 360° walkthrough so you can preview every detail before work begins."
+            }
+        ]
+    },
+    "termsandconditions": {
+        "title": "Terms and Conditions",
+        "sections": [
+            {
+                "heading": "Introduction",
+                "description": "Welcome to Hindam! Your privacy is important to us. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our mobile application and website. Please read this policy carefully. If you do not agree with the terms of this privacy policy, please do not access the application or website."
+            },
+            {
+                "heading": "Information We Collect",
+                "description": "We may collect information about you in a variety of ways. The information we may collect via the application includes:",
+                "subsections": [
+                    {
+                        "title": "Personal Data",
+                        "text": "Personally identifiable information such as your name, address, email, and demographic details that you provide voluntarily when you register or engage with our services."
+                    },
+                    {
+                        "title": "Derivative Data",
+                        "text": "Automatically collected information such as your IP address, browser type, operating system, access times, and viewed pages."
+                    },
+                    {
+                        "title": "Financial Data",
+                        "text": "Payment-related information, such as credit card details, that we may collect when you make purchases or transactions."
+                    },
+                    {
+                        "title": "Mobile Device Data",
+                        "text": "Information about your mobile device, including ID, model, manufacturer, and location data if accessed via mobile."
+                    }
+                ]
+            },
+            {
+                "heading": "Use of Your Information",
+                "description": "Having accurate information about you permits us to provide you with a smooth, efficient, and customized experience. Specifically, we may use the information collected about you via the application to:",
+                "list": [
+                    "Create and manage your account.",
+                    "Process your orders and transactions.",
+                    "Email you regarding your account or order.",
+                    "Fulfill and manage purchases, orders, and other transactions related to the application.",
+                    "Generate a personal profile to make your future visits more personalized.",
+                    "Increase the efficiency and operation of the application.",
+                    "Monitor and analyze usage trends to improve your experience.",
+                    "Notify you of updates to the application.",
+                    "Offer new products, services, and recommendations.",
+                    "Perform other business activities as needed.",
+                    "Prevent fraudulent transactions and protect against criminal activity."
+                ]
+            },
+            {
+                "heading": "Disclosure of Your Information",
+                "description": "We may share information we have collected about you in certain situations. Your information may be disclosed as follows:",
+                "subsections": [
+                    {
+                        "title": "By Law or to Protect Rights",
+                        "text": "If required by law or to protect the rights, property, or safety of others, we may share your information as permitted by applicable law or regulation."
+                    },
+                    {
+                        "title": "Business Transfers",
+                        "text": "We may share or transfer your information during negotiations of any merger, sale of assets, financing, or acquisition of our business."
+                    },
+                    {
+                        "title": "Third-Party Service Providers",
+                        "text": "We may share your information with third parties that perform services for us, including payment processing, data analysis, hosting, and customer service."
+                    }
+                ]
+            }
+        ],
+        "security": {
+            "heading": "Security of Your Information",
+            "description": "We use administrative, technical, and physical security measures to help protect your personal information. While we take reasonable steps to secure the data you provide, please be aware that no method of transmission or storage is completely secure, and we cannot guarantee absolute protection against misuse or interception."
+        },
+        "contact": {
+            "heading": "Contact Us",
+            "description": "If you have questions or comments about this Privacy Policy, please contact us at:",
+            "team": "Hindam Support Team",
+            "email": "customercare@hindam.sa",
+            "phone": "0555555555"
+        }
+    },
+    "privacyPolicy": {
+        "title": "Terms and Conditions",
+        "sections": [
+            {
+                "heading": "Introduction",
+                "description": "Welcome to Hindam! Your privacy is important to us. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our mobile application and website. Please read this policy carefully. If you do not agree with the terms of this privacy policy, please do not access the application or website."
+            },
+            {
+                "heading": "Information We Collect",
+                "description": "We may collect information about you in a variety of ways. The information we may collect via the application includes:",
+                "subsections": [
+                    {
+                        "title": "Personal Data",
+                        "text": "Personally identifiable information such as your name, address, email, and demographic details that you provide voluntarily when you register or engage with our services."
+                    },
+                    {
+                        "title": "Derivative Data",
+                        "text": "Automatically collected information such as your IP address, browser type, operating system, access times, and viewed pages."
+                    },
+                    {
+                        "title": "Financial Data",
+                        "text": "Payment-related information, such as credit card details, that we may collect when you make purchases or transactions."
+                    },
+                    {
+                        "title": "Mobile Device Data",
+                        "text": "Information about your mobile device, including ID, model, manufacturer, and location data if accessed via mobile."
+                    }
+                ]
+            },
+            {
+                "heading": "Use of Your Information",
+                "description": "Having accurate information about you permits us to provide you with a smooth, efficient, and customized experience. Specifically, we may use the information collected about you via the application to:",
+                "list": [
+                    "Create and manage your account.",
+                    "Process your orders and transactions.",
+                    "Email you regarding your account or order.",
+                    "Fulfill and manage purchases, orders, and other transactions related to the application.",
+                    "Generate a personal profile to make your future visits more personalized.",
+                    "Increase the efficiency and operation of the application.",
+                    "Monitor and analyze usage trends to improve your experience.",
+                    "Notify you of updates to the application.",
+                    "Offer new products, services, and recommendations.",
+                    "Perform other business activities as needed.",
+                    "Prevent fraudulent transactions and protect against criminal activity."
+                ]
+            },
+            {
+                "heading": "Disclosure of Your Information",
+                "description": "We may share information we have collected about you in certain situations. Your information may be disclosed as follows:",
+                "subsections": [
+                    {
+                        "title": "By Law or to Protect Rights",
+                        "text": "If required by law or to protect the rights, property, or safety of others, we may share your information as permitted by applicable law or regulation."
+                    },
+                    {
+                        "title": "Business Transfers",
+                        "text": "We may share or transfer your information during negotiations of any merger, sale of assets, financing, or acquisition of our business."
+                    },
+                    {
+                        "title": "Third-Party Service Providers",
+                        "text": "We may share your information with third parties that perform services for us, including payment processing, data analysis, hosting, and customer service."
+                    }
+                ]
+            }
+        ],
+        "security": {
+            "heading": "Security of Your Information",
+            "description": "We use administrative, technical, and physical security measures to help protect your personal information. While we take reasonable steps to secure the data you provide, please be aware that no method of transmission or storage is completely secure, and we cannot guarantee absolute protection against misuse or interception."
+        },
+        "contact": {
+            "heading": "Contact Us",
+            "description": "If you have questions or comments about this Privacy Policy, please contact us at:",
+            "team": "Hindam Support Team",
+            "email": "customercare@hindam.sa",
+            "phone": "0555555555"
+        }
+    },
+    "aboutus": {
+        "hero": {
+            "logo": "/logo.png",
+            "brand": "Atlantis",
+            "title": "We Transform The Way You See Your Home",
+            "button": "Start Your Project",
+            "image": "/hero.jpg"
+        },
+        "section": {
+            "title": "Build Your World in Atlantis",
+            "description": "Having designed and executed over 100+ homes, we make managing your home projects quick, easy, and convenient in Saudi Arabia.",
+            "button": "Start Your Project",
+            "image": "/hero.jpg"
+        },
+        "values": {
+            "smallTitle": "OUR VALUES",
+            "mainTitle": "The values we strive to achieve",
+            "items": [
+                {
+                    "icon": "/award",
+                    "title": "Quality Is Essential",
+                    "description": "We never compromise on quality. Our reputation depends on delivering excellence, and we are committed to providing a high-quality experience."
+                },
+                {
+                    "icon": "/users",
+                    "title": "Teamwork And Collaboration",
+                    "description": "Our success relies on our collective efforts. We work together to perform at our best and surpass expectations."
+                },
+                {
+                    "icon": "/UserRoundCog",
+                    "title": "Customer Focus",
+                    "description": "We aim to exceed your expectations by delivering timely solutions and adding real value to your project."
+                },
+                {
+                    "icon": "/Ungroup",
+                    "title": "Integrity And Transparency",
+                    "description": "We are committed to accountability, ensuring you receive accurate information from our team when you need it."
+                },
+                {
+                    "icon": "/Lightbulb",
+                    "title": "Innovation And Expertise",
+                    "description": "We hire the best designers to achieve excellence, thinking outside the box to meet your objectives effectively."
+                }
+            ]
+        },
+        "services": {
+            "smallTitle": "OUR SERVICE",
+            "mainTitle": "Tailored Solutions, Guided From Start",
+            "subtitle": "Carefully curated offerings designed to save you time and help you visualize results faster.",
+            "items": [
+                {
+                    "badge": "Flat",
+                    "title": "Interior Design",
+                    "description": "Access our top designers from around the world without leaving your home. Plans, mood boards, and detailed shopping lists to guide your project from start to finish.",
+                    "image": "/living2.jpg"
+                },
+                {
+                    "badge": "Flat",
+                    "title": "Exterior Design",
+                    "description": "From landscaping to architectural facades, we craft stunning exteriors that instantly lift your surroundings and curb appeal.",
+                    "image": "/living2.jpg"
+                },
+                {
+                    "badge": "Flat",
+                    "title": "Finishing",
+                    "description": "Elevate comfort with features like insulation and soundproofing while enhancing property value through high-quality finishes.",
+                    "image": "/living2.jpg"
+                },
+                {
+                    "badge": "Flat",
+                    "title": "Furniture Services",
+                    "description": "Furniture choices expertly matched with your overall design plan to create a seamless and unified look.",
+                    "image": "/living2.jpg"
+                },
+                {
+                    "badge": "Flat",
+                    "title": "Landscaping Services",
+                    "description": "Enhance outdoor environments with gardens, lawns, pathways and living areas—emphasizing greenery and environmental aspects.",
+                    "image": "/living2.jpg"
+                },
+                {
+                    "badge": "Flat",
+                    "title": "Virtual Tour",
+                    "description": "Provide an immersive preview of spaces through a realistic virtual tour experience to aid decision-making.",
+                    "image": "/living2.jpg"
+                }
+            ]
+        }
+    },
+    "profile": {
+        "title": "My Profile",
+        "subtitle": "Manage your account information and contact details.",
+        "name": "Full Name",
+        "email": "Email",
+        "phone": "Phone Number",
+        "avatar": "Profile Image URL",
+        "passwordSection": "Change Password",
+        "newPassword": "New Password",
+        "confirmPassword": "Confirm Password",
+        "saveChanges": "Save Changes",
+        "saving": "Saving...",
+        "verified": "Verified Account",
+        "notVerified": "Unverified Account",
+        "basicInfo": "Basic Information",
+        "security": "Security",
+        "cancel": "Cancel"
+    }
+}
