@@ -94,6 +94,9 @@ export const CartDrawer = () => {
   /* =====================================================
       CHECKOUT WITH TOAST PROMISE
   ====================================================== */
+/* =====================================================
+      CHECKOUT WITH TOAST PROMISE & REDIRECT LOGIC
+  ====================================================== */
   const goToCheckout = async () => {
     if (isVerifying) return;
 
@@ -104,6 +107,10 @@ export const CartDrawer = () => {
       if (data.success && data.token) {
         return data;
       } else {
+        // Capture current path to return after login
+        const currentPath = window.location.pathname;
+        // Redirect to login with the redirect param
+        router.push(`/${locale}/login?redirect=${encodeURIComponent(currentPath)}`);
         throw new Error("Unauthorized");
       }
     };
@@ -116,7 +123,7 @@ export const CartDrawer = () => {
         pending: t.validating,
         success: {
           render() {
-            toggleCart();
+            toggleCart(); // Close drawer on success
             router.push(`/${locale}/checkout`);
             return t.authSuccess;
           },
@@ -129,7 +136,7 @@ export const CartDrawer = () => {
         },
       },
       {
-        position: isArabic ? "top-left" : "top-right",
+        position: isArabic ? "bottom-center" : "bottom-center",
         autoClose: 3000,
       }
     );
@@ -137,7 +144,7 @@ export const CartDrawer = () => {
 
   return (
     <>
-      <ToastContainer position="top-right" autoClose={3000} theme="light" />
+      <ToastContainer position="bottom-center" autoClose={3000} theme="light" />
       <Sheet open={isCartOpen} onOpenChange={toggleCart}>
         <SheetContent className="w-full sm:max-w-md flex flex-col p-0 gap-0">
           <SheetHeader className="px-6 py-4 border-b">

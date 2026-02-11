@@ -15,7 +15,6 @@ export default function OrderSummary() {
   const [projectData, setProjectData] = useState(null);
   const [selectedPackage, setSelectedPackage] = useState(null);
   
-  // Logic for verifying customer session
   const { loading: verifying, refresh } = useVerifyCustomer();
 
   useEffect(() => {
@@ -26,46 +25,64 @@ export default function OrderSummary() {
   if (!projectData?.form) return <div className="min-h-screen flex items-center justify-center text-gray-400 animate-pulse">Loading Project Details...</div>;
 
   const { type, form, hasAdditionalFee, additionalFeeAmount } = projectData;
-  const packagePrice = selectedPackage ? parseFloat(selectedPackage.price) : 0;
+  
+  // FIX: Ensure packagePrice is treated as a clean number
+  const packagePrice = selectedPackage ? parseFloat(String(selectedPackage.price).replace(/[^0-9.]/g, '')) : 0;
   const extraFee = hasAdditionalFee ? parseFloat(additionalFeeAmount || 199) : 0;
   const grandTotal = packagePrice + extraFee;
 
+  // FIXED: Sequencing logic to ensure step_0, step_1, step_2... then final_0, final_1...
   const selections = Object.entries(form)
     .filter(([key]) => key.startsWith("step_") || key.startsWith("final_"))
     .map(([key, data]) => ({ key, data }))
-    .sort((a, b) => a.key.localeCompare(b.key));
+    .sort((a, b) => {
+      const extractNum = (str) => parseInt(str.split('_')[1]);
+      if (a.key.startsWith('step') && b.key.startsWith('final')) return -1;
+      if (a.key.startsWith('final') && b.key.startsWith('step')) return 1;
+      return extractNum(a.key) - extractNum(b.key);
+    });
 
   const handleCheckout = async () => {
-    // 1. Validation check with Toast
+    // 1. Validation check
     if (!selectedPackage) {
       toast.warn(isRTL ? "الرجاء اختيار باقة أولاً" : "Please select a package first", {
-        position: isRTL ? "top-left" : "top-right",
+        position: isRTL ? "bottom-center" : "bottom-center",
       });
       return;
     }
 
     // 2. Prepare cart data
     const feeEntry = Object.values(form).find(item => item.cardName === "no");
+    
+    // FIX: Explicitly structure the cart data to ensure the package name and final math are stored
     const cartData = {
       cartType: "package",
-      package: selectedPackage,
+      package: {
+        ...selectedPackage,
+        price: packagePrice // Store the parsed numeric price
+      },
       steps: form,
       extraFee,
       totalPrice: grandTotal,
       feeReason: feeEntry?.cardDescription || (isRTL ? "رسوم إضافية" : "Service fee")
     };
+    
     localStorage.setItem("cart", JSON.stringify(cartData));
 
-    // 3. Verification through /customer-token
+    // 3. Verification and Conditional Redirect
     const verifyAndRedirect = async () => {
       await refresh();
       const res = await fetch("/api/customer-token");
       const authData = await res.json();
       
       if (authData.success && authData.token) {
+        // Session is valid, go to checkout
         router.push(`/${locale}/checkout`);
         return authData;
       } else {
+        // Session invalid: Redirect to login with return path
+        const currentPath = window.location.pathname;
+        router.push(`/${locale}/login?redirect=${encodeURIComponent(currentPath)}`);
         throw new Error("Unauthorized");
       }
     };
@@ -77,7 +94,7 @@ export default function OrderSummary() {
         success: isRTL ? "تم التحقق!" : "Verified!",
         error: isRTL ? "يجب تسجيل الدخول للمتابعة" : "Please login to continue"
       },
-      { position: isRTL ? "top-left" : "top-right" }
+      { position: isRTL ? "bottom-center" : "bottom-center" }
     );
   };
 
@@ -86,7 +103,6 @@ export default function OrderSummary() {
       <ToastContainer rtl={isRTL} />
       <div className="max-w-7xl mx-auto px-6">
         
-        {/* Modern Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-4">
           <div>
             <span className="text-primary-theme font-bold tracking-[0.2em] text-xs uppercase mb-2 block">Configuration Summary</span>
@@ -98,11 +114,10 @@ export default function OrderSummary() {
           </div>
         </div>
 
-        <PackagesSection onSelectPackage={setSelectedPackage} />
+        <PackagesSection onSelectPackage={setSelectedPackage} projectType={type}/>
 
         <div className="mt-16 grid grid-cols-1 lg:grid-cols-12 gap-10">
           
-          {/* Main Content Area */}
           <div className="lg:col-span-8 space-y-8">
             
             <div className="grid grid-cols-1 md:grid-cols-1 gap-6">
@@ -116,9 +131,9 @@ export default function OrderSummary() {
                 <p className="text-3xl font-bold capitalize">{type}</p>
               </div>
 
-              {form.uploadedPlan && (
+              {form.uploadedPlan?.value && (
                 <div className="bg-white p-4 rounded-[2rem] shadow-sm border border-gray-100 relative group overflow-hidden">
-                   <img src={form.uploadedPlan} className="w-full h-32 object-cover rounded-[1.5rem] brightness-90 group-hover:scale-105 transition-transform duration-700" />
+                   <img src={form.uploadedPlan.value} className="w-full h-32 object-cover rounded-[1.5rem] brightness-90 group-hover:scale-105 transition-transform duration-700" alt="Floor Plan" />
                    <div className="absolute inset-0 bg-black/20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                       <p className="text-white font-bold text-sm">View Floor Plan</p>
                    </div>
@@ -135,34 +150,44 @@ export default function OrderSummary() {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-10">
-                {selections.map(({ key, data }) => (
-                  <div key={key} className="group relative flex gap-5">
-                    {data.cardImageUrl && (
-                      <div className="relative shrink-0">
-                        <img src={data.cardImageUrl} className="w-16 h-16 rounded-2xl object-cover shadow-md group-hover:rotate-3 transition-transform" />
-                        <CheckCircle2 size={16} className="absolute -top-1 -right-1 text-green-500 bg-white rounded-full" />
-                      </div>
-                    )}
-                    <div className="flex flex-col justify-center">
-                      <p className="text-[10px] font-bold text-gray-400 uppercase tracking-[0.15em] mb-1">
-                        {data.question || "Space Selection"}
-                      </p>
-                      <p className="font-bold text-[#1D1D1F] text-lg">
-                        {data.cardTitle || data.label || data.value}
-                      </p>
-                      {data.cardDescription2 && (
-                        <p className="text-[11px] text-amber-600 font-bold mt-1 bg-amber-50 px-2 py-0.5 rounded-md inline-block w-fit italic">
-                          {data.cardDescription2}
-                        </p>
+                {selections.map(({ key, data }) => {
+                  const isMulti = Array.isArray(data.selections);
+                  const displayTitle = isMulti 
+                    ? data.selections.map(s => s.cardTitle).join(", ")
+                    : (data.cardTitle || data.label || data.value);
+                  
+                  const displayImage = isMulti 
+                    ? data.selections[0]?.cardImageUrl 
+                    : data.cardImageUrl;
+
+                  return (
+                    <div key={key} className="group relative flex gap-5">
+                      {displayImage && (
+                        <div className="relative shrink-0">
+                          <img src={displayImage} className="w-16 h-16 rounded-2xl object-cover shadow-md group-hover:rotate-3 transition-transform" alt={displayTitle} />
+                          <CheckCircle2 size={16} className="absolute -top-1 -right-1 text-green-500 bg-white rounded-full" />
+                        </div>
                       )}
+                      <div className="flex flex-col justify-center">
+                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-[0.15em] mb-1">
+                          {data.question || "Space Selection"}
+                        </p>
+                        <p className="font-bold text-[#1D1D1F] text-lg">
+                          {displayTitle}
+                        </p>
+                        {data.cardDescription2 && !isMulti && (
+                          <p className="text-[11px] text-amber-600 font-bold mt-1 bg-amber-50 px-2 py-0.5 rounded-md inline-block w-fit italic">
+                            {data.cardDescription2}
+                          </p>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           </div>
 
-          {/* Luxury Sidebar */}
           <div className="lg:col-span-4">
             <div className="sticky top-10 bg-white rounded-[2.5rem] shadow-2xl shadow-gray-200/50 p-10 border border-gray-50">
               <div className="flex items-center justify-between mb-8">
@@ -210,12 +235,11 @@ export default function OrderSummary() {
                 <ArrowRight size={22} className={`transition-transform duration-300 group-hover:translate-x-1 ${isRTL ? "rotate-180" : ""}`}/>
               </button>
 
-              <div className="mt-8 pt-8 border-t border-gray-50 flex items-center justify-between">
+              <div className="mt-8 pt-8 border-t border-gray-50 flex justify-center">
                 <div className="flex items-center gap-2 text-[10px] font-bold text-gray-400 uppercase tracking-widest">
                   <ShieldCheck className="text-green-500" size={16}/> 
                   {isRTL ? "دفع آمن" : "Secure"}
                 </div>
-                <img src="/payment-icons.png" alt="Visa/Mastercard" className="h-4 opacity-40 grayscale hover:grayscale-0 transition-all" />
               </div>
             </div>
           </div>

@@ -10,14 +10,7 @@ import { useCustomerAuth } from "@/app/context/CustomerAuthProvider";
 import { useSearchParams } from "next/navigation";
 import { RecaptchaVerifier, signInWithPhoneNumber } from "firebase/auth";
 import { auth } from "@/lib/firebase";
-
-// Eye Icons Components
-const EyeIcon = () => (
-  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
-);
-const EyeOffIcon = () => (
-  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88L4.573 4.574m14.853 14.853L14.243 14.243" /></svg>
-);
+import { Eye, EyeOff } from "lucide-react";
 
 export default function LoginPage() {
   const { locale } = useLocale();
@@ -28,14 +21,9 @@ export default function LoginPage() {
   const isRTL = locale === "ar";
   const loginData = data?.login;
 
-  // States
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false); // New state for login
-  const [showNewPassword, setShowNewPassword] = useState(false); // New state for reset
   const [loading, setLoading] = useState(false);
-  
-  // Modal States
   const [showForgotModal, setShowForgotModal] = useState(false);
   const [forgotStep, setForgotStep] = useState(1);
   const [phoneInput, setPhoneInput] = useState("");
@@ -46,6 +34,7 @@ export default function LoginPage() {
   const [idToken, setIdToken] = useState("");
   const [forgotLoading, setForgotLoading] = useState(false);
   const [resendTimer, setResendTimer] = useState(0);
+  const [showPassword, setShowPassword] = useState(false);
   const recaptchaRef = useRef(null);
 
   useEffect(() => {
@@ -71,7 +60,6 @@ export default function LoginPage() {
     setOtp("");
     setNewPassword("");
     setConfirmNewPassword("");
-    setShowNewPassword(false);
     setConfirmationResult(null);
     setResendTimer(0);
     if (window.recaptchaVerifier) {
@@ -89,11 +77,25 @@ export default function LoginPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
       });
+
       const json = await res.json();
       if (!json.success) throw new Error(json.error);
+
+      // Save customer session to context
       saveCustomer(json.customer);
       toast.success(loginData?.success || "Login successful!");
-      setTimeout(() => (window.location.href = redirect || `/${locale}`), 500);
+
+      // SUCCESS REDIRECT LOGIC:
+      // If 'redirect' exists, we go there (e.g., /en/order-summary).
+      // Otherwise, we go to the default localized home/dashboard.
+      setTimeout(() => {
+        if (redirect) {
+          window.location.href = decodeURIComponent(redirect);
+        } else {
+          window.location.href = `/${locale}`;
+        }
+      }, 500);
+
     } catch (err) {
       toast.error(err.message);
     } finally {
@@ -222,44 +224,51 @@ export default function LoginPage() {
                 <label className="block text-sm font-medium text-gray-700 mb-1">{loginData?.email}</label>
                 <input type="email" value={email} placeholder="johnDoe@example.com" onChange={(e) => setEmail(e.target.value)} className="w-full border rounded-md px-3 py-2 text-sm focus:ring-1 focus:ring-[#5E7E7D]" required />
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">{loginData?.password}</label>
+              <div className="relative">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  {loginData?.password}
+                </label>
                 <div className="relative">
-                  <input 
-                    type={showPassword ? "text" : "password"} 
-                    value={password} 
-                    placeholder="Enter your password" 
-                    onChange={(e) => setPassword(e.target.value)} 
-                    className={`w-full border rounded-md px-3 py-2 text-sm focus:ring-1 focus:ring-[#5E7E7D] ${isRTL ? 'pl-10' : 'pr-10'}`} 
-                    required 
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    value={password}
+                    placeholder="Enter your password"
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="w-full border rounded-md px-3 py-2 text-sm focus:ring-1 focus:ring-[#5E7E7D] pr-10"
+                    required
                   />
-                  <button 
-                    type="button" 
-                    onClick={() => setShowPassword(!showPassword)} 
-                    className={`absolute inset-y-0 ${isRTL ? 'left-3' : 'right-3'} flex items-center text-gray-400 hover:text-gray-600`}
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600"
                   >
-                    {showPassword ? <EyeOffIcon /> : <EyeIcon />}
+                    {showPassword ? (
+                      <Eye size={16} />
+                    ) : (
+                      <EyeOff size={16} />
+                    )}
                   </button>
                 </div>
                 <div className="text-right mt-1">
-                  <button type="button" onClick={() => setShowForgotModal(true)} className="text-xs text-[#2D3247] hover:underline">
+                  <button
+                    type="button"
+                    onClick={() => setShowForgotModal(true)}
+                    className="text-xs text-[#2D3247] hover:underline"
+                  >
                     {loginData?.forgot || "Forgot Password?"}
                   </button>
                 </div>
               </div>
-              <button type="submit" disabled={loading} className="w-full bg-[#2D3247] text-white py-2.5 rounded-md text-sm hover:bg-[#1e2231] disabled:opacity-50 font-medium transition-colors">
+              <button type="submit" disabled={loading} className="w-full bg-[#2D3247] text-white py-2.5 rounded-md text-sm hover:bg-[#1e2231] disabled:opacity-50 font-medium">
                 {loading ? "..." : loginData.login}
               </button>
+              <Link href={`/${locale}/signup`} className="text-sm text-gray-500 justify-center flex w-full">
+                {`${loginData.noAccount}`}
+                <span className="underline">
+                  {`${" "}${loginData.signup}`}
+                </span>
+              </Link>
             </form>
-
-            <div className="mt-8 text-center border-t pt-6">
-              <p className="text-sm text-gray-600">
-                {isRTL ? "ليس لديك حساب؟" : "Not a member?"}{" "}
-                <Link href={`/${locale}/signup`} className="text-[#2D3247] font-bold hover:underline transition-all">
-                  {isRTL ? "سجل الآن" : "Sign up here"}
-                </Link>
-              </p>
-            </div>
           </div>
         </div>
       </section>
@@ -268,7 +277,8 @@ export default function LoginPage() {
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4 backdrop-blur-sm" onClick={closeModal}>
           <div dir={isRTL ? "rtl" : "ltr"} onClick={(e) => e.stopPropagation()} className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8 relative animate-[slideUp_0.3s_ease]">
             <button onClick={closeModal} className="absolute top-5 right-5 text-gray-400 hover:text-gray-700 transition-colors w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100">&times;</button>
-            
+
+            {/* Progress Indicator */}
             <div className="flex items-center justify-center mb-6 gap-2">
               {[1, 2, 3].map((step) => (
                 <div key={step} className={`h-1.5 flex-1 rounded-full transition-all ${forgotStep >= step ? 'bg-[#2D3247]' : 'bg-gray-200'}`} />
@@ -288,6 +298,11 @@ export default function LoginPage() {
                 {forgotStep === 2 && (isRTL ? "التحقق من الهاتف" : "Verify Phone")}
                 {forgotStep === 3 && (isRTL ? "كلمة مرور جديدة" : "New Password")}
               </h3>
+              <p className="text-sm text-gray-500">
+                {forgotStep === 1 && (isRTL ? "أدخل رقم الجوال المسجل" : "Enter your registered phone number")}
+                {forgotStep === 2 && (isRTL ? "أدخل رمز التحقق المرسل" : "Enter the verification code sent")}
+                {forgotStep === 3 && (isRTL ? "قم بإنشاء كلمة مرور قوية" : "Create a strong password")}
+              </p>
             </div>
 
             {forgotStep === 1 && (
@@ -296,7 +311,7 @@ export default function LoginPage() {
                   <div className="bg-gray-100 border border-gray-300 px-4 py-3 rounded-lg text-sm font-semibold text-gray-700">+966</div>
                   <input type="tel" placeholder="5xxxxxxxx" value={phoneInput} maxLength={9} onChange={(e) => setPhoneInput(e.target.value.replace(/\D/g, ""))} className="flex-1 border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-[#2D3247] focus:border-transparent transition-all" />
                 </div>
-                <button onClick={handleVerifyPhone} disabled={forgotLoading || phoneInput.length < 9} className="w-full bg-[#2D3247] text-white py-3 rounded-lg font-semibold hover:bg-[#1e2231] disabled:opacity-50 transition-all shadow-lg">
+                <button onClick={handleVerifyPhone} disabled={forgotLoading || phoneInput.length < 9} className="w-full bg-[#2D3247] text-white py-3 rounded-lg font-semibold hover:bg-[#1e2231] disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg hover:shadow-xl">
                   {forgotLoading ? "..." : (isRTL ? "إرسال الرمز" : "Send Code")}
                 </button>
               </div>
@@ -308,11 +323,11 @@ export default function LoginPage() {
                   <div ref={recaptchaRef} className="flex justify-center my-4"></div>
                 ) : (
                   <>
-                    <input type="text" maxLength={6} placeholder="• • • • • •" value={otp} onChange={(e) => setOtp(e.target.value.replace(/\D/g, ""))} className="w-full border-2 border-gray-300 rounded-lg px-4 py-4 text-center text-3xl font-bold tracking-[0.5em] focus:ring-2 focus:ring-[#2D3247] transition-all" />
-                    <button onClick={handleVerifyOtp} disabled={forgotLoading || otp.length < 6} className="w-full bg-[#2D3247] text-white py-3 rounded-lg font-semibold hover:bg-[#1e2231] disabled:opacity-50 transition-all shadow-lg">
+                    <input type="text" maxLength={6} placeholder="• • • • • •" value={otp} onChange={(e) => setOtp(e.target.value.replace(/\D/g, ""))} className="w-full border-2 border-gray-300 rounded-lg px-4 py-4 text-center text-3xl font-bold tracking-[0.5em] focus:ring-2 focus:ring-[#2D3247] focus:border-transparent transition-all" />
+                    <button onClick={handleVerifyOtp} disabled={forgotLoading || otp.length < 6} className="w-full bg-[#2D3247] text-white py-3 rounded-lg font-semibold hover:bg-[#1e2231] disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg hover:shadow-xl">
                       {forgotLoading ? "..." : (isRTL ? "تحقق" : "Verify")}
                     </button>
-                    <button onClick={() => sendOtp()} disabled={resendTimer > 0} className="w-full text-sm text-[#2D3247] hover:underline disabled:text-gray-400 transition-all">
+                    <button onClick={() => sendOtp()} disabled={resendTimer > 0} className="w-full text-sm text-[#2D3247] hover:underline disabled:text-gray-400 disabled:no-underline transition-all">
                       {resendTimer > 0 ? `${isRTL ? "إعادة إرسال في" : "Resend in"} ${resendTimer}s` : (isRTL ? "إعادة إرسال الرمز" : "Resend Code")}
                     </button>
                   </>
@@ -323,23 +338,13 @@ export default function LoginPage() {
             {forgotStep === 3 && (
               <div className="space-y-4">
                 <div className="relative">
-                  <input 
-                    type={showNewPassword ? "text" : "password"} 
-                    placeholder={isRTL ? "كلمة المرور الجديدة" : "New Password"} 
-                    value={newPassword} 
-                    onChange={(e) => setNewPassword(e.target.value)} 
-                    className={`w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-[#2D3247] transition-all ${isRTL ? 'pl-10' : 'pr-10'}`} 
-                  />
-                  <button 
-                    type="button" 
-                    onClick={() => setShowNewPassword(!showNewPassword)} 
-                    className={`absolute inset-y-0 ${isRTL ? 'left-3' : 'right-3'} flex items-center text-gray-400 hover:text-gray-600`}
-                  >
-                    {showNewPassword ? <EyeOffIcon /> : <EyeIcon />}
-                  </button>
+                  <input type="password" placeholder={isRTL ? "كلمة المرور الجديدة" : "New Password"} value={newPassword} onChange={(e) => setNewPassword(e.target.value)} className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-[#2D3247] focus:border-transparent transition-all" />
+                  {newPassword && <span className={`absolute ${isRTL ? 'left-3' : 'right-3'} top-1/2 -translate-y-1/2 text-xs ${newPassword.length >= 6 ? 'text-green-600' : 'text-red-500'}`}>
+                    {newPassword.length >= 6 ? '✓' : `${newPassword.length}/6`}
+                  </span>}
                 </div>
-                <input type="password" placeholder={isRTL ? "تأكيد كلمة المرور" : "Confirm Password"} value={confirmNewPassword} onChange={(e) => setConfirmNewPassword(e.target.value)} className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-[#2D3247] transition-all" />
-                <button onClick={handleResetPassword} disabled={forgotLoading || !newPassword || !confirmNewPassword} className="w-full bg-[#2D3247] text-white py-3 rounded-lg font-semibold hover:bg-[#1e2231] disabled:opacity-50 transition-all shadow-lg">
+                <input type="password" placeholder={isRTL ? "تأكيد كلمة المرور" : "Confirm Password"} value={confirmNewPassword} onChange={(e) => setConfirmNewPassword(e.target.value)} className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-[#2D3247] focus:border-transparent transition-all" />
+                <button onClick={handleResetPassword} disabled={forgotLoading || !newPassword || !confirmNewPassword} className="w-full bg-[#2D3247] text-white py-3 rounded-lg font-semibold hover:bg-[#1e2231] disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg hover:shadow-xl">
                   {forgotLoading ? "..." : (isRTL ? "حفظ كلمة المرور" : "Save Password")}
                 </button>
               </div>
@@ -350,8 +355,14 @@ export default function LoginPage() {
 
       <style jsx>{`
         @keyframes slideUp {
-          from { opacity: 0; transform: translateY(20px); }
-          to { opacity: 1; transform: translateY(0); }
+          from {
+            opacity: 0;
+            transform: translateY(20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
         }
       `}</style>
     </>

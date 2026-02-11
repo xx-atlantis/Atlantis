@@ -8,6 +8,7 @@ import toast from "react-hot-toast";
 // Firebase Imports
 import { RecaptchaVerifier, signInWithPhoneNumber } from "firebase/auth";
 import { auth } from "@/lib/firebase";
+import { Eye, EyeOff } from "lucide-react";
 
 export default function SignupPage() {
   const { locale } = useLocale();
@@ -25,7 +26,7 @@ export default function SignupPage() {
   const [confirmPassword, setConfirmPassword] = useState("");
 
   // OTP & Phone State
-  const [phoneInput, setPhoneInput] = useState(""); 
+  const [phoneInput, setPhoneInput] = useState("");
   const [otp, setOtp] = useState("");
   const [otpSent, setOtpSent] = useState(false);
   const [isPhoneVerified, setIsPhoneVerified] = useState(false);
@@ -34,6 +35,8 @@ export default function SignupPage() {
   const [loading, setLoading] = useState(false);
   const [otpLoading, setOtpLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   // Ref to track if we have already mounted
   const recaptchaContainerRef = useRef(null);
@@ -74,7 +77,7 @@ export default function SignupPage() {
       "expired-callback": () => {
         toast.error("Recaptcha expired. Please try again.");
         // Reset so they can try again
-        if(window.recaptchaVerifier) {
+        if (window.recaptchaVerifier) {
           window.recaptchaVerifier.clear();
           window.recaptchaVerifier = null;
         }
@@ -106,22 +109,22 @@ export default function SignupPage() {
 
       // 1. Initialize Recaptcha JUST BEFORE sending
       setupRecaptcha();
-      
+
       const appVerifier = window.recaptchaVerifier;
-      
+
       // 2. Send SMS
       const confirmation = await signInWithPhoneNumber(auth, finalPhoneNumber, appVerifier);
-      
+
       setConfirmationResult(confirmation);
       setOtpSent(true);
       toast.success(isRTL ? "تم إرسال رمز التحقق" : "OTP sent successfully");
-      
+
       // Optional: clear recaptcha widget visually after success if you want, 
       // but usually better to keep it until verify is done.
-      
+
     } catch (error) {
       console.error("OTP Error:", error);
-      
+
       // Reset Recaptcha on Error so they can try again
       if (window.recaptchaVerifier) {
         window.recaptchaVerifier.clear();
@@ -147,10 +150,10 @@ export default function SignupPage() {
     try {
       setOtpLoading(true);
       await confirmationResult.confirm(otp);
-      
+
       setIsPhoneVerified(true);
-      setOtpSent(false); 
-      
+      setOtpSent(false);
+
       // Clean up recaptcha after success
       if (window.recaptchaVerifier) {
         window.recaptchaVerifier.clear();
@@ -169,7 +172,7 @@ export default function SignupPage() {
   async function handleSignup(e) {
     e.preventDefault();
     // ... (Your existing signup logic remains exactly the same)
-    
+
     // START EXISTING LOGIC COPY
     setErrorMsg("");
     if (!isPhoneVerified) {
@@ -225,7 +228,7 @@ export default function SignupPage() {
 
   return (
     <section dir={isRTL ? "rtl" : "ltr"} className="min-h-screen flex flex-col lg:flex-row bg-gray-50">
-      
+
       {/* Fix 3: Dedicated Container for Recaptcha 
          We place this relative or fixed to ensure it doesn't break layout.
       */}
@@ -296,7 +299,7 @@ export default function SignupPage() {
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 {isRTL ? "رقم الجوال" : "Mobile Number"}
               </label>
-              
+
               <div className="flex gap-2" dir="ltr">
                 <div className="flex items-center justify-center bg-gray-100 border border-gray-300 border-r-0 rounded-l-md px-3 min-w-[80px]">
                   <span className="mr-2">🇸🇦</span>
@@ -313,9 +316,8 @@ export default function SignupPage() {
                     const val = e.target.value.replace(/\D/g, '');
                     setPhoneInput(val);
                   }}
-                  className={`flex-1 border border-gray-300 rounded-r-md px-3 py-2 text-sm focus:ring-1 focus:ring-[#5E7E7D] tracking-wider ${
-                    isPhoneVerified ? "bg-green-50 border-green-500 text-green-700" : ""
-                  }`}
+                  className={`flex-1 border border-gray-300 rounded-r-md px-3 py-2 text-sm focus:ring-1 focus:ring-[#5E7E7D] tracking-wider ${isPhoneVerified ? "bg-green-50 border-green-500 text-green-700" : ""
+                    }`}
                 />
 
                 {!isPhoneVerified && !otpSent && (
@@ -338,10 +340,10 @@ export default function SignupPage() {
                 )}
               </div>
             </div>
-            
+
             {/* Fix 4: Place Recaptcha Container visually under the phone field for mobile context */}
             <div id="recaptcha-wrapper" className="w-full flex justify-center mt-2">
-                <div ref={recaptchaContainerRef}></div>
+              <div ref={recaptchaContainerRef}></div>
             </div>
 
             {/* OTP Input */}
@@ -371,26 +373,46 @@ export default function SignupPage() {
               </div>
             )}
 
+            {/* Password Field */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">{t.password}</label>
-              <input
-                type="password"
-                placeholder={t.passwordPlaceholder}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-1 focus:ring-[#5E7E7D]"
-              />
+              <div className="relative">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  placeholder={t.passwordPlaceholder}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-1 focus:ring-[#5E7E7D] pr-10"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600"
+                >
+                  {showPassword ? <Eye size={16} /> : <EyeOff size={16} />}
+                </button>
+              </div>
             </div>
 
+            {/* Confirm Password Field */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">{t.confirmPassword}</label>
-              <input
-                type="password"
-                placeholder={t.confirmPassword}
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-1 focus:ring-[#5E7E7D]"
-              />
+              <div className="relative">
+                <input
+                  type={showConfirmPassword ? "text" : "password"}
+                  placeholder={t.confirmPassword}
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-1 focus:ring-[#5E7E7D] pr-10"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600"
+                >
+                  {showConfirmPassword ? <Eye size={16} /> : <EyeOff size={16} />}
+                </button>
+              </div>
             </div>
 
             <button

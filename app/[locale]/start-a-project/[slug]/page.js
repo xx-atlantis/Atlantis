@@ -42,25 +42,45 @@ export default function StartProjectSinglePage() {
     }
   }, [type]);
 
-  // FIXED: Consolidated update logic to ensure question is always saved
   const updateForm = (key, value, questionText = null) => {
     setForm((prev) => {
-      // Create the new entry for this specific step
-      const newEntry = { ...value };
-      if (questionText) {
-        newEntry.question = questionText;
+      let updatedLocalForm;
+
+      // Handle MULTI-SELECT for the very first question (step_0)
+      if (key === "step_0") {
+        const currentSelections = Array.isArray(prev[key]?.selections) ? prev[key].selections : [];
+        const isAlreadySelected = currentSelections.some((item) => item.cardName === value.cardName);
+
+        let newSelections;
+        if (isAlreadySelected) {
+          // Remove if clicked again
+          newSelections = currentSelections.filter((item) => item.cardName !== value.cardName);
+        } else {
+          // Add to array
+          newSelections = [...currentSelections, value];
+        }
+
+        updatedLocalForm = {
+          ...prev,
+          [key]: {
+            question: questionText || prev[key]?.question,
+            selections: newSelections,
+            // Joined string for quick reference/preview
+            cardName: newSelections.map((s) => s.cardName).join(", "),
+          },
+        };
+      } else {
+        // Standard SINGLE-SELECT for all other steps
+        const newEntry = { ...value };
+        if (questionText) newEntry.question = questionText;
+        updatedLocalForm = { ...prev, [key]: newEntry };
       }
 
-      const updatedLocalForm = { 
-        ...prev, 
-        [key]: newEntry 
-      };
-      
-      // Determine Fees based on the "Plan" question
+      // Fee Logic (triggered by "Plan" questions)
       let newHasAdditionalFee = hasAdditionalFee;
       let newAdditionalFeeAmount = additionalFeeAmount;
-      
       const isPlanQuestion = questionText?.toLowerCase().includes("plan");
+
       if (isPlanQuestion) {
         if (value?.cardName === "no") {
           newHasAdditionalFee = true;
@@ -70,19 +90,19 @@ export default function StartProjectSinglePage() {
           newAdditionalFeeAmount = 0;
         }
       }
-      
-      // Save full master structure to FORM_KEY
+
+      // Save full master structure to localStorage
       const masterData = JSON.parse(localStorage.getItem(FORM_KEY) || "{}");
       masterData[type] = {
         form: updatedLocalForm,
         hasAdditionalFee: newHasAdditionalFee,
-        additionalFeeAmount: newAdditionalFeeAmount
+        additionalFeeAmount: newAdditionalFeeAmount,
       };
       localStorage.setItem(FORM_KEY, JSON.stringify(masterData));
-      
+
       setHasAdditionalFee(newHasAdditionalFee);
       setAdditionalFeeAmount(newAdditionalFeeAmount);
-      
+
       return updatedLocalForm;
     });
   };
@@ -127,7 +147,6 @@ export default function StartProjectSinglePage() {
     <section className="mx-4 sm:mx-8 md:mx-16 my-8" dir={isRTL ? "rtl" : "ltr"}>
       <ToastContainer rtl={isRTL} />
       <div className="max-w-8xl mx-auto flex flex-col lg:flex-row gap-8">
-        
         <div className="lg:w-1/3 hidden lg:block">
           <div className="sticky top-24 rounded-4xl overflow-hidden shadow-2xl border-4 border-gray-100">
             <img
@@ -139,62 +158,58 @@ export default function StartProjectSinglePage() {
         </div>
 
         <div className="flex-1 bg-white rounded-2xl shadow-xl p-6 sm:p-10 border border-gray-100">
-          <h1 className="text-3xl sm:text-4xl font-bold mb-3 text-gray-900">
-            {content.introTitle}
-          </h1>
+          <h1 className="text-3xl sm:text-4xl font-bold mb-3 text-gray-900">{content.introTitle}</h1>
           <p className="text-gray-600 mb-8 text-lg">{content.introSubtitle}</p>
 
           <div className="space-y-12">
-            {content.steps?.map((step, sIndex) => (
-              <div key={`step-${sIndex}`} className="pb-8 border-b border-gray-100 last:border-0">
-                <div className="flex items-center gap-3 mb-6">
-                  <span className="flex items-center justify-center w-8 h-8 rounded-full bg-primary-theme text-white font-bold text-sm">
-                    {sIndex + 1}
-                  </span>
-                  <h2 className="text-xl font-bold text-gray-900">{step.title}</h2>
-                </div>
-                <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
-                  {step.options.map((opt, oIndex) => (
-                    <OptionCard
-                      key={`opt-${oIndex}`}
-                      option={opt}
-                      selected={form[`step_${sIndex}`]?.cardName === opt.cardName}
-                      onClick={() => updateForm(`step_${sIndex}`, opt, step.title)}
-                    />
-                  ))}
-                </div>
+            {content.steps?.map((step, sIndex) => {
+              const stepKey = `step_${sIndex}`;
+              return (
+                <div key={stepKey} className="pb-8 border-b border-gray-100 last:border-0">
+                  <div className="flex items-center gap-3 mb-6">
+                    <span className="flex items-center justify-center w-8 h-8 rounded-full bg-primary-theme text-white font-bold text-sm">
+                      {sIndex + 1}
+                    </span>
+                    <h2 className="text-xl font-bold text-gray-900">{step.title}</h2>
+                  </div>
+                  <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                    {step.options.map((opt, oIndex) => {
+                      // Logic to determine if this specific card is selected
+                      const isSelected =
+                        sIndex === 0
+                          ? form[stepKey]?.selections?.some((s) => s.cardName === opt.cardName)
+                          : form[stepKey]?.cardName === opt.cardName;
 
-                {step.options.some((o) => o.cardName === "yes") &&
-                  form[`step_${sIndex}`]?.cardName === "yes" && (
-                    <div className="mt-6 p-6 border-2 border-dashed border-primary-theme/30 rounded-2xl bg-gradient-to-br from-gray-50 to-white">
-                      <p className="text-sm font-semibold text-gray-700 mb-4">
-                        {isRTL ? "📎 قم بتحميل المخطط الخاص بك" : "📎 Upload Your Plan"}
-                      </p>
-                      <ImageUploader
-                        value={form.uploadedPlan || ""}
-                        inputId={`plan-upload-${sIndex}`}
-                        onChange={(url) => updateForm("uploadedPlan", { value: url }, "Uploaded Plan")}
-                      />
-                      {form.uploadedPlan?.value && (
-                        <div className="mt-4 relative group">
-                          <img
-                            src={form.uploadedPlan.value}
-                            alt="Preview"
-                            className="h-64 w-full object-cover rounded-xl shadow-lg border-2 border-gray-200 group-hover:shadow-2xl transition-shadow"
-                          />
-                          <button
-                            onClick={() => updateForm("uploadedPlan", null)}
-                            className="absolute top-2 right-2 bg-red-500 text-white w-8 h-8 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-lg hover:bg-red-600"
-                          >
-                            ×
-                          </button>
-                        </div>
-                      )}
-                    </div>
-                  )}
-              </div>
-            ))}
+                      return (
+                        <OptionCard
+                          key={`opt-${oIndex}`}
+                          option={opt}
+                          selected={!!isSelected}
+                          onClick={() => updateForm(stepKey, opt, step.title)}
+                        />
+                      );
+                    })}
+                  </div>
 
+                  {/* Upload Plan Logic */}
+                  {step.options.some((o) => o.cardName === "yes") &&
+                    form[stepKey]?.cardName === "yes" && (
+                      <div className="mt-6 p-6 border-2 border-dashed border-primary-theme/30 rounded-2xl bg-gradient-to-br from-gray-50 to-white">
+                        <p className="text-sm font-semibold text-gray-700 mb-4">
+                          {isRTL ? "📎 قم بتحميل المخطط الخاص بك" : "📎 Upload Your Plan"}
+                        </p>
+                        <ImageUploader
+                          value={form.uploadedPlan?.value || ""}
+                          inputId={`plan-upload-${sIndex}`}
+                          onChange={(url) => updateForm("uploadedPlan", { value: url }, "Uploaded Plan")}
+                        />
+                      </div>
+                    )}
+                </div>
+              );
+            })}
+
+            {/* Final Dropdown Steps */}
             {content.finalSteps?.map((fs, fIndex) => (
               <div key={`final-${fIndex}`} className="pb-8 border-b border-gray-100 last:border-0">
                 <div className="flex items-center gap-3 mb-4">
@@ -263,30 +278,39 @@ function OptionCard({ option, selected, onClick }) {
           {selected && (
             <div className="absolute top-3 right-3 w-8 h-8 bg-primary-theme rounded-full flex items-center justify-center shadow-lg">
               <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                <path
+                  fillRule="evenodd"
+                  d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                  clipRule="evenodd"
+                />
               </svg>
             </div>
           )}
         </div>
       ) : (
-        <div className={`p-5 min-h-[140px] flex flex-col items-center justify-center text-center relative ${
-          selected ? 'bg-gradient-to-br from-primary-theme/5 to-primary-btn/5' : 'bg-white'
-        }`}>
+        <div
+          className={`p-5 min-h-[140px] flex flex-col items-center justify-center text-center relative ${
+            selected ? "bg-gradient-to-br from-primary-theme/5 to-primary-btn/5" : "bg-white"
+          }`}
+        >
           {selected && (
             <div className="absolute top-2 right-2 w-7 h-7 bg-primary-theme rounded-full flex items-center justify-center shadow-md">
               <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                <path
+                  fillRule="evenodd"
+                  d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                  clipRule="evenodd"
+                />
               </svg>
             </div>
           )}
-          <p className={`font-bold text-base mb-1 ${selected ? 'text-primary-theme' : 'text-gray-900'}`}>
+          <p
+            className={`font-bold text-base mb-1 ${selected ? "text-primary-theme" : "text-gray-900"}`}
+          >
             {option.cardTitle}
           </p>
           {option.cardDescription && (
             <p className="text-sm text-gray-600 leading-relaxed">{option.cardDescription}</p>
-          )}
-          {option.cardDescription2 && (
-            <p className="text-xs text-gray-500 mt-1">{option.cardDescription2}</p>
           )}
         </div>
       )}

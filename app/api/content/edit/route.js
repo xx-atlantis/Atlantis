@@ -6,10 +6,10 @@ const prisma = new PrismaClient();
 export async function PUT(req) {
   try {
     const body = await req.json();
-    const { page, locale, header, footer, ...rest } = body;
+    const { page, locale, header, footer, ...dynamicSections } = body;
 
     // ===========================
-    // BASIC VALIDATION
+    // 1. BASIC VALIDATION
     // ===========================
     if (!page || !locale) {
       return NextResponse.json(
@@ -26,37 +26,22 @@ export async function PUT(req) {
     }
 
     // ===========================
-    // DETECT DYNAMIC SECTION
+    // 2. BUILD SECTIONS PAYLOAD
     // ===========================
-    const dynamicSectionKeys = Object.keys(rest);
-
-    if (dynamicSectionKeys.length > 1) {
-      return NextResponse.json(
-        { error: "Only one dynamic page section is allowed per request" },
-        { status: 400 }
-      );
-    }
-
-    const dynamicSectionKey = dynamicSectionKeys[0]; // e.g. ourPortfolio
-    const dynamicSectionContent = rest[dynamicSectionKey];
-
-    // ===========================
-    // BUILD SECTIONS PAYLOAD
-    // ===========================
-    const sections = {
+    // We combine standard parts and any extra keys (like packages/ordersummary)
+    const sectionsToUpdate = {
       header,
       footer,
-      ...(dynamicSectionKey
-        ? { [dynamicSectionKey]: dynamicSectionContent }
-        : {}),
+      ...dynamicSections,
     };
 
-    Object.keys(sections).forEach(
-      (key) => sections[key] === undefined && delete sections[key]
+    // Clean up undefined values so we don't try to update null fields
+    Object.keys(sectionsToUpdate).forEach(
+      (key) => sectionsToUpdate[key] === undefined && delete sectionsToUpdate[key]
     );
 
     // ===========================
-    // FETCH PAGE + SECTIONS
+    // 3. FETCH PAGE & LINKED SECTIONS
     // ===========================
     const pageData = await prisma.page.findUnique({
       where: { slug: page },
@@ -72,41 +57,49 @@ export async function PUT(req) {
     }
 
     // ===========================
-    // UPSERT TRANSLATIONS
+    // 4. PREPARE UPSERT OPERATIONS
     // ===========================
     const ops = [];
 
-    for (const ps of pageData.sections) {
-      const key = ps.section.key;
+    for (const pageSection of pageData.sections) {
+      const key = pageSection.section.key;
 
-      if (!sections[key]) continue;
-
-      ops.push(
-        prisma.sectionTranslation.upsert({
-          where: {
-            locale_sectionId: {
-              locale,
-              sectionId: ps.section.id,
+      // If this specific section key exists in our incoming JSON payload
+      if (sectionsToUpdate[key]) {
+        ops.push(
+          prisma.sectionTranslation.upsert({
+            where: {
+              locale_sectionId: {
+                locale,
+                sectionId: pageSection.section.id,
+              },
             },
-          },
-          update: {
-            content: sections[key],
-          },
-          create: {
-            locale,
-            sectionId: ps.section.id,
-            content: sections[key],
-          },
-        })
-      );
+            update: {
+              content: sectionsToUpdate[key],
+            },
+            create: {
+              locale,
+              sectionId: pageSection.section.id,
+              content: sectionsToUpdate[key],
+            },
+          })
+        );
+      }
     }
 
-    await prisma.$transaction(ops);
+    // ===========================
+    // 5. EXECUTE DATABASE UPDATE
+    // ===========================
+    if (ops.length > 0) {
+      await prisma.$transaction(ops);
+    }
 
     return NextResponse.json({
       success: true,
-      updated: Object.keys(sections),
+      updatedSections: Object.keys(sectionsToUpdate),
+      count: ops.length
     });
+
   } catch (err) {
     console.error("❌ page update error:", err);
     return NextResponse.json({ error: err.message }, { status: 500 });
