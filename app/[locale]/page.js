@@ -10,6 +10,7 @@ import PricingPlans from "../components/app/PricingPlans";
 import ProjectsShowcase from "../components/app/ProjectShowcase";
 import WhyBestChoice from "../components/app/WhyBestChoice";
 import HowToGetStarted from "../components/app/HowToGetStarted";
+import CustomerReviews from "../components/app/CustomerReviews";
 
 export default function LandingPage() {
   const { locale } = useParams(); // get dynamic locale
