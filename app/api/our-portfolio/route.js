@@ -22,7 +22,7 @@ export async function GET(req) {
       return {
         id: p.id,
         slug: p.slug,
-        cover: p.cover,
+        cover: Array.isArray(p.cover) ? p.cover : p.cover ? [p.cover] : [],
         title: t?.title,
         excerpt: t?.excerpt,
         publishedAt: t?.publishedAt,
@@ -129,7 +129,7 @@ export async function POST(req) {
           id: createdProject.id,
           slug: createdProject.slug,
           title: t.title,
-          cover: cover,
+          cover: Array.isArray(cover) ? cover[0] : cover,
         };
 
         await tx.sectionTranslation.upsert({

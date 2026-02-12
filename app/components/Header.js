@@ -27,7 +27,10 @@ export default function Header() {
   const [mobileExpanded, setMobileExpanded] = useState(null); 
 
   // Calculate Cart Quantity
-  const cartCount = cartItems ? cartItems.reduce((acc, item) => acc + item.quantity, 0) : 0;
+  // Calculate Cart Quantity
+  const cartCount = Array.isArray(cartItems) 
+    ? cartItems.reduce((acc, item) => acc + item.quantity, 0) 
+    : 0;
 
   // ======================
   // MENU CONFIGURATION

@@ -60,7 +60,7 @@ export function ProductModal({ editing, setEditing, onSave, onClose }) {
 		toolbar: [
 			[{ 'header': [1, 2, 3, false] }],
 			['bold', 'italic', 'underline', 'strike'],
-			[{ 'list': 'ordered'}, { 'list': 'bullet' }],
+			[{ 'list': 'ordered' }, { 'list': 'bullet' }],
 			[{ 'color': [] }, { 'background': [] }],
 			['link'],
 			['clean']
@@ -143,235 +143,235 @@ export function ProductModal({ editing, setEditing, onSave, onClose }) {
 								</label>
 								<div className="rich-text-editor">
 									<RichTextEditor
-		value={editing[tab].short_description}
-		onChange={(html) =>
-			update(`${tab}.short_description`, html)
-		}
-		placeholder={
-			tab === "en" ? "Describe your product..." : "وصف المنتج..."
-		}
-		direction={tab === "ar" ? "rtl" : "ltr"}
-/>
+										value={editing[tab].short_description}
+										onChange={(html) =>
+											update(`${tab}.short_description`, html)
+										}
+										placeholder={
+											tab === "en" ? "Describe your product..." : "وصف المنتج..."
+										}
+										direction={tab === "ar" ? "rtl" : "ltr"}
+									/>
 
-	</div>
-	</div>
+								</div>
+							</div>
 
-	{/* MATERIAL */}
-	<div>
-		<label className="text-sm font-medium text-gray-700 mb-2 block">
-			Material
-		</label>
-		<input
-			className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
-			placeholder={tab === "en" ? "e.g., Cotton, Silk, Polyester" : "على سبيل المثال، القطن، الحرير، البوليستر"}
-			value={editing[tab].material || ""}
-			onChange={(e) =>
-				update(`${tab}.material`, e.target.value)
-			}
-		/>
-	</div>
-	</div>
-
-	{/* BASIC INFO */}
-	<div className="bg-gray-50 rounded-xl p-5 border space-y-5">
-		<h3 className="font-semibold text-gray-900 flex items-center gap-2">
-			<span className="w-1 h-5 bg-green-500 rounded"></span>
-			Product Details
-		</h3>
-
-		<div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-			{/* PRICE */}
-			<div>
-				<label className="text-sm font-medium text-gray-700 mb-2 block">
-					Price *
-				</label>
-				<input
-					type="number"
-					min="0"
-					step="0.01"
-					className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
-					placeholder="0.00"
-					value={editing.price || ""}
-					onChange={(e) =>
-						update("price", Number(e.target.value))
-					}
-				/>
-			</div>
-
-			{/* STOCK */}
-			<div>
-				<label className="text-sm font-medium text-gray-700 mb-2 block">
-					Stock Status *
-				</label>
-				<select
-					className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition bg-white"
-					value={editing.inStock}
-					onChange={(e) =>
-						update("inStock", e.target.value === "true")
-					}
-				>
-					<option value="true">✓ In Stock</option>
-					<option value="false">✗ Out of Stock</option>
-				</select>
-			</div>
-
-			{/* SKU */}
-			<div>
-				<label className="text-sm font-medium text-gray-700 mb-2 block">
-					SKU
-				</label>
-				<input
-					type="text"
-					className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
-					placeholder="e.g. SKU-RED-XL"
-					value={editing.sku || ""}
-					onChange={(e) => update("sku", e.target.value)}
-				/>
-				<p className="text-xs text-gray-500 mt-1 font-mono">
-					SKU is same for all languages.
-				</p>
-			</div>
-
-			{/* CATEGORY */}
-			<div className="">
-				<label className="text-sm font-medium text-gray-700 mb-2 flex items-center justify-between">
-					<span>Category *</span>
-					<button
-						type="button"
-						onClick={() => fetchCategories(tab)}
-						className="text-xs text-blue-600 hover:text-blue-700 flex items-center gap-1"
-						disabled={loadingCategories}
-					>
-						<RefreshCw size={12} className={loadingCategories ? "animate-spin" : ""} />
-						Refresh
-					</button>
-				</label>
-				{loadingCategories ? (
-					<div className="w-full border border-gray-300 rounded-lg p-3 flex items-center justify-center text-sm text-gray-500">
-						<RefreshCw size={16} className="animate-spin mr-2" />
-						Loading categories...
-					</div>
-				) : categories.length === 0 ? (
-					<div className="w-full border border-amber-300 bg-amber-50 rounded-lg p-3 text-sm text-amber-700">
-						No categories available. Please create a category first.
-					</div>
-				) : (
-					<select
-						className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition bg-white"
-						value={editing.categoryId || ""}
-						onChange={(e) => update("categoryId", e.target.value)}
-					>
-						<option value="">
-							{tab === "en" ? "Select a category" : "اختر فئة"}
-						</option>
-						{categories.map((cat) => (
-							<option key={cat.id} value={cat.id}>
-								{cat.name}
-							</option>
-						))}
-					</select>
-				)}
-				{editing.categoryId && (
-					<p className="text-xs text-gray-500 mt-1 font-mono">
-						ID: {editing.categoryId}
-					</p>
-				)}
-			</div>
-		</div>
-	</div>
-
-	{/* IMAGES SECTION */}
-	<div className="bg-gradient-to-br from-purple-50/50 to-pink-50/50 rounded-xl p-5 border border-purple-100 space-y-5">
-		<h3 className="font-semibold text-gray-900 flex items-center gap-2">
-			<span className="w-1 h-5 bg-purple-500 rounded"></span>
-			Product Images
-		</h3>
-
-		{/* COVER IMAGE */}
-		<div>
-			<ImageUploader
-				label="Cover Image *"
-				value={editing.coverImage}
-				onChange={(url) => update("coverImage", url)}
-			/>
-		</div>
-
-		{/* GALLERY IMAGES */}
-		<div>
-			<label className="text-sm font-medium text-gray-700 mb-3 block">
-				Gallery Images (Optional)
-			</label>
-
-			{/* Display existing gallery images */}
-			{editing.images && editing.images.length > 0 && (
-				<div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3 mb-4">
-					{editing.images.map((img, i) => (
-						<div key={i} className="relative group">
-							<img
-								src={img}
-								className="w-full h-24 object-cover rounded-lg border-2 border-gray-200"
-								alt={`Gallery ${i + 1}`}
-							/>
-							<button
-								className="absolute -top-2 -right-2 bg-red-500 text-white w-7 h-7 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition shadow-lg"
-								onClick={() =>
-									update(
-										"images",
-										editing.images.filter((_, idx) => idx !== i)
-									)
-								}
-							>
-								<X size={14} />
-							</button>
+							{/* MATERIAL */}
+							<div>
+								<label className="text-sm font-medium text-gray-700 mb-2 block">
+									Material
+								</label>
+								<input
+									className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+									placeholder={tab === "en" ? "e.g., Cotton, Silk, Polyester" : "على سبيل المثال، القطن، الحرير، البوليستر"}
+									value={editing[tab].material || ""}
+									onChange={(e) =>
+										update(`${tab}.material`, e.target.value)
+									}
+								/>
+							</div>
 						</div>
-					))}
-				</div>
-			)}
 
-			{/* Add new gallery image */}
-			<div className="border-2 border-dashed border-gray-300 rounded-lg p-4">
-				<ImageUploader
-					label="Add Gallery Image"
-					value=""
-					onChange={(url) => {
-						const newImages = [...(editing.images || []), url];
-						update("images", newImages);
-					}}
-				/>
+						{/* BASIC INFO */}
+						<div className="bg-gray-50 rounded-xl p-5 border space-y-5">
+							<h3 className="font-semibold text-gray-900 flex items-center gap-2">
+								<span className="w-1 h-5 bg-green-500 rounded"></span>
+								Product Details
+							</h3>
+
+							<div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+								{/* PRICE */}
+								<div>
+									<label className="text-sm font-medium text-gray-700 mb-2 block">
+										Price *
+									</label>
+									<input
+										type="number"
+										min="0"
+										step="0.01"
+										className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+										placeholder="0.00"
+										value={editing.price || ""}
+										onChange={(e) =>
+											update("price", Number(e.target.value))
+										}
+									/>
+								</div>
+
+								{/* STOCK */}
+								<div>
+									<label className="text-sm font-medium text-gray-700 mb-2 block">
+										Stock Status *
+									</label>
+									<select
+										className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition bg-white"
+										value={editing.inStock}
+										onChange={(e) =>
+											update("inStock", e.target.value === "true")
+										}
+									>
+										<option value="true">✓ In Stock</option>
+										<option value="false">✗ Out of Stock</option>
+									</select>
+								</div>
+
+								{/* SKU */}
+								<div>
+									<label className="text-sm font-medium text-gray-700 mb-2 block">
+										SKU
+									</label>
+									<input
+										type="text"
+										className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+										placeholder="e.g. SKU-RED-XL"
+										value={editing.sku || ""}
+										onChange={(e) => update("sku", e.target.value)}
+									/>
+									<p className="text-xs text-gray-500 mt-1 font-mono">
+										SKU is same for all languages.
+									</p>
+								</div>
+
+								{/* CATEGORY */}
+								<div className="">
+									<label className="text-sm font-medium text-gray-700 mb-2 flex items-center justify-between">
+										<span>Category *</span>
+										<button
+											type="button"
+											onClick={() => fetchCategories(tab)}
+											className="text-xs text-blue-600 hover:text-blue-700 flex items-center gap-1"
+											disabled={loadingCategories}
+										>
+											<RefreshCw size={12} className={loadingCategories ? "animate-spin" : ""} />
+											Refresh
+										</button>
+									</label>
+									{loadingCategories ? (
+										<div className="w-full border border-gray-300 rounded-lg p-3 flex items-center justify-center text-sm text-gray-500">
+											<RefreshCw size={16} className="animate-spin mr-2" />
+											Loading categories...
+										</div>
+									) : categories.length === 0 ? (
+										<div className="w-full border border-amber-300 bg-amber-50 rounded-lg p-3 text-sm text-amber-700">
+											No categories available. Please create a category first.
+										</div>
+									) : (
+										<select
+											className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition bg-white"
+											value={editing.categoryId || ""}
+											onChange={(e) => update("categoryId", e.target.value)}
+										>
+											<option value="">
+												{tab === "en" ? "Select a category" : "اختر فئة"}
+											</option>
+											{categories.map((cat) => (
+												<option key={cat.id} value={cat.id}>
+													{cat.name}
+												</option>
+											))}
+										</select>
+									)}
+									{editing.categoryId && (
+										<p className="text-xs text-gray-500 mt-1 font-mono">
+											ID: {editing.categoryId}
+										</p>
+									)}
+								</div>
+							</div>
+						</div>
+
+						{/* IMAGES SECTION */}
+						<div className="bg-gradient-to-br from-purple-50/50 to-pink-50/50 rounded-xl p-5 border border-purple-100 space-y-5">
+							<h3 className="font-semibold text-gray-900 flex items-center gap-2">
+								<span className="w-1 h-5 bg-purple-500 rounded"></span>
+								Product Images
+							</h3>
+
+							{/* COVER IMAGE */}
+							<div>
+								<ImageUploader
+									label="Cover Image *"
+									value={editing.coverImage}
+									onChange={(url) => update("coverImage", url)}
+								/>
+							</div>
+
+							{/* GALLERY IMAGES */}
+							<div>
+								<label className="text-sm font-medium text-gray-700 mb-3 block">
+									Gallery Images (Optional)
+								</label>
+
+								{/* Display existing gallery images */}
+								{editing.images && editing.images.length > 0 && (
+									<div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3 mb-4">
+										{editing.images.map((img, i) => (
+											<div key={i} className="relative group">
+												<img
+													src={img}
+													className="w-full h-24 object-cover rounded-lg border-2 border-gray-200"
+													alt={`Gallery ${i + 1}`}
+												/>
+												<button
+													className="absolute -top-2 -right-2 bg-red-500 text-white w-7 h-7 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition shadow-lg"
+													onClick={() =>
+														update(
+															"images",
+															editing.images.filter((_, idx) => idx !== i)
+														)
+													}
+												>
+													<X size={14} />
+												</button>
+											</div>
+										))}
+									</div>
+								)}
+
+								{/* Add new gallery image */}
+								<div className="border-2 border-dashed border-gray-300 rounded-lg p-4">
+									<ImageUploader
+										label="Add Gallery Image"
+										value=""
+										onChange={(url) => {
+											const newImages = [...(editing.images || []), url];
+											update("images", newImages);
+										}}
+									/>
+								</div>
+							</div>
+						</div>
+
+						{/* VALIDATION WARNING */}
+						{!canSave() && (
+							<div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
+								<p className="text-sm text-amber-800">
+									⚠️ Please fill in all required fields: Category, Price, Cover Image, and Names in both languages.
+								</p>
+							</div>
+						)}
+					</div>
+				</div>
+
+				{/* FOOTER */}
+				<div className="p-5 border-t bg-gray-50 flex justify-between items-center gap-3">
+					<p className="text-xs text-gray-500">
+						* Required fields
+					</p>
+					<div className="flex gap-3">
+						<Button variant="outline" onClick={onClose} className="px-6">
+							Cancel
+						</Button>
+						<Button
+							onClick={onSave}
+							disabled={!canSave()}
+							className="px-6 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+						>
+							{editing.id ? "Update Product" : "Create Product"}
+						</Button>
+					</div>
+				</div>
 			</div>
 		</div>
-	</div>
-
-	{/* VALIDATION WARNING */}
-	{!canSave() && (
-		<div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
-			<p className="text-sm text-amber-800">
-				⚠️ Please fill in all required fields: Category, Price, Cover Image, and Names in both languages.
-			</p>
-		</div>
-	)}
-	</div>
-	</div>
-
-	{/* FOOTER */}
-	<div className="p-5 border-t bg-gray-50 flex justify-between items-center gap-3">
-		<p className="text-xs text-gray-500">
-			* Required fields
-		</p>
-		<div className="flex gap-3">
-			<Button variant="outline" onClick={onClose} className="px-6">
-				Cancel
-			</Button>
-			<Button
-				onClick={onSave}
-				disabled={!canSave()}
-				className="px-6 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
-			>
-				{editing.id ? "Update Product" : "Create Product"}
-			</Button>
-		</div>
-	</div>
-	</div>
-	</div>
 	);
 }

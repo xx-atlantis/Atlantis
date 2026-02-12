@@ -47,7 +47,7 @@ export default function CheckoutPage() {
   useEffect(() => {
     const stored = localStorage.getItem("customer");
     if (stored) {
-      try { 
+      try {
         const parsed = JSON.parse(stored);
         setCustomer(parsed);
         // Pre-fill form if customer data exists
@@ -94,7 +94,7 @@ export default function CheckoutPage() {
 
   // Shipping removed (Set to 0)
   const shipping = 0;
-  
+
   const vat = subtotal * 0.15;
   const total = subtotal + shipping + vat;
 
@@ -128,46 +128,46 @@ export default function CheckoutPage() {
     const firstName = nameParts[0];
     const lastName = nameParts.slice(1).join(" ") || "Customer";
 
-    const orderPayload = cart.cartType === "package" 
+    const orderPayload = cart.cartType === "package"
       ? {
-          customerId: customer.id,
-          orderType: "package",
-          customerName: name,
-          customerEmail: email,
-          customerPhone: formattedPhone,
-          address,
-          notes,
-          paymentMethod: selectedPayment,
-          subtotal,
-          shipping,
-          vat,
-          total,
-          packageDetails: cart.package,
-          projectSteps: cart.steps,
-        }
+        customerId: customer.id,
+        orderType: "package",
+        customerName: name,
+        customerEmail: email,
+        customerPhone: formattedPhone,
+        address,
+        notes,
+        paymentMethod: selectedPayment,
+        subtotal,
+        shipping,
+        vat,
+        total,
+        packageDetails: cart.package,
+        projectSteps: cart.steps,
+      }
       : {
-          customerId: customer.id,
-          orderType: "shop",
-          customerName: name,
-          customerEmail: email,
-          customerPhone: formattedPhone,
-          address,
-          notes,
-          paymentMethod: selectedPayment,
-          subtotal,
-          shipping,
-          vat,
-          total,
-          items: safeCartItems.map((i) => ({
-            productId: i.id,
-            name: i.name,
-            coverImage: i.coverImage,
-            price: i.price,
-            quantity: i.quantity,
-            variant: i.variant,
-            material: i.material,
-          })),
-        };
+        customerId: customer.id,
+        orderType: "shop",
+        customerName: name,
+        customerEmail: email,
+        customerPhone: formattedPhone,
+        address,
+        notes,
+        paymentMethod: selectedPayment,
+        subtotal,
+        shipping,
+        vat,
+        total,
+        items: safeCartItems.map((i) => ({
+          productId: i.id,
+          name: i.name,
+          coverImage: i.coverImage,
+          price: i.price,
+          quantity: i.quantity,
+          variant: i.variant,
+          material: i.material,
+        })),
+      };
 
     try {
       const res = await fetch("/api/order", {
@@ -224,10 +224,10 @@ export default function CheckoutPage() {
   return (
     <section dir={isRTL ? "rtl" : "ltr"} className="py-20 bg-gray-50">
       <div className="max-w-6xl mx-4 md:mx-auto grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-8">
-        
+
         {/* LEFT COLUMN */}
         <div className="space-y-8">
-          
+
           {/* 1. Payment Plan Selection */}
           {cart.cartType === "package" && (
             <div className="border border-gray-200 bg-white rounded-xl p-6 md:p-8 shadow-sm">
@@ -235,7 +235,7 @@ export default function CheckoutPage() {
                 {isRTL ? "اختر خطة الدفع" : "Select Payment Plan"}
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div 
+                <div
                   onClick={() => setPaymentType("full")}
                   className={`cursor-pointer p-4 border rounded-xl transition-all flex items-center gap-4 ${paymentType === "full" ? "border-[#2D3247] bg-gray-50 ring-1 ring-[#2D3247]" : "border-gray-200 hover:border-gray-300"}`}
                 >
@@ -249,7 +249,7 @@ export default function CheckoutPage() {
                   <CreditCard className="ms-auto text-gray-400" size={20} />
                 </div>
 
-                <div 
+                <div
                   onClick={() => setPaymentType("deposit")}
                   className={`cursor-pointer p-4 border rounded-xl transition-all flex items-center gap-4 ${paymentType === "deposit" ? "border-[#5E7E7D] bg-gray-50 ring-1 ring-[#5E7E7D]" : "border-gray-200 hover:border-gray-300"}`}
                 >
@@ -347,7 +347,7 @@ export default function CheckoutPage() {
                   {isRTL ? "تفاصيل التحويل البنكي" : "Bank Transfer Details"}
                 </h2>
               </div>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
                 <div className="space-y-1">
                   <p className="text-[#5e7e7d] font-medium opacity-80">{isRTL ? "اسم الحساب" : "Account Name"}</p>
@@ -370,8 +370,8 @@ export default function CheckoutPage() {
               <div className="mt-6 p-4 bg-white/60 rounded-lg border border-[#5e7e7d]/20">
                 <p className="text-xs text-[#5e7e7d] font-medium flex items-start gap-2">
                   <CheckCircle2 size={16} className="shrink-0" />
-                  {isRTL 
-                    ? "يرجى إرسال صورة إيصال التحويل عبر الواتساب لتأكيد الطلب: +966 53 787 8794" 
+                  {isRTL
+                    ? "يرجى إرسال صورة إيصال التحويل عبر الواتساب لتأكيد الطلب: +966 53 787 8794"
                     : "Please share the transfer receipt via WhatsApp to confirm your order: +966 53 787 8794"}
                 </p>
               </div>
@@ -405,19 +405,6 @@ export default function CheckoutPage() {
                     <span className="text-lg font-extrabold text-[#2D3247]">{cart.package?.price}</span>
                   </div>
                 </div>
-
-                {/* Sidebar Quick Stats */}
-                <div className="grid grid-cols-2 gap-2 py-3">
-                   <div className="p-2 bg-gray-50 rounded-lg text-center">
-                      <p className="text-[9px] text-gray-400 uppercase">{isRTL ? "المساحة" : "Area"}</p>
-                      <p className="text-[10px] font-bold">{cart.package?.area}</p>
-                   </div>
-                   <div className="p-2 bg-gray-50 rounded-lg text-center">
-                      <p className="text-[9px] text-gray-400 uppercase">{isRTL ? "التعديلات" : "Revisions"}</p>
-                      <p className="text-[10px] font-bold">2 Free</p>
-                   </div>
-                </div>
-
                 {cart.extraFee > 0 && (
                   <div className="bg-amber-50 p-4 rounded-xl border border-amber-100 flex justify-between items-center">
                     <div>
@@ -480,30 +467,57 @@ export default function CheckoutPage() {
                 {safeCartItems.length === 0 ? (
                   <p className="text-gray-500 text-sm">{isRTL ? "السلة فارغة" : "No items in cart."}</p>
                 ) : (
-                  safeCartItems.map((item) => (
-                    <div key={item.id} className="flex justify-between items-center text-sm">
-                      <div className="flex items-center gap-3">
-                        <img src={item.coverImage} className="w-10 h-10 rounded border object-cover" alt={item.name} />
-                        <div>
-                          <p className="font-medium">{item.name}</p>
-                          <p className="text-xs text-gray-400">× {item.quantity}</p>
+                  <>
+                    {/* List of Shop Items */}
+                    <div className="space-y-4 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
+                      {safeCartItems.map((item) => (
+                        <div key={item.id} className="flex justify-between items-center text-sm">
+                          <div className="flex items-center gap-3">
+                            <img src={item.coverImage} className="w-10 h-10 rounded border object-cover" alt={item.name} />
+                            <div>
+                              <p className="font-medium text-gray-800">{item.name}</p>
+                              <p className="text-[10px] text-gray-400">× {item.quantity}</p>
+                            </div>
+                          </div>
+                          <span className="font-semibold text-gray-700">
+                            {(item.price * item.quantity).toFixed(2)} <span className="text-[10px]">SAR</span>
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+
+                    <hr className="my-4 border-gray-100" />
+
+                    {/* Totals Breakdown */}
+                    <div className="space-y-2">
+                      <div className="flex justify-between text-sm text-gray-500">
+                        <span>{isRTL ? "المجموع الفرعي" : "Subtotal"}</span>
+                        <span>{subtotal.toFixed(2)} SAR</span>
+                      </div>
+
+                      <div className="flex justify-between text-sm text-gray-500">
+                        <span>{isRTL ? "الضريبة (15%)" : "VAT (15%)"}</span>
+                        <span>{vat.toFixed(2)} SAR</span>
+                      </div>
+
+                      <div className="flex justify-between items-center text-lg font-bold border-t border-gray-100 pt-4 mt-4">
+                        <span className="text-gray-900">{isRTL ? "الإجمالي" : "Total"}</span>
+                        <div className="text-right">
+                          <span className="text-[#2D3247]">{total.toFixed(2)} SAR</span>
+                          <p className="text-[10px] text-gray-400 font-normal">
+                            {isRTL ? "شامل الضريبة" : "VAT Included"}
+                          </p>
                         </div>
                       </div>
-                      <SaudiRiyal /> {(item.price * item.quantity).toFixed(2)}
                     </div>
-                  ))
+                  </>
                 )}
-                <hr className="my-4" />
-                <div className="flex justify-between text-base font-semibold">
-                  <span>{isRTL ? "الإجمالي" : "Total"}</span>
-                  <span className="flex items-center gap-1"><SaudiRiyal /> {total.toFixed(2)}</span>
-                </div>
               </div>
             )}
-        </div>
+          </div>
 
-        {/* PAYMENT METHODS SELECTION */}
-         <div className="border border-gray-200 bg-white rounded-xl p-6 md:p-8 shadow-sm">
+          {/* PAYMENT METHODS SELECTION */}
+          <div className="border border-gray-200 bg-white rounded-xl p-6 md:p-8 shadow-sm">
             <h2 className="text-lg font-semibold mb-6">
               {checkout.payment.title}
             </h2>
@@ -517,7 +531,7 @@ export default function CheckoutPage() {
                   }`}
                 onClick={() => setSelectedPayment("paytabs")}
               >
-                  <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <input
                       type="radio"
@@ -530,13 +544,13 @@ export default function CheckoutPage() {
                         ? "بطاقة ائتمان / مدى"
                         : "Credit / Debit / Mada"}
                     </span>
-                    </div>
+                  </div>
                   <div className="flex gap-1.5">
                     <img src="/icons/visa.png" alt="Visa" className="h-5 object-contain" />
                     <img src="/icons/mastercard.png" alt="Mastercard" className="h-5 object-contain" />
                     <img src="/icons/mada.png" alt="Mada" className="h-5 object-contain" />
                   </div>
-               </div>
+                </div>
               </div>
 
               {/* Tabby */}
@@ -547,7 +561,7 @@ export default function CheckoutPage() {
                   }`}
                 onClick={() => setSelectedPayment("tabby")}
               >
-                  <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <input
                       type="radio"
@@ -560,7 +574,7 @@ export default function CheckoutPage() {
                         ? "تابي - قسمها على 4"
                         : "Tabby - Split in 4"}
                     </span>
-                    </div>
+                  </div>
                   <img src="/icons/tabby.webp" alt="Tabby" className="h-8 object-contain" />
                 </div>
               </div>
@@ -588,12 +602,12 @@ export default function CheckoutPage() {
                     </span>
                   </div>
                   <img src="/icons/tamara.png" alt="Tamara" className="h-6 object-contain" />
-                  </div>
-               </div>
+                </div>
+              </div>
 
               {/* Bank Transfer - UPDATED WITH #5e7e7d */}
-              <div 
-                onClick={() => setSelectedPayment("bank_transfer")} 
+              <div
+                onClick={() => setSelectedPayment("bank_transfer")}
                 className={`border rounded-lg p-4 cursor-pointer transition-all ${selectedPayment === "bank_transfer" ? "border-[#5e7e7d] bg-[#5e7e7d]/5 ring-1 ring-[#5e7e7d]" : "border-gray-200 hover:border-gray-300"}`}
               >
                 <div className="flex items-center gap-3">
@@ -621,7 +635,7 @@ export default function CheckoutPage() {
             </button>
             {!customer?.id && <p className="text-[10px] text-center mt-2 text-red-400">{isRTL ? "يرجى تسجيل الدخول للمتابعة" : "Please login to proceed"}</p>}
           </div>
-      </div>
+        </div>
       </div>
     </section>
   );

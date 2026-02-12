@@ -33,7 +33,7 @@ export async function GET(req, { params }) {
     return NextResponse.json({
       id: project.id,
       slug: project.slug,
-      cover: project.cover,
+      cover: Array.isArray(project.cover) ? project.cover : project.cover ? [project.cover] : [],
       title: t.title,
       excerpt: t.excerpt,
       content: t.content,
@@ -158,7 +158,7 @@ export async function PUT(req, context) {
             ? {
                 ...item,
                 title: t.title,
-                cover: cover ?? item.cover,
+                cover: Array.isArray(cover) ? cover[0] : cover ?? item.cover,
                 slug: slug ?? item.slug,
               }
             : item

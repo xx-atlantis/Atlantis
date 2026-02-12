@@ -59,8 +59,8 @@ export default function AdminShopPage() {
 	/* ---------------- Filter Products ---------------- */
 	const filteredProducts = products.filter((p) => {
 		const matchesSearch = p.name.toLowerCase().includes(searchTerm.toLowerCase());
-		const matchesStock = stockFilter === "all" || 
-			(stockFilter === "inStock" && p.inStock) || 
+		const matchesStock = stockFilter === "all" ||
+			(stockFilter === "inStock" && p.inStock) ||
 			(stockFilter === "outOfStock" && !p.inStock);
 		return matchesSearch && matchesStock;
 	});
@@ -179,8 +179,8 @@ export default function AdminShopPage() {
 						</p>
 					</div>
 					{canCreate && (
-						<Button 
-							onClick={openNew} 
+						<Button
+							onClick={openNew}
 							className="gap-2 bg-blue-600 hover:bg-blue-700 shadow-lg shadow-blue-500/30"
 						>
 							<Plus size={18} /> Add Product
@@ -193,9 +193,9 @@ export default function AdminShopPage() {
 					<div className="flex flex-col sm:flex-row gap-4">
 						{/* SEARCH */}
 						<div className="flex-1 relative">
-							<Search 
-								className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" 
-								size={18} 
+							<Search
+								className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+								size={18}
 							/>
 							<input
 								type="text"
@@ -281,11 +281,10 @@ export default function AdminShopPage() {
 									<div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
 
 									<span
-										className={`absolute top-3 left-3 text-xs font-medium px-3 py-1.5 rounded-full backdrop-blur-sm shadow-lg ${
-											p.inStock
+										className={`absolute top-3 left-3 text-xs font-medium px-3 py-1.5 rounded-full backdrop-blur-sm shadow-lg ${p.inStock
 												? "bg-green-500/90 text-white"
 												: "bg-red-500/90 text-white"
-										}`}
+											}`}
 									>
 										{p.inStock ? "In Stock" : "Out of Stock"}
 									</span>
@@ -298,67 +297,67 @@ export default function AdminShopPage() {
 											{p.name}
 										</h3>
 										<p
-		className="text-sm text-gray-500 mt-1 min-h-[2.5rem] line-clamp-2 tiptap-content"
-		dangerouslySetInnerHTML={{
-			__html: p.short_description || "No description",
-		}}
-/>
+											className="text-sm text-gray-500 mt-1 min-h-[2.5rem] line-clamp-2 tiptap-content"
+											dangerouslySetInnerHTML={{
+												__html: p.short_description || "No description",
+											}}
+										/>
 
-	</div>
+									</div>
 
-	{p.material && (
-		<div className="flex items-center gap-2 text-xs text-gray-600">
-			<span className="px-2 py-1 bg-gray-100 rounded">
-				{p.material}
-			</span>
-		</div>
-	)}
+									{p.material && (
+										<div className="flex items-center gap-2 text-xs text-gray-600">
+											<span className="px-2 py-1 bg-gray-100 rounded">
+												{p.material}
+											</span>
+										</div>
+									)}
 
-	<div className="flex justify-between items-center pt-3 border-t">
-		<div>
-			<p className="text-xs text-gray-500">Price</p>
-			<span className="flex items-center text-xl font-bold text-gray-900">
-				<SaudiRiyal size={16} /> {p.price.toLocaleString()}
-			</span>
-		</div>
+									<div className="flex justify-between items-center pt-3 border-t">
+										<div>
+											<p className="text-xs text-gray-500">Price</p>
+											<span className="flex items-center text-xl font-bold text-gray-900">
+												<SaudiRiyal size={16} /> {p.price.toLocaleString()}
+											</span>
+										</div>
 
-		<div className="flex gap-2">
-			{canUpdate && (
-				<button
-					onClick={() => openEdit(p)}
-					className="p-2.5 rounded-lg hover:bg-blue-50 text-blue-600 transition"
-					title="Edit product"
-				>
-					<Edit size={18} />
-				</button>
+										<div className="flex gap-2">
+											{canUpdate && (
+												<button
+													onClick={() => openEdit(p)}
+													className="p-2.5 rounded-lg hover:bg-blue-50 text-blue-600 transition"
+													title="Edit product"
+												>
+													<Edit size={18} />
+												</button>
+											)}
+											{canDelete && (
+												<button
+													onClick={() => deleteProduct(p.id)}
+													className="p-2.5 rounded-lg hover:bg-red-50 text-red-600 transition"
+													title="Delete product"
+												>
+													<Trash2 size={18} />
+												</button>
+											)}
+										</div>
+									</div>
+								</div>
+							</div>
+						))}
+					</div>
+				)}
+			</div>
+
+			{/* MODAL */}
+			{modalOpen && editing && (
+				<ProductModal
+					editing={editing}
+					setEditing={setEditing}
+					onSave={saveProduct}
+					onClose={() => setModalOpen(false)}
+				/>
 			)}
-			{canDelete && (
-				<button
-					onClick={() => deleteProduct(p.id)}
-					className="p-2.5 rounded-lg hover:bg-red-50 text-red-600 transition"
-					title="Delete product"
-				>
-					<Trash2 size={18} />
-				</button>
-			)}
-		</div>
-	</div>
-	</div>
-	</div>
-	))}
-	</div>
-	)}
-	</div>
-
-	{/* MODAL */}
-	{modalOpen && editing && (
-		<ProductModal
-			editing={editing}
-			setEditing={setEditing}
-			onSave={saveProduct}
-			onClose={() => setModalOpen(false)}
-		/>
-	)}
-	</main>
+		</main>
 	);
 }

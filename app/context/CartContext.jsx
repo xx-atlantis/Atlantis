@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useState, useEffect } from "react";
+import { createContext, useContext, useState, useEffect, useRef, useMemo } from "react";
 
 export const CartContext = createContext(null);
 
@@ -13,8 +13,13 @@ export const useCart = () => {
 export const CartProvider = ({ children }) => {
   const [cartItems, setCartItems] = useState([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
+  const isInitialMount = useRef(true);
 
-  // 🟦 Load cart from LocalStorage safely
+  // 🛡️ Helper to ensure we always work with an array
+  // This prevents the ".reduce is not a function" error in Header
+  const safeCart = useMemo(() => (Array.isArray(cartItems) ? cartItems : []), [cartItems]);
+
+  // 🟦 1. Load cart from LocalStorage safely on Mount
   useEffect(() => {
     const stored = localStorage.getItem("cart");
 
@@ -22,16 +27,14 @@ export const CartProvider = ({ children }) => {
       try {
         const parsed = JSON.parse(stored);
 
-        // 🛑 CASE 1: Package Checkout → Do NOT load into shop cart
+        // CASE 1: Package Checkout → Keep shop context state empty []
         if (parsed?.cartType === "package") {
-          setCartItems([]); // empty cart for shop
+          setCartItems([]);
         }
-        // 🛑 CASE 2: Valid shop-cart (must be array)
+        // CASE 2: Valid shop-cart (array)
         else if (Array.isArray(parsed)) {
           setCartItems(parsed);
-        }
-        // 🛑 Fallback
-        else {
+        } else {
           setCartItems([]);
         }
       } catch (err) {
@@ -39,11 +42,24 @@ export const CartProvider = ({ children }) => {
         setCartItems([]);
       }
     }
+    isInitialMount.current = false;
   }, []);
 
-  // 🟦 Sync shop cart to LocalStorage
+  // 🟦 2. Sync shop cart to LocalStorage
   useEffect(() => {
-    // Only save if it's a normal cart array
+    if (isInitialMount.current) return;
+
+    const existingData = localStorage.getItem("cart");
+    let isPackage = false;
+    try {
+      const parsed = JSON.parse(existingData);
+      isPackage = parsed?.cartType === "package";
+    } catch (e) {}
+
+    // If a package is being processed, don't let the shop state overwrite it
+    if (isPackage) return;
+
+    // Sync only if it's a valid array
     if (Array.isArray(cartItems)) {
       localStorage.setItem("cart", JSON.stringify(cartItems));
     }
@@ -51,24 +67,28 @@ export const CartProvider = ({ children }) => {
 
   // 🟩 Add Product to Cart (Shop)
   const addToCart = (product, qty) => {
-    setCartItems((prev) => {
-      // 🛑 If prev is NOT an array → overwrite (package cart scenario)
-      if (!Array.isArray(prev)) prev = [];
+    // Adding a shop item overrides any package checkout
+    const existingData = localStorage.getItem("cart");
+    try {
+        if (JSON.parse(existingData)?.cartType === "package") {
+            localStorage.removeItem("cart");
+        }
+    } catch(e) {}
 
-      const existing = prev.find(
-        (i) =>
-          i.id === product.id && i.variant?.value === product.variant?.value
+    setCartItems((prev) => {
+      const currentItems = Array.isArray(prev) ? prev : [];
+      const existing = currentItems.find(
+        (i) => i.id === product.id && i.variant?.value === product.variant?.value
       );
 
       if (existing) {
-        return prev.map((i) =>
+        return currentItems.map((i) =>
           i.id === product.id && i.variant?.value === product.variant?.value
             ? { ...i, quantity: i.quantity + qty }
             : i
         );
       }
-
-      return [...prev, { ...product, quantity: qty }];
+      return [...currentItems, { ...product, quantity: qty }];
     });
 
     setIsCartOpen(true);
@@ -77,8 +97,8 @@ export const CartProvider = ({ children }) => {
   // 🟩 Remove item
   const removeFromCart = (id, variant = null) =>
     setCartItems((prev) => {
-      if (!Array.isArray(prev)) return [];
-      return prev.filter((i) =>
+      const currentItems = Array.isArray(prev) ? prev : [];
+      return currentItems.filter((i) =>
         variant
           ? !(i.id === id && i.variant?.value === variant?.value)
           : i.id !== id
@@ -88,8 +108,8 @@ export const CartProvider = ({ children }) => {
   // 🟩 Update quantity
   const updateQuantity = (id, qty, variant = null) =>
     setCartItems((prev) => {
-      if (!Array.isArray(prev)) return prev;
-      return prev.map((i) =>
+      const currentItems = Array.isArray(prev) ? prev : [];
+      return currentItems.map((i) =>
         variant
           ? i.id === id && i.variant?.value === variant?.value
             ? { ...i, quantity: qty }
@@ -105,7 +125,7 @@ export const CartProvider = ({ children }) => {
   return (
     <CartContext.Provider
       value={{
-        cartItems,
+        cartItems: safeCart, // Always return an array to components
         addToCart,
         removeFromCart,
         updateQuantity,

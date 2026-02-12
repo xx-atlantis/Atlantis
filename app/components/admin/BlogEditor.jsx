@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Trash2, Save } from "lucide-react";
+import { Trash2, Save, ExternalLink } from "lucide-react"; // Added ExternalLink icon
 import ImageUploader from "@/app/admin/_components/ImageUploader";
 
 /* ================= HELPERS ================= */
@@ -19,6 +19,7 @@ const slugify = (str) =>
 const emptyBlock = (type = "paragraph") => {
   if (type === "list") return { type, items: [""] };
   if (type === "image") return { type, src: "", alt: "" };
+  if (type === "cta") return { type, ctaText: "", ctaLink: "" }; // Added CTA type
   return { type, text: "" };
 };
 
@@ -95,7 +96,6 @@ export default function BlogEditor({ mode = "create", blogId }) {
 
   /* ================= SAVE (BOTH LANGUAGES) ================= */
   const save = async () => {
-    // Validation
     if (
       !data.en.title ||
       !data.en.content.length ||
@@ -158,9 +158,7 @@ export default function BlogEditor({ mode = "create", blogId }) {
       {/* Shared Meta */}
       <section className="bg-white border rounded-2xl p-6 space-y-4">
         <h2 className="font-semibold text-lg">Common Things</h2>
-
         <Input value={slug} disabled />
-
         <ImageUploader label="Cover Image" value={cover} onChange={setCover} />
       </section>
 
@@ -197,37 +195,43 @@ export default function BlogEditor({ mode = "create", blogId }) {
 
       {/* Content */}
       <section className="bg-white border rounded-2xl p-6">
-        <div className="flex gap-2 mb-4">
-          {["paragraph", "heading", "list", "image"].map((t) => (
+        <div className="flex gap-2 mb-4 flex-wrap">
+          {["paragraph", "heading", "list", "image", "cta"].map((t) => (
             <Button
               key={t}
               size="sm"
+              variant="secondary"
               onClick={() =>
                 patch("content", [...current.content, emptyBlock(t)])
               }
             >
-              + {t}
+              + {t.toUpperCase()}
             </Button>
           ))}
         </div>
 
         {current.content.map((block, i) => (
-          <div key={i} className="border rounded-xl p-4 mb-4 bg-gray-50">
+          <div key={i} className="border rounded-xl p-4 mb-4 bg-gray-50 relative">
             <div className="flex justify-between mb-2">
-              <strong>{block.type}</strong>
+              <strong className="text-xs uppercase text-gray-500 tracking-wider">
+                {block.type}
+              </strong>
               <button
+                className="text-red-500 hover:text-red-700"
                 onClick={() => {
                   const cp = [...current.content];
                   cp.splice(i, 1);
                   patch("content", cp);
                 }}
               >
-                <Trash2 size={14} />
+                <Trash2 size={16} />
               </button>
             </div>
 
+            {/* Paragraph Block */}
             {block.type === "paragraph" && (
               <Textarea
+                placeholder="Enter paragraph text..."
                 value={block.text}
                 onChange={(e) => {
                   const cp = [...current.content];
@@ -237,8 +241,10 @@ export default function BlogEditor({ mode = "create", blogId }) {
               />
             )}
 
+            {/* Heading Block */}
             {block.type === "heading" && (
               <Input
+                placeholder="Enter heading..."
                 value={block.text}
                 onChange={(e) => {
                   const cp = [...current.content];
@@ -248,20 +254,36 @@ export default function BlogEditor({ mode = "create", blogId }) {
               />
             )}
 
-            {block.type === "list" &&
-              block.items.map((item, idx) => (
-                <Input
-                  key={idx}
-                  className="mb-2"
-                  value={item}
-                  onChange={(e) => {
+            {/* List Block */}
+            {block.type === "list" && (
+              <div className="space-y-2">
+                {block.items.map((item, idx) => (
+                  <Input
+                    key={idx}
+                    placeholder={`List item ${idx + 1}`}
+                    value={item}
+                    onChange={(e) => {
+                      const cp = [...current.content];
+                      cp[i].items[idx] = e.target.value;
+                      patch("content", cp);
+                    }}
+                  />
+                ))}
+                <Button 
+                  size="sm" 
+                  variant="ghost" 
+                  onClick={() => {
                     const cp = [...current.content];
-                    cp[i].items[idx] = e.target.value;
+                    cp[i].items.push("");
                     patch("content", cp);
                   }}
-                />
-              ))}
+                >
+                  + Add Item
+                </Button>
+              </div>
+            )}
 
+            {/* Image Block */}
             {block.type === "image" && (
               <ImageUploader
                 value={block.src}
@@ -272,12 +294,42 @@ export default function BlogEditor({ mode = "create", blogId }) {
                 }}
               />
             )}
+
+            {/* CTA Block (New) */}
+            {block.type === "cta" && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <label className="text-xs font-medium">Button Text</label>
+                  <Input
+                    placeholder="e.g. Learn More"
+                    value={block.ctaText}
+                    onChange={(e) => {
+                      const cp = [...current.content];
+                      cp[i].ctaText = e.target.value;
+                      patch("content", cp);
+                    }}
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-xs font-medium">Button Link (URL)</label>
+                  <Input
+                    placeholder="https://..."
+                    value={block.ctaLink}
+                    onChange={(e) => {
+                      const cp = [...current.content];
+                      cp[i].ctaLink = e.target.value;
+                      patch("content", cp);
+                    }}
+                  />
+                </div>
+              </div>
+            )}
           </div>
         ))}
       </section>
 
-      <Button onClick={save} className="w-full flex gap-2">
-        <Save size={16} /> Publish Blog (EN + AR)
+      <Button onClick={save} className="w-full flex gap-2 py-6 text-lg">
+        <Save size={20} /> Publish Blog (EN + AR)
       </Button>
     </main>
   );
