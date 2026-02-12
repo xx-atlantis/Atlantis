@@ -1,15 +1,17 @@
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
+import { useRouter } from "next/navigation"; // Added for navigation
 import { 
   Search, Filter, Mail, Phone, MapPin, 
   Package, ShoppingBag, X, ChevronRight, 
   ArrowUpRight, Plus, Save, Trash2, Loader2 
 } from "lucide-react";
-import { useAdminAuth } from "@/app/context/AdminAuthContext"; // Integrated Auth Context
+import { useAdminAuth } from "@/app/context/AdminAuthContext";
 
 export default function AdminCustomersPage() {
-  const { permissions } = useAdminAuth(); // Permission check (optional)
+  const router = useRouter(); // Initialize Router
+  const { permissions } = useAdminAuth(); 
   
   // State
   const [customers, setCustomers] = useState([]);
@@ -39,17 +41,15 @@ export default function AdminCustomersPage() {
         const ordersArray = Array.isArray(data) ? data : data.orders || data.data || [];
 
         // --- AGGREGATION LOGIC ---
-        // We group orders by Email to create unique "Customer" profiles
         const customerMap = {};
 
         ordersArray.forEach((order) => {
             const email = order.customerEmail;
             if (!email) return;
 
-            // If customer doesn't exist in map yet, initialize them
             if (!customerMap[email]) {
                 customerMap[email] = {
-                    id: order.customerId || order.id, // Fallback if no customerId
+                    id: order.customerId || order.id,
                     name: order.customerName || "Unknown",
                     email: order.customerEmail,
                     phone: order.customerPhone || "N/A",
@@ -63,21 +63,18 @@ export default function AdminCustomersPage() {
                 };
             }
 
-            // Update Aggregates
             customerMap[email].totalSpent += parseFloat(order.total || 0);
             customerMap[email].ordersCount += 1;
             
-            // Add to detailed order history
             customerMap[email].orders.push({
                 id: order.id,
                 date: new Date(order.createdAt).toLocaleDateString(),
-                type: order.orderType || "shop", // Assumes 'orderType' exists or defaults
+                type: order.orderType || "shop",
                 status: order.orderStatus,
                 total: parseFloat(order.total || 0),
-                items: order.packageDetails?.title || `Order #${order.id.slice(-4)}` // Fallback title
+                items: order.packageDetails?.title || `Order #${order.id.slice(-4)}`
             });
             
-            // Update phone/address if the new order has better data
             if(order.customerPhone && (!customerMap[email].phone || customerMap[email].phone === "N/A")) {
                 customerMap[email].phone = order.customerPhone;
             }
@@ -86,7 +83,6 @@ export default function AdminCustomersPage() {
             }
         });
 
-        // Convert Map to Array
         setCustomers(Object.values(customerMap));
 
       } catch (err) {
@@ -117,7 +113,6 @@ export default function AdminCustomersPage() {
 
   const handleSaveNew = async () => {
     setIsSaving(true);
-    // Mimic API delay
     setTimeout(() => {
       const newCustomer = {
         ...formData,
@@ -230,7 +225,7 @@ export default function AdminCustomersPage() {
             ) : (
                 filteredCustomers.map((customer) => (
                 <tr 
-                    key={customer.email} // Using email as key since it's unique
+                    key={customer.email}
                     onClick={() => { setSelectedCustomer(customer); setIsEditing(false); }}
                     className="hover:bg-gray-50 cursor-pointer transition-colors group"
                 >
@@ -420,7 +415,11 @@ export default function AdminCustomersPage() {
                      <h4 className="text-sm font-bold uppercase text-gray-400 tracking-wider border-b border-gray-100 pb-2">Order History</h4>
                      <div className="space-y-3">
                        {selectedCustomer.orders.map((order, idx) => (
-                         <div key={idx} className="flex items-center justify-between p-3 border border-gray-200 rounded-lg hover:border-[#5e7e7d] transition-colors bg-white group cursor-pointer">
+                         <div 
+                           key={idx} 
+                           onClick={() => router.push(`/admin/orders/${order.id}`)}
+                           className="flex items-center justify-between p-3 border border-gray-200 rounded-lg hover:border-[#5e7e7d] transition-colors bg-white group cursor-pointer"
+                         >
                             <div className="flex items-center gap-3">
                                <div className={`w-8 h-8 rounded-full flex items-center justify-center ${order.type === 'package' ? 'bg-purple-50 text-purple-600' : 'bg-blue-50 text-blue-600'}`}>
                                   {order.type === 'package' ? <Package size={14} /> : <ShoppingBag size={14} />}
