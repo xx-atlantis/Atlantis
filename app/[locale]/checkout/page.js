@@ -4,12 +4,12 @@ import { useLocale } from "@/app/components/LocaleProvider";
 import { usePageContent } from "@/app/context/PageContentProvider";
 import { useCart } from "@/app/context/CartContext";
 import { useState, useMemo, useEffect } from "react";
-import { CheckCircle2, CreditCard, Wallet, Sparkles, Landmark } from "lucide-react";
+import { CheckCircle2, CreditCard, Wallet, Sparkles, Landmark, SaudiRiyalIcon } from "lucide-react";
 
 // Helper: Saudi Riyal Icon/Text component to prevent errors
 const SaudiRiyal = ({ size = 14 }) => (
   <span className="inline-flex items-center gap-1 font-bold">
-    <span style={{ fontSize: size }}>SAR</span>
+    <SaudiRiyalIcon size={size} />
   </span>
 );
 
@@ -434,7 +434,7 @@ export default function CheckoutPage() {
                       <span className="text-amber-800 text-sm font-bold block">{isRTL ? "رسوم إضافية" : "Additional Fee"}</span>
                       <p className="text-[11px] text-amber-700 mt-0.5 leading-relaxed">{cart.feeReason}</p>
                     </div>
-                    <span className="font-bold text-amber-800 text-sm">+{cart.extraFee} SAR</span>
+                    <span className="font-bold text-amber-800 text-sm">+{cart.extraFee} <SaudiRiyalIcon size={12} className="inline-block " /></span>
                   </div>
                 )}
 
@@ -474,12 +474,12 @@ export default function CheckoutPage() {
                 <div className="space-y-2">
                   <div className="flex justify-between text-sm text-gray-500">
                     <span>{isRTL ? "الضريبة (15%)" : "VAT (15%)"}</span>
-                    <span>{vat.toFixed(2)} SAR</span>
+                    <span>{vat.toFixed(2)} <SaudiRiyalIcon size={16} className="inline-block " /></span>
                   </div>
                   <div className="flex justify-between items-center text-lg font-bold border-t border-gray-100 pt-4 mt-4">
                     <span className="text-gray-900">{isRTL ? "الإجمالي" : "Total"}</span>
                     <div className="text-right">
-                      <span className="text-[#2D3247]">{total.toFixed(2)} SAR</span>
+                      <span className="text-[#2D3247]">{total.toFixed(2)} <SaudiRiyalIcon size={16} className="inline-block " /></span>
                       <p className="text-[10px] text-gray-400 font-normal">{isRTL ? "شامل الضريبة" : "VAT Included"}</p>
                     </div>
                   </div>
@@ -502,8 +502,8 @@ export default function CheckoutPage() {
                               <p className="text-[10px] text-gray-400">× {item.quantity}</p>
                             </div>
                           </div>
-                          <span className="font-semibold text-gray-700">
-                            {(item.price * item.quantity).toFixed(2)} <span className="text-[10px]">SAR</span>
+                          <span className="font-semibold text-gray-700 flex items-end gap-1">
+                            {(item.price * item.quantity).toFixed(2)} <span className="text-[10px]"><SaudiRiyalIcon size={16} className="inline-block " /></span>
                           </span>
                         </div>
                       ))}
@@ -515,18 +515,18 @@ export default function CheckoutPage() {
                     <div className="space-y-2">
                       <div className="flex justify-between text-sm text-gray-500">
                         <span>{isRTL ? "المجموع الفرعي" : "Subtotal"}</span>
-                        <span>{subtotal.toFixed(2)} SAR</span>
+                        <span>{subtotal.toFixed(2)} <SaudiRiyalIcon size={16} className="inline-block " /></span>
                       </div>
 
                       <div className="flex justify-between text-sm text-gray-500">
                         <span>{isRTL ? "الضريبة (15%)" : "VAT (15%)"}</span>
-                        <span>{vat.toFixed(2)} SAR</span>
+                        <span>{vat.toFixed(2)} <SaudiRiyalIcon size={16} className="inline-block " /></span>
                       </div>
 
                       <div className="flex justify-between items-center text-lg font-bold border-t border-gray-100 pt-4 mt-4">
                         <span className="text-gray-900">{isRTL ? "الإجمالي" : "Total"}</span>
                         <div className="text-right">
-                          <span className="text-[#2D3247]">{total.toFixed(2)} SAR</span>
+                          <span className="text-[#2D3247]">{total.toFixed(2)} <SaudiRiyalIcon size={16} className="inline-block " /></span>
                           <p className="text-[10px] text-gray-400 font-normal">
                             {isRTL ? "شامل الضريبة" : "VAT Included"}
                           </p>
