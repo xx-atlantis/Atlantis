@@ -1,9 +1,10 @@
 "use client";
 
-import { Check, X, ArrowRight, Sparkles } from "lucide-react";
+import { Check, ArrowRight, Sparkles, Building2, Home, Armchair } from "lucide-react";
 import { useLocale } from "@/app/components/LocaleProvider";
 import { usePageContent } from "@/app/context/PageContentProvider";
 import { useRouter } from "next/navigation";
+import { useMemo } from "react";
 
 export default function PricingPlans({ ctaText, ctaLink }) {
   const { locale } = useLocale();
@@ -13,10 +14,54 @@ export default function PricingPlans({ ctaText, ctaLink }) {
   const isRTL = locale === "ar";
 
   const plansData = data?.plans || {};
-  const plans = plansData?.list || [];
+  const rawPlans = plansData?.list || [];
   const mainTitle = plansData?.mainTitle || {};
+  
+  // Use passed CTA text, or fallback to generic "Select Package" to avoid confusion
+  const buttonText = ctaText || plansData?.cta || (isRTL ? "اختر الباقة" : "Select Package");
 
-  const buttonText = ctaText || plansData?.cta;
+  // 1. SORTING LOGIC: Room -> Apartment -> Villa
+  const sortedPlans = useMemo(() => {
+    if (!rawPlans.length) return [];
+    
+    // Assign a weight to each type
+    const getWeight = (title) => {
+      const t = title.toLowerCase();
+      if (t.includes('room') || t.includes('غرفة')) return 1;
+      if (t.includes('apartment') || t.includes('شقة')) return 2;
+      if (t.includes('villa') || t.includes('فيلا')) return 3;
+      return 4; // Others
+    };
+
+    return [...rawPlans].sort((a, b) => getWeight(a.title) - getWeight(b.title));
+  }, [rawPlans]);
+
+  // 2. EXTRACT COMMON FEATURES (Take from the first plan since they are all same)
+  const commonFeatures = sortedPlans[0]?.features || [];
+
+  // 3. HELPER: Get Dynamic Icon
+  const getIcon = (title) => {
+    const t = title.toLowerCase();
+    if (t.includes('room') || t.includes('غرفة')) return <Armchair className="w-6 h-6" />;
+    if (t.includes('apartment') || t.includes('شقة')) return <Building2 className="w-6 h-6" />;
+    return <Home className="w-6 h-6" />;
+  };
+
+  // 4. HELPER: Get Dynamic Unit Label (/Room, /Villa, etc)
+  const getUnitLabel = (title) => {
+    const t = title.toLowerCase();
+    if (isRTL) {
+        if (t.includes('room') || t.includes('غرفة')) return '/ غرفة';
+        if (t.includes('apartment') || t.includes('شقة')) return '/ شقة';
+        if (t.includes('villa') || t.includes('فيلا')) return '/ فيلا';
+        return '';
+    } else {
+        if (t.includes('room')) return '/ Room';
+        if (t.includes('apartment')) return '/ Apartment';
+        if (t.includes('villa')) return '/ Villa';
+        return '';
+    }
+  };
 
   const handleCta = () => {
     if (ctaLink) {
@@ -27,149 +72,125 @@ export default function PricingPlans({ ctaText, ctaLink }) {
   };
 
   return (
-    <section dir={isRTL ? "rtl" : "ltr"} className="py-16 bg-gray-50/50">
+    <section dir={isRTL ? "rtl" : "ltr"} className="py-16 bg-white relative">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* ===== Header ===== */}
-        <div className="text-center max-w-3xl mx-auto mb-16">
+        <div className="text-center max-w-3xl mx-auto mb-12">
           <p className="text-sm font-bold text-[#5E7E7D] uppercase tracking-wider mb-3">
             {plansData?.smallTitle || ""}
           </p>
           <h2 className="text-3xl md:text-5xl font-bold text-gray-900 leading-tight">
             {mainTitle?.normal || ""}{" "}
-            <span className="text-[#2D3247] relative inline-block">
-              {mainTitle?.highlight || ""}
-              {/* Optional underline decoration */}
-              <svg className="absolute w-full h-3 -bottom-1 left-0 text-[#BF953F] opacity-40" viewBox="0 0 100 10" preserveAspectRatio="none">
-                 <path d="M0 5 Q 50 10 100 5" stroke="currentColor" strokeWidth="3" fill="none" />
-              </svg>
-            </span>
+            <span className="text-[#2D3247]">{mainTitle?.highlight || ""}</span>
           </h2>
         </div>
 
-        {/* ===== Pricing Grid ===== */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-start relative">
-          
-          {plans.map((plan, index) => {
-            // Logic to highlight the middle card (index 1)
-            const isPopular = index === 1;
-
+        {/* ===== PART 1: COMPACT PRICING CARDS ===== */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16">
+          {sortedPlans.map((plan, index) => {
+            const isMiddle = index === 1; // Typically Apartment is middle now
+            
             return (
-              <div
+              <div 
                 key={index}
                 className={`
-                  relative rounded-3xl transition-all duration-300 flex flex-col
-                  ${isPopular 
-                    ? "bg-white shadow-2xl ring-1 ring-[#2D3247]/10 z-10 md:-mt-8 md:mb-4 border-t-4 border-[#2D3247]" 
-                    : "bg-white shadow-md border border-gray-100 hover:shadow-lg hover:-translate-y-1"
+                  relative rounded-2xl p-8 border transition-all duration-300 flex flex-col items-center text-center
+                  ${isMiddle 
+                    ? "bg-[#2D3247] text-white border-[#2D3247] shadow-xl transform md:-translate-y-2" 
+                    : "bg-white text-gray-900 border-gray-100 shadow-lg hover:shadow-xl hover:border-[#5E7E7D]/30"
                   }
                 `}
               >
-                {/* Popular Badge */}
-                {isPopular && (
-                  <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-[#2D3247] text-white px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wide flex items-center gap-1 shadow-lg">
-                    <Sparkles size={12} className="text-yellow-400" />
-                    {isRTL ? "الأكثر طلباً" : "Most Popular"}
-                  </div>
-                )}
+                {/* Icon Circle */}
+                <div className={`
+                  w-14 h-14 rounded-full flex items-center justify-center mb-4
+                  ${isMiddle ? "bg-white/10 text-white" : "bg-[#5E7E7D]/10 text-[#5E7E7D]"}
+                `}>
+                  {getIcon(plan.title)}
+                </div>
 
-                <div className="p-8">
-                  {/* Title & Area */}
-                  <h3 className={`text-xl font-bold mb-2 ${isPopular ? "text-[#2D3247]" : "text-gray-700"}`}>
-                    {plan.title}
-                  </h3>
-                  <p className="text-sm text-gray-500 mb-6 font-medium bg-gray-50 inline-block px-3 py-1 rounded-full border border-gray-100">
-                    {plan.area}
-                  </p>
+                <h3 className="text-xl font-bold mb-1">{plan.title}</h3>
+                <p className={`text-sm mb-6 ${isMiddle ? "text-gray-300" : "text-gray-500"}`}>
+                  {plan.area}
+                </p>
 
-                  {/* Price */}
-                  <div className="flex items-baseline gap-1 mb-2">
-                    <span className="text-4xl font-extrabold text-gray-900 tracking-tight">
+                {/* Price Block */}
+                <div className="mb-6">
+                  <div className="flex items-baseline justify-center gap-1">
+                    <span className="text-4xl font-extrabold tracking-tight">
                       {plan.price}
                     </span>
-                    <span className="text-gray-400 font-medium text-sm">
-                       {plansData?.perRoom || ""}
+                    {/* DYNAMIC UNIT LABEL HERE */}
+                    <span className={`text-sm font-medium opacity-80 ${isMiddle ? "text-gray-300" : "text-gray-500"}`}>
+                      {getUnitLabel(plan.title)}
                     </span>
                   </div>
-                  
-                  {/* Old Price / Tax Note */}
-                  <div className="flex items-center gap-3 mb-8 text-sm">
-                    {plan.oldPrice && (
-                      <span className="text-gray-400 line-through decoration-red-400 decoration-2">
-                        {plan.oldPrice}
-                      </span>
-                    )}
-                     <span className="text-emerald-600 font-semibold text-xs bg-emerald-50 px-2 py-0.5 rounded">
-                      {plan.tax}
+                  {plan.oldPrice && (
+                    <span className={`text-sm line-through ${isMiddle ? "text-gray-500" : "text-gray-300"}`}>
+                      {plan.oldPrice}
                     </span>
-                  </div>
-
-                  {/* Divider */}
-                  <div className="h-px bg-gray-100 w-full mb-8" />
-
-                  {/* Features List */}
-                  <ul className="space-y-4 mb-8">
-                    {plan.features.map((feature, i) => (
-                      <li key={i} className="flex items-start gap-3">
-                        {feature.included ? (
-                          <div className={`mt-0.5 w-5 h-5 rounded-full flex items-center justify-center shrink-0 ${isPopular ? 'bg-[#2D3247] text-white' : 'bg-gray-100 text-gray-500'}`}>
-                            <Check size={12} strokeWidth={3} />
-                          </div>
-                        ) : (
-                          <div className="mt-0.5 w-5 h-5 rounded-full flex items-center justify-center shrink-0 border border-gray-200 text-gray-300">
-                             <X size={12} />
-                          </div>
-                        )}
-                        <span className={`text-sm leading-relaxed ${feature.included ? "text-gray-700 font-medium" : "text-gray-400 line-through decoration-gray-300"}`}>
-                          {feature.text}
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
-
-                  {/* Card-specific CTA (Optional visual, leads to same place) */}
-                  <button 
-                    onClick={handleCta}
-                    className={`
-                      w-full py-3.5 px-4 rounded-xl font-bold text-sm transition-colors flex items-center justify-center gap-2
-                      ${isPopular 
-                        ? "bg-[#2D3247] text-white hover:bg-[#1e2231] shadow-lg shadow-[#2D3247]/20" 
-                        : "bg-white border-2 border-gray-100 text-gray-600 hover:border-[#2D3247] hover:text-[#2D3247]"
-                      }
-                    `}
-                  >
-                    {isRTL ? "ابدأ المشروع" : "Start Project"}
-                    <ArrowRight size={16} />
-                  </button>
+                  )}
                 </div>
+
+                <button
+                  onClick={handleCta}
+                  className={`
+                    w-full py-3 rounded-xl font-bold text-sm transition-transform active:scale-95 flex items-center justify-center gap-2
+                    ${isMiddle 
+                      ? "bg-white text-[#2D3247] hover:bg-gray-100" 
+                      : "bg-[#2D3247] text-white hover:bg-[#1e2231]"
+                    }
+                  `}
+                >
+                  {buttonText}
+                  <ArrowRight size={16} />
+                </button>
+
+                <p className={`text-[10px] mt-3 font-medium ${isMiddle ? "text-gray-400" : "text-emerald-600"}`}>
+                  {plan.tax}
+                </p>
               </div>
             );
           })}
         </div>
 
-        {/* ===== Guarantee Box ===== */}
-        <div className="mt-16 md:mt-24 max-w-5xl mx-auto">
-          <div className="relative overflow-hidden bg-gradient-to-r from-[#BF953F]/20 via-[#FCF6BA]/40 to-[#B38728]/20 p-[1px] rounded-2xl">
-            <div className="bg-white/80 backdrop-blur-sm rounded-[15px] p-8 md:p-10 text-center md:text-start flex flex-col md:flex-row items-center gap-8 shadow-sm">
-              
-              {/* Icon */}
-              <div className="w-16 h-16 bg-gradient-to-br from-[#BF953F] to-[#B38728] rounded-full flex items-center justify-center shadow-lg text-white shrink-0">
-                 <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                 </svg>
-              </div>
-
-              {/* Text */}
-              <div className="flex-1">
-                <h4 className="text-xl font-extrabold text-[#2D3247] mb-2">
-                  {plansData.refundHeading}
-                </h4>
-                <p className="text-gray-600 leading-relaxed font-medium">
-                  {plansData.refundText}
-                </p>
-              </div>
-            </div>
+        {/* ===== PART 2: UNIFIED FEATURES LIST ===== */}
+        <div className="bg-gray-50/80 rounded-3xl p-8 md:p-12 border border-gray-100">
+          <div className="text-center mb-10">
+            <h3 className="text-2xl font-bold text-[#2D3247] flex items-center justify-center gap-2">
+              <Sparkles className="text-yellow-500" size={24} />
+              {isRTL ? "جميع الباقات تشمل الميزات التالية" : "All Packages Include"}
+            </h3>
+            <p className="text-gray-500 mt-2">
+              {isRTL ? "نقدم نفس الجودة العالية والاهتمام بالتفاصيل لجميع أنواع الوحدات" : "We provide the same high quality and attention to detail for all unit types"}
+            </p>
           </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-6">
+            {commonFeatures.map((feature, i) => (
+              <div key={i} className="flex items-start gap-3">
+                <div className={`mt-0.5 w-6 h-6 rounded-full flex items-center justify-center shrink-0 ${feature.included ? "bg-[#5E7E7D]/10 text-[#5E7E7D]" : "bg-gray-100 text-gray-300"}`}>
+                   <Check size={14} strokeWidth={3} />
+                </div>
+                <div>
+                  <span className={`text-sm md:text-base font-medium ${feature.included ? "text-gray-800" : "text-gray-400 line-through"}`}>
+                    {feature.text}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* ===== Guarantee Section (Keep as footer) ===== */}
+        <div className="mt-12 text-center">
+            <div className="inline-flex items-center gap-2 bg-yellow-50 border border-yellow-100 px-6 py-3 rounded-full text-yellow-800 text-sm font-semibold">
+                <svg className="w-5 h-5 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                </svg>
+                {plansData.refundHeading} — {plansData.refundText}
+            </div>
         </div>
 
       </div>
