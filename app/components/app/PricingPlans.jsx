@@ -16,7 +16,9 @@ export default function PricingPlans({ ctaText, ctaLink }) {
   const plansData = data?.plans || {};
   const rawPlans = plansData?.list || [];
   const mainTitle = plansData?.mainTitle || {};
-  const buttonText = ctaText || plansData?.cta;
+  
+  // Use passed CTA text, or fallback to generic "Select Package" to avoid confusion
+  const buttonText = ctaText || plansData?.cta || (isRTL ? "اختر الباقة" : "Select Package");
 
   // 1. SORTING LOGIC: Room -> Apartment -> Villa
   const sortedPlans = useMemo(() => {
@@ -37,12 +39,28 @@ export default function PricingPlans({ ctaText, ctaLink }) {
   // 2. EXTRACT COMMON FEATURES (Take from the first plan since they are all same)
   const commonFeatures = sortedPlans[0]?.features || [];
 
-  // Icons for visual flair
+  // 3. HELPER: Get Dynamic Icon
   const getIcon = (title) => {
     const t = title.toLowerCase();
     if (t.includes('room') || t.includes('غرفة')) return <Armchair className="w-6 h-6" />;
     if (t.includes('apartment') || t.includes('شقة')) return <Building2 className="w-6 h-6" />;
     return <Home className="w-6 h-6" />;
+  };
+
+  // 4. HELPER: Get Dynamic Unit Label (/Room, /Villa, etc)
+  const getUnitLabel = (title) => {
+    const t = title.toLowerCase();
+    if (isRTL) {
+        if (t.includes('room') || t.includes('غرفة')) return '/ غرفة';
+        if (t.includes('apartment') || t.includes('شقة')) return '/ شقة';
+        if (t.includes('villa') || t.includes('فيلا')) return '/ فيلا';
+        return '';
+    } else {
+        if (t.includes('room')) return '/ Room';
+        if (t.includes('apartment')) return '/ Apartment';
+        if (t.includes('villa')) return '/ Villa';
+        return '';
+    }
   };
 
   const handleCta = () => {
@@ -69,7 +87,6 @@ export default function PricingPlans({ ctaText, ctaLink }) {
         </div>
 
         {/* ===== PART 1: COMPACT PRICING CARDS ===== */}
-        {/* These only show Title & Price to save space */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16">
           {sortedPlans.map((plan, index) => {
             const isMiddle = index === 1; // Typically Apartment is middle now
@@ -104,8 +121,9 @@ export default function PricingPlans({ ctaText, ctaLink }) {
                     <span className="text-4xl font-extrabold tracking-tight">
                       {plan.price}
                     </span>
-                    <span className={`text-xs font-medium uppercase ${isMiddle ? "text-gray-400" : "text-gray-400"}`}>
-                      {plansData?.perRoom || "SAR"}
+                    {/* DYNAMIC UNIT LABEL HERE */}
+                    <span className={`text-sm font-medium opacity-80 ${isMiddle ? "text-gray-300" : "text-gray-500"}`}>
+                      {getUnitLabel(plan.title)}
                     </span>
                   </div>
                   {plan.oldPrice && (
@@ -125,7 +143,7 @@ export default function PricingPlans({ ctaText, ctaLink }) {
                     }
                   `}
                 >
-                  {buttonText || (isRTL ? "اختر الباقة" : "Select Package")}
+                  {buttonText}
                   <ArrowRight size={16} />
                 </button>
 
@@ -138,7 +156,6 @@ export default function PricingPlans({ ctaText, ctaLink }) {
         </div>
 
         {/* ===== PART 2: UNIFIED FEATURES LIST ===== */}
-        {/* We display features ONCE here because they are shared */}
         <div className="bg-gray-50/80 rounded-3xl p-8 md:p-12 border border-gray-100">
           <div className="text-center mb-10">
             <h3 className="text-2xl font-bold text-[#2D3247] flex items-center justify-center gap-2">
