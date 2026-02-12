@@ -5,10 +5,10 @@ import Image from "next/image";
 import { usePageContent } from "@/app/context/PageContentProvider";
 import { useState, useEffect, useRef } from "react";
 import toast from "react-hot-toast";
-// Firebase Imports
 import { RecaptchaVerifier, signInWithPhoneNumber } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import { Eye, EyeOff } from "lucide-react";
+import GoogleButton from "@/app/components/auth/GoogleButton"; // Import the Google Button
 
 export default function SignupPage() {
   const { locale } = useLocale();
@@ -16,9 +16,7 @@ export default function SignupPage() {
   const isRTL = locale === "ar";
   const t = data?.login;
 
-  // --------------------------
   // Form State
-  // --------------------------
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
@@ -38,16 +36,13 @@ export default function SignupPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  // Ref to track if we have already mounted
+  // Ref to track Recaptcha container
   const recaptchaContainerRef = useRef(null);
 
   if (!t) return null;
 
-  // --------------------------
-  // Fix 1: Cleanup Recaptcha on Unmount
-  // --------------------------
+  // Cleanup Recaptcha on Unmount
   useEffect(() => {
-    // Cleanup function: If user leaves page, clear the verifier
     return () => {
       if (window.recaptchaVerifier) {
         window.recaptchaVerifier.clear();
@@ -56,27 +51,21 @@ export default function SignupPage() {
     };
   }, []);
 
-  // --------------------------
-  // Fix 2: Lazy Initialization
-  // --------------------------
   const setupRecaptcha = () => {
-    // If already exists, do nothing
     if (window.recaptchaVerifier) return;
 
-    // Ensure the container exists in the DOM
     if (!recaptchaContainerRef.current) {
       console.error("Recaptcha container not found");
       return;
     }
 
     window.recaptchaVerifier = new RecaptchaVerifier(auth, recaptchaContainerRef.current, {
-      size: "normal", // or "invisible" for better mobile UX
+      size: "normal",
       callback: (response) => {
-        // reCAPTCHA solved, allow signInWithPhoneNumber.
+        // reCAPTCHA solved
       },
       "expired-callback": () => {
         toast.error("Recaptcha expired. Please try again.");
-        // Reset so they can try again
         if (window.recaptchaVerifier) {
           window.recaptchaVerifier.clear();
           window.recaptchaVerifier = null;
@@ -85,13 +74,9 @@ export default function SignupPage() {
     });
   };
 
-  // --------------------------
-  // Step 1: Send OTP
-  // --------------------------
   const handleSendOtp = async () => {
     setErrorMsg("");
 
-    // Validation
     let rawNumber = phoneInput.replace(/\D/g, '');
     if (rawNumber.startsWith("05")) rawNumber = rawNumber.substring(1);
     if (rawNumber.startsWith("966")) rawNumber = rawNumber.substring(3);
@@ -106,26 +91,18 @@ export default function SignupPage() {
 
     try {
       setOtpLoading(true);
-
-      // 1. Initialize Recaptcha JUST BEFORE sending
       setupRecaptcha();
 
       const appVerifier = window.recaptchaVerifier;
-
-      // 2. Send SMS
       const confirmation = await signInWithPhoneNumber(auth, finalPhoneNumber, appVerifier);
 
       setConfirmationResult(confirmation);
       setOtpSent(true);
       toast.success(isRTL ? "تم إرسال رمز التحقق" : "OTP sent successfully");
 
-      // Optional: clear recaptcha widget visually after success if you want, 
-      // but usually better to keep it until verify is done.
-
     } catch (error) {
       console.error("OTP Error:", error);
 
-      // Reset Recaptcha on Error so they can try again
       if (window.recaptchaVerifier) {
         window.recaptchaVerifier.clear();
         window.recaptchaVerifier = null;
@@ -154,7 +131,6 @@ export default function SignupPage() {
       setIsPhoneVerified(true);
       setOtpSent(false);
 
-      // Clean up recaptcha after success
       if (window.recaptchaVerifier) {
         window.recaptchaVerifier.clear();
         window.recaptchaVerifier = null;
@@ -171,9 +147,6 @@ export default function SignupPage() {
 
   async function handleSignup(e) {
     e.preventDefault();
-    // ... (Your existing signup logic remains exactly the same)
-
-    // START EXISTING LOGIC COPY
     setErrorMsg("");
     if (!isPhoneVerified) {
       const msg = isRTL ? "يرجى التحقق من رقم الهاتف أولاً" : "Please verify your phone number first.";
@@ -223,15 +196,12 @@ export default function SignupPage() {
     } finally {
       setLoading(false);
     }
-    // END EXISTING LOGIC COPY
   }
 
   return (
     <section dir={isRTL ? "rtl" : "ltr"} className="min-h-screen flex flex-col lg:flex-row bg-gray-50">
 
-      {/* Fix 3: Dedicated Container for Recaptcha 
-         We place this relative or fixed to ensure it doesn't break layout.
-      */}
+      {/* Recaptcha Container */}
       <div className="flex justify-center">
         <div ref={recaptchaContainerRef} id="recaptcha-container" className="my-2"></div>
       </div>
@@ -253,6 +223,19 @@ export default function SignupPage() {
             <img src="/logo.png" alt="Atlantis Logo" width={60} />
             <h2 className="text-2xl font-bold mt-4 text-gray-900">{t.signupTitle}</h2>
             <p className="text-gray-500 text-sm mt-1 text-center">{t.signupSubtitle}</p>
+          </div>
+
+          {/* Google Login Button */}
+          <GoogleButton />
+
+          {/* Divider */}
+          <div className="relative my-6">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-gray-200"></div>
+            </div>
+            <div className="relative flex justify-center text-sm">
+              <span className="px-2 bg-white text-gray-500">{isRTL ? "أو" : "Or"}</span>
+            </div>
           </div>
 
           <form className="space-y-5" onSubmit={handleSignup}>
@@ -339,11 +322,6 @@ export default function SignupPage() {
                   </div>
                 )}
               </div>
-            </div>
-
-            {/* Fix 4: Place Recaptcha Container visually under the phone field for mobile context */}
-            <div id="recaptcha-wrapper" className="w-full flex justify-center mt-2">
-              <div ref={recaptchaContainerRef}></div>
             </div>
 
             {/* OTP Input */}
