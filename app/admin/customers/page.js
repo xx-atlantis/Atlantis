@@ -6,73 +6,105 @@ import {
   Package, ShoppingBag, X, ChevronRight, 
   ArrowUpRight, Plus, Save, Trash2, Loader2 
 } from "lucide-react";
-
-// --- INITIAL MOCK DATA (Acts as your database for now) ---
-const INITIAL_DATA = [
-  {
-    id: "cust_01",
-    name: "Murtaza Ghani",
-    email: "murtaza.ghani91@gmail.com",
-    phone: "+966537878794",
-    joinDate: "2025-09-25",
-    status: "Active",
-    address: "Riyadh, Saudi Arabia",
-    totalSpent: 12500,
-    ordersCount: 3,
-    notes: "Client prefers communication via WhatsApp.",
-    orders: [
-      { id: "ord_882", date: "2026-02-10", type: "package", status: "In Progress", total: 8500, items: "Villa Design Package" },
-    ]
-  },
-  {
-    id: "cust_02",
-    name: "Sarah Ahmed",
-    email: "sarah.des@example.com",
-    phone: "+966501234567",
-    joinDate: "2026-01-05",
-    status: "Active",
-    address: "Jeddah, Al-Rawdah Dist.",
-    totalSpent: 450,
-    ordersCount: 1,
-    notes: "Gate code is 1234.",
-    orders: []
-  },
-];
+import { useAdminAuth } from "@/app/context/AdminAuthContext"; // Integrated Auth Context
 
 export default function AdminCustomersPage() {
-  const [customers, setCustomers] = useState(INITIAL_DATA);
+  const { permissions } = useAdminAuth(); // Permission check (optional)
+  
+  // State
+  const [customers, setCustomers] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   
   // UI States
   const [selectedCustomer, setSelectedCustomer] = useState(null);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
   // Form State for Add/Edit
   const [formData, setFormData] = useState({
     name: "", email: "", phone: "", address: "", status: "Active", notes: ""
   });
 
-  // --- 1. FETCH DATA (Backend Integration Point) ---
+  // --- 1. FETCH & AGGREGATE DATA ---
   useEffect(() => {
-    // TODO: When your API is ready, uncomment this:
-    /*
-    async function fetchData() {
-      const res = await fetch('/api/admin/customers');
-      const data = await res.json();
-      setCustomers(data);
-    }
-    fetchData();
-    */
+    const fetchCustomersFromOrders = async () => {
+      try {
+        setLoading(true);
+        const res = await fetch("/api/order");
+        const data = await res.json();
+        
+        // Handle different API response structures
+        const ordersArray = Array.isArray(data) ? data : data.orders || data.data || [];
+
+        // --- AGGREGATION LOGIC ---
+        // We group orders by Email to create unique "Customer" profiles
+        const customerMap = {};
+
+        ordersArray.forEach((order) => {
+            const email = order.customerEmail;
+            if (!email) return;
+
+            // If customer doesn't exist in map yet, initialize them
+            if (!customerMap[email]) {
+                customerMap[email] = {
+                    id: order.customerId || order.id, // Fallback if no customerId
+                    name: order.customerName || "Unknown",
+                    email: order.customerEmail,
+                    phone: order.customerPhone || "N/A",
+                    address: order.address || "N/A",
+                    joinDate: new Date(order.createdAt).toISOString().split('T')[0],
+                    status: "Active",
+                    totalSpent: 0,
+                    ordersCount: 0,
+                    notes: order.notes || "",
+                    orders: []
+                };
+            }
+
+            // Update Aggregates
+            customerMap[email].totalSpent += parseFloat(order.total || 0);
+            customerMap[email].ordersCount += 1;
+            
+            // Add to detailed order history
+            customerMap[email].orders.push({
+                id: order.id,
+                date: new Date(order.createdAt).toLocaleDateString(),
+                type: order.orderType || "shop", // Assumes 'orderType' exists or defaults
+                status: order.orderStatus,
+                total: parseFloat(order.total || 0),
+                items: order.packageDetails?.title || `Order #${order.id.slice(-4)}` // Fallback title
+            });
+            
+            // Update phone/address if the new order has better data
+            if(order.customerPhone && (!customerMap[email].phone || customerMap[email].phone === "N/A")) {
+                customerMap[email].phone = order.customerPhone;
+            }
+            if(order.address && (!customerMap[email].address || customerMap[email].address === "N/A")) {
+                customerMap[email].address = order.address;
+            }
+        });
+
+        // Convert Map to Array
+        setCustomers(Object.values(customerMap));
+
+      } catch (err) {
+        console.error("Error fetching customers:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCustomersFromOrders();
   }, []);
 
   // --- 2. FILTER LOGIC ---
   const filteredCustomers = useMemo(() => {
     return customers.filter(c => 
-      c.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      c.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      c.phone.includes(searchTerm)
+      (c.name && c.name.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (c.email && c.email.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (c.phone && c.phone.includes(searchTerm))
     );
   }, [customers, searchTerm]);
 
@@ -84,30 +116,25 @@ export default function AdminCustomersPage() {
   };
 
   const handleSaveNew = async () => {
-    setIsLoading(true);
-    // Simulate API Call
+    setIsSaving(true);
+    // Mimic API delay
     setTimeout(() => {
       const newCustomer = {
         ...formData,
-        id: `cust_${Math.floor(Math.random() * 1000)}`, // Generate random ID
+        id: `cust_${Math.floor(Math.random() * 1000)}`,
         joinDate: new Date().toISOString().split('T')[0],
         totalSpent: 0,
         ordersCount: 0,
         orders: []
       };
-      
-      setCustomers([newCustomer, ...customers]); // Update Local State
+      setCustomers([newCustomer, ...customers]); 
       setIsAddModalOpen(false);
-      setIsLoading(false);
-      
-      // TODO: API Call Here
-      // await fetch('/api/admin/customers', { method: 'POST', body: JSON.stringify(formData) });
+      setIsSaving(false);
     }, 800);
   };
 
   const handleEditClick = () => {
     setIsEditing(true);
-    // Pre-fill form with selected customer data
     setFormData({
       name: selectedCustomer.name,
       email: selectedCustomer.email,
@@ -119,29 +146,23 @@ export default function AdminCustomersPage() {
   };
 
   const handleUpdateCustomer = async () => {
-    setIsLoading(true);
+    setIsSaving(true);
     setTimeout(() => {
       const updatedList = customers.map(c => 
-        c.id === selectedCustomer.id ? { ...c, ...formData } : c
+        c.email === selectedCustomer.email ? { ...c, ...formData } : c
       );
       setCustomers(updatedList);
-      setSelectedCustomer({ ...selectedCustomer, ...formData }); // Update the drawer view
+      setSelectedCustomer({ ...selectedCustomer, ...formData });
       setIsEditing(false);
-      setIsLoading(false);
-
-      // TODO: API Call Here
-      // await fetch(`/api/admin/customers/${selectedCustomer.id}`, { method: 'PUT', body: JSON.stringify(formData) });
+      setIsSaving(false);
     }, 800);
   };
 
   const handleDeleteCustomer = () => {
     if(!confirm("Are you sure you want to delete this customer?")) return;
-    const updatedList = customers.filter(c => c.id !== selectedCustomer.id);
+    const updatedList = customers.filter(c => c.email !== selectedCustomer.email);
     setCustomers(updatedList);
     setSelectedCustomer(null);
-    
-    // TODO: API Call Here
-    // await fetch(`/api/admin/customers/${selectedCustomer.id}`, { method: 'DELETE' });
   };
 
   return (
@@ -192,52 +213,60 @@ export default function AdminCustomersPage() {
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
-            {filteredCustomers.map((customer) => (
-              <tr 
-                key={customer.id} 
-                onClick={() => { setSelectedCustomer(customer); setIsEditing(false); }}
-                className="hover:bg-gray-50 cursor-pointer transition-colors group"
-              >
-                <td className="p-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-[#5e7e7d]/10 text-[#5e7e7d] flex items-center justify-center font-bold text-sm">
-                      {customer.name.charAt(0).toUpperCase()}
-                    </div>
-                    <div>
-                      <p className="font-bold text-sm text-[#2D3247]">{customer.name}</p>
-                      <p className="text-xs text-gray-400">ID: {customer.id}</p>
-                    </div>
-                  </div>
-                </td>
-                <td className="p-4 text-sm text-gray-600">
-                   <div className="flex flex-col gap-1">
-                     <span className="flex items-center gap-2"><Mail size={12} className="text-gray-400"/> {customer.email}</span>
-                     <span className="flex items-center gap-2"><Phone size={12} className="text-gray-400"/> {customer.phone}</span>
-                   </div>
-                </td>
-                <td className="p-4">
-                  <span className={`px-2 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide ${
-                    customer.status === "Active" ? "bg-emerald-50 text-emerald-600 border border-emerald-100" : "bg-gray-100 text-gray-500"
-                  }`}>
-                    {customer.status}
-                  </span>
-                </td>
-                <td className="p-4 text-right text-sm font-medium">{customer.ordersCount}</td>
-                <td className="p-4 text-right text-sm font-bold text-[#2D3247]">{customer.totalSpent.toLocaleString()} SAR</td>
-                <td className="p-4 text-center">
-                  <button className="text-gray-400 hover:text-[#5e7e7d] p-2 rounded-full hover:bg-[#5e7e7d]/10 transition-all">
-                    <ChevronRight size={18} />
-                  </button>
-                </td>
-              </tr>
-            ))}
-            
-            {filteredCustomers.length === 0 && (
+            {loading ? (
+                <tr>
+                    <td colSpan="6" className="p-12 text-center text-gray-400 text-sm">
+                        <div className="flex justify-center items-center gap-2">
+                             <Loader2 className="animate-spin" size={20} /> Loading customer data...
+                        </div>
+                    </td>
+                </tr>
+            ) : filteredCustomers.length === 0 ? (
               <tr>
                 <td colSpan="6" className="p-12 text-center text-gray-500 text-sm">
                   No customers found matching "{searchTerm}"
                 </td>
               </tr>
+            ) : (
+                filteredCustomers.map((customer) => (
+                <tr 
+                    key={customer.email} // Using email as key since it's unique
+                    onClick={() => { setSelectedCustomer(customer); setIsEditing(false); }}
+                    className="hover:bg-gray-50 cursor-pointer transition-colors group"
+                >
+                    <td className="p-4">
+                    <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full bg-[#5e7e7d]/10 text-[#5e7e7d] flex items-center justify-center font-bold text-sm">
+                        {(customer.name || "U").charAt(0).toUpperCase()}
+                        </div>
+                        <div>
+                        <p className="font-bold text-sm text-[#2D3247]">{customer.name}</p>
+                        <p className="text-xs text-gray-400">Since: {customer.joinDate}</p>
+                        </div>
+                    </div>
+                    </td>
+                    <td className="p-4 text-sm text-gray-600">
+                    <div className="flex flex-col gap-1">
+                        <span className="flex items-center gap-2"><Mail size={12} className="text-gray-400"/> {customer.email}</span>
+                        <span className="flex items-center gap-2"><Phone size={12} className="text-gray-400"/> {customer.phone}</span>
+                    </div>
+                    </td>
+                    <td className="p-4">
+                    <span className={`px-2 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide ${
+                        customer.status === "Active" ? "bg-emerald-50 text-emerald-600 border border-emerald-100" : "bg-gray-100 text-gray-500"
+                    }`}>
+                        {customer.status}
+                    </span>
+                    </td>
+                    <td className="p-4 text-right text-sm font-medium">{customer.ordersCount}</td>
+                    <td className="p-4 text-right text-sm font-bold text-[#2D3247]">{customer.totalSpent.toLocaleString()} SAR</td>
+                    <td className="p-4 text-center">
+                    <button className="text-gray-400 hover:text-[#5e7e7d] p-2 rounded-full hover:bg-[#5e7e7d]/10 transition-all">
+                        <ChevronRight size={18} />
+                    </button>
+                    </td>
+                </tr>
+                ))
             )}
           </tbody>
         </table>
@@ -275,10 +304,10 @@ export default function AdminCustomersPage() {
                 />
                 <button 
                   onClick={handleSaveNew}
-                  disabled={isLoading}
+                  disabled={isSaving}
                   className="w-full bg-[#2D3247] text-white py-3 rounded-lg font-bold text-sm hover:bg-[#1e2231] flex justify-center items-center gap-2"
                 >
-                  {isLoading ? <Loader2 className="animate-spin" size={16} /> : "Create Customer"}
+                  {isSaving ? <Loader2 className="animate-spin" size={16} /> : "Create Customer"}
                 </button>
              </div>
           </div>
@@ -342,7 +371,7 @@ export default function AdminCustomersPage() {
                 <>
                   <div className="flex items-start gap-4">
                     <div className="w-16 h-16 rounded-full bg-[#2D3247] text-white flex items-center justify-center text-2xl font-bold">
-                      {selectedCustomer.name.charAt(0).toUpperCase()}
+                      {(selectedCustomer.name || "U").charAt(0).toUpperCase()}
                     </div>
                     <div className="flex-1">
                       <h3 className="text-xl font-bold text-[#2D3247]">{selectedCustomer.name}</h3>
@@ -386,6 +415,30 @@ export default function AdminCustomersPage() {
                     </div>
                   </div>
 
+                  {/* Order History */}
+                  <div className="space-y-4">
+                     <h4 className="text-sm font-bold uppercase text-gray-400 tracking-wider border-b border-gray-100 pb-2">Order History</h4>
+                     <div className="space-y-3">
+                       {selectedCustomer.orders.map((order, idx) => (
+                         <div key={idx} className="flex items-center justify-between p-3 border border-gray-200 rounded-lg hover:border-[#5e7e7d] transition-colors bg-white group cursor-pointer">
+                            <div className="flex items-center gap-3">
+                               <div className={`w-8 h-8 rounded-full flex items-center justify-center ${order.type === 'package' ? 'bg-purple-50 text-purple-600' : 'bg-blue-50 text-blue-600'}`}>
+                                  {order.type === 'package' ? <Package size={14} /> : <ShoppingBag size={14} />}
+                               </div>
+                               <div>
+                                  <p className="text-sm font-bold text-[#2D3247]">{order.items}</p>
+                                  <p className="text-xs text-gray-500">{order.date} • {order.status}</p>
+                               </div>
+                            </div>
+                            <div className="text-right">
+                               <p className="text-sm font-bold">{order.total.toLocaleString()} SAR</p>
+                               <ArrowUpRight size={14} className="ml-auto text-gray-300 group-hover:text-[#5e7e7d]" />
+                            </div>
+                         </div>
+                       ))}
+                     </div>
+                  </div>
+
                   {/* Notes */}
                   {selectedCustomer.notes && (
                     <div className="bg-amber-50 p-4 rounded-lg border border-amber-100 text-sm">
@@ -409,10 +462,10 @@ export default function AdminCustomersPage() {
                     </button>
                     <button 
                       onClick={handleUpdateCustomer}
-                      disabled={isLoading}
+                      disabled={isSaving}
                       className="flex-1 py-3 bg-[#5e7e7d] text-white rounded-lg font-bold text-sm hover:bg-[#4d6b6a] flex justify-center items-center gap-2"
                     >
-                      {isLoading ? <Loader2 className="animate-spin" size={16}/> : <><Save size={16}/> Save Changes</>}
+                      {isSaving ? <Loader2 className="animate-spin" size={16}/> : <><Save size={16}/> Save Changes</>}
                     </button>
                  </div>
                ) : (
