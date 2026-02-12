@@ -62,7 +62,7 @@ export default function Header() {
       // UPDATED SUBMENU AS REQUESTED
       sublinks: [
         { title: isRTL ? "خدماتنا" : "Our Services", link: "/services" },
-        { title: isRTL ? "مشاريعنا" : "Our Portfolio", link: "/our-projects" },
+        { title: isRTL ? "مشاريعنا" : "Our Portfolio", link: "/our-portfolio" },
         { title: isRTL ? "جولة افتراضية" : "Virtual Tour", link: "/virtual-tour" },
       ],
     },
