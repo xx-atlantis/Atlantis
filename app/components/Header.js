@@ -72,7 +72,7 @@ export default function Header() {
     },
     {
       title: isRTL ? "الخطط والأسعار" : "Plans & Prices",
-      link: "/pricing-plan",
+      link: "/pricing-plans",
     },
     {
       title: isRTL ? "المدونة" : "Blog",
