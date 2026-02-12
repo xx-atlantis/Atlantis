@@ -11,6 +11,7 @@ import { useSearchParams } from "next/navigation";
 import { RecaptchaVerifier, signInWithPhoneNumber } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import { Eye, EyeOff } from "lucide-react";
+import GoogleButton from "@/app/components/auth/GoogleButton"; // Import the Google Button
 
 export default function LoginPage() {
   const { locale } = useLocale();
@@ -37,6 +38,7 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const recaptchaRef = useRef(null);
 
+  // Cleanup Recaptcha
   useEffect(() => {
     return () => {
       if (window.recaptchaVerifier) {
@@ -46,6 +48,7 @@ export default function LoginPage() {
     };
   }, []);
 
+  // Resend Timer
   useEffect(() => {
     if (resendTimer > 0) {
       const timer = setTimeout(() => setResendTimer(resendTimer - 1), 1000);
@@ -81,13 +84,9 @@ export default function LoginPage() {
       const json = await res.json();
       if (!json.success) throw new Error(json.error);
 
-      // Save customer session to context
       saveCustomer(json.customer);
       toast.success(loginData?.success || "Login successful!");
 
-      // SUCCESS REDIRECT LOGIC:
-      // If 'redirect' exists, we go there (e.g., /en/order-summary).
-      // Otherwise, we go to the default localized home/dashboard.
       setTimeout(() => {
         if (redirect) {
           window.location.href = decodeURIComponent(redirect);
@@ -219,6 +218,19 @@ export default function LoginPage() {
               <p className="text-gray-500 text-sm mt-1">{loginData?.loginSubtitle}</p>
             </div>
 
+            {/* Google Login Button */}
+            <GoogleButton />
+
+            {/* Divider */}
+            <div className="relative my-6">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-gray-200"></div>
+              </div>
+              <div className="relative flex justify-center text-sm">
+                <span className="px-2 bg-white text-gray-500">{isRTL ? "أو" : "Or"}</span>
+              </div>
+            </div>
+
             <form className="space-y-5" onSubmit={handleLogin}>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">{loginData?.email}</label>
@@ -273,6 +285,7 @@ export default function LoginPage() {
         </div>
       </section>
 
+      {/* Forgot Password Modal */}
       {showForgotModal && (
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4 backdrop-blur-sm" onClick={closeModal}>
           <div dir={isRTL ? "rtl" : "ltr"} onClick={(e) => e.stopPropagation()} className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8 relative animate-[slideUp_0.3s_ease]">
@@ -311,6 +324,7 @@ export default function LoginPage() {
                   <div className="bg-gray-100 border border-gray-300 px-4 py-3 rounded-lg text-sm font-semibold text-gray-700">+966</div>
                   <input type="tel" placeholder="5xxxxxxxx" value={phoneInput} maxLength={9} onChange={(e) => setPhoneInput(e.target.value.replace(/\D/g, ""))} className="flex-1 border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-[#2D3247] focus:border-transparent transition-all" />
                 </div>
+                <div ref={recaptchaRef} className="flex justify-center"></div>
                 <button onClick={handleVerifyPhone} disabled={forgotLoading || phoneInput.length < 9} className="w-full bg-[#2D3247] text-white py-3 rounded-lg font-semibold hover:bg-[#1e2231] disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg hover:shadow-xl">
                   {forgotLoading ? "..." : (isRTL ? "إرسال الرمز" : "Send Code")}
                 </button>
@@ -319,19 +333,13 @@ export default function LoginPage() {
 
             {forgotStep === 2 && (
               <div className="space-y-4">
-                {!confirmationResult ? (
-                  <div ref={recaptchaRef} className="flex justify-center my-4"></div>
-                ) : (
-                  <>
-                    <input type="text" maxLength={6} placeholder="• • • • • •" value={otp} onChange={(e) => setOtp(e.target.value.replace(/\D/g, ""))} className="w-full border-2 border-gray-300 rounded-lg px-4 py-4 text-center text-3xl font-bold tracking-[0.5em] focus:ring-2 focus:ring-[#2D3247] focus:border-transparent transition-all" />
-                    <button onClick={handleVerifyOtp} disabled={forgotLoading || otp.length < 6} className="w-full bg-[#2D3247] text-white py-3 rounded-lg font-semibold hover:bg-[#1e2231] disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg hover:shadow-xl">
-                      {forgotLoading ? "..." : (isRTL ? "تحقق" : "Verify")}
-                    </button>
-                    <button onClick={() => sendOtp()} disabled={resendTimer > 0} className="w-full text-sm text-[#2D3247] hover:underline disabled:text-gray-400 disabled:no-underline transition-all">
-                      {resendTimer > 0 ? `${isRTL ? "إعادة إرسال في" : "Resend in"} ${resendTimer}s` : (isRTL ? "إعادة إرسال الرمز" : "Resend Code")}
-                    </button>
-                  </>
-                )}
+                <input type="text" maxLength={6} placeholder="• • • • • •" value={otp} onChange={(e) => setOtp(e.target.value.replace(/\D/g, ""))} className="w-full border-2 border-gray-300 rounded-lg px-4 py-4 text-center text-3xl font-bold tracking-[0.5em] focus:ring-2 focus:ring-[#2D3247] focus:border-transparent transition-all" />
+                <button onClick={handleVerifyOtp} disabled={forgotLoading || otp.length < 6} className="w-full bg-[#2D3247] text-white py-3 rounded-lg font-semibold hover:bg-[#1e2231] disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg hover:shadow-xl">
+                  {forgotLoading ? "..." : (isRTL ? "تحقق" : "Verify")}
+                </button>
+                <button onClick={() => sendOtp()} disabled={resendTimer > 0} className="w-full text-sm text-[#2D3247] hover:underline disabled:text-gray-400 disabled:no-underline transition-all">
+                  {resendTimer > 0 ? `${isRTL ? "إعادة إرسال في" : "Resend in"} ${resendTimer}s` : (isRTL ? "إعادة إرسال الرمز" : "Resend Code")}
+                </button>
               </div>
             )}
 
