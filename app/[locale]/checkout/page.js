@@ -272,10 +272,33 @@ export default function CheckoutPage() {
             <div className="space-y-4">
               <input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder={checkout.invoice.firstPlaceholder} className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:border-[#2D3247] outline-none" />
               <input type="text" value={address} onChange={(e) => setAddress(e.target.value)} placeholder={checkout.invoice.locationPlaceholder} className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:border-[#2D3247] outline-none" />
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <input type="text" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="05xxxxxxxx" className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm outline-none" dir="ltr" />
-                <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder={checkout.invoice.emailPlaceholder} className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm outline-none" dir="ltr" />
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
+                <div className="w-full">
+                  <input
+                    type="text"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    placeholder="05xxxxxxxx"
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm outline-none focus:border-[#2D3247]"
+                    dir="ltr"
+                  />
+                  <p className="text-[10px] text-gray-500 mt-1.5 mx-1 font-medium">
+                    {isRTL
+                      ? "رقم جوال سعودي (مطلوب لخدمة تابي وتمارا)"
+                      : "Saudi phone number (Required for Tabby or Tamara)"}
+                  </p>
+                </div>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder={checkout.invoice.emailPlaceholder}
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm outline-none focus:border-[#2D3247]"
+                  dir="ltr"
+                />
               </div>
+
             </div>
             {errorMsg && <p className="mt-4 text-red-500 text-xs font-bold">{errorMsg}</p>}
           </div>
