@@ -33,20 +33,12 @@ export default function OurStyles() {
       </h2>
 
       {/* ===== Scrollable Styles Container ===== */}
-      <div className="
-        w-full flex overflow-x-auto snap-x snap-mandatory 
-        gap-6 px-6 pb-8
-        scrollbar-hide
-      ">
+      <div className="w-full flex overflow-x-auto snap-x snap-mandatory gap-6 px-6 pb-8 scrollbar-hide">
         {styles.map((style, index) => (
           <div
             key={index}
             // Mobile: w-[85vw] | Desktop: w-[calc(33.333%-1rem)]
-            className="
-              relative group rounded-2xl overflow-hidden shadow-md hover:shadow-lg transition 
-              snap-center shrink-0 
-              w-[85vw] md:w-[calc(33.333%-1rem)]
-            "
+            className="relative group rounded-2xl overflow-hidden shadow-md hover:shadow-lg transition snap-center shrink-0 w-[85vw] md:w-[calc(33.333%-1rem)]"
           >
             <Image
               src={style.image}
