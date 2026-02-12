@@ -1,6 +1,6 @@
 "use client";
 
-import { Check, ArrowRight, Sparkles, Building2, Home, Armchair } from "lucide-react";
+import { Check, ArrowRight, Sparkles, Building2, Home, Armchair, SaudiRiyalIcon } from "lucide-react";
 import { useLocale } from "@/app/components/LocaleProvider";
 import { usePageContent } from "@/app/context/PageContentProvider";
 import { useRouter } from "next/navigation";
@@ -119,7 +119,7 @@ export default function PricingPlans({ ctaText, ctaLink }) {
                 <div className="mb-6">
                   <div className="flex items-baseline justify-center gap-1">
                     <span className="text-4xl font-extrabold tracking-tight">
-                      {plan.price}
+                      {plan.price} <SaudiRiyalIcon className="inline-block" />
                     </span>
                     {/* DYNAMIC UNIT LABEL HERE */}
                     <span className={`text-sm font-medium opacity-80 ${isMiddle ? "text-gray-300" : "text-gray-500"}`}>

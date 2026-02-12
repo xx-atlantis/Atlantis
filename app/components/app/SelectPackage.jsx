@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Check, Circle, ShieldCheck } from "lucide-react";
+import { Check, Circle, SaudiRiyal, SaudiRiyalIcon, ShieldCheck } from "lucide-react";
 import { useLocale } from "@/app/components/LocaleProvider";
 import { usePageContent } from "@/app/context/PageContentProvider";
 
@@ -125,7 +125,7 @@ export default function PackagesSection({ onSelectPackage, projectType }) {
                 <div className="mb-4">
                   <div className="flex items-baseline justify-center gap-1">
                     <span className="text-3xl font-[1000] tracking-tighter text-[#2D3247]">
-                      {pkg.price}
+                      {pkg.price} <SaudiRiyalIcon className="inline-block" />
                     </span>
                     <span className="text-gray-400 text-xs font-bold uppercase tracking-widest">
                       {content.perRoom}

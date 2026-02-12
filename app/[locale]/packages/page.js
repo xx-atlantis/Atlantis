@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { Home, FileText, Calculator, ShieldCheck, ArrowRight, CheckCircle2, LayoutGrid } from "lucide-react";
+import { Home, FileText, Calculator, ShieldCheck, ArrowRight, CheckCircle2, LayoutGrid, SaudiRiyal } from "lucide-react";
 import PackagesSection from "@/app/components/app/SelectPackage";
 import { useLocale } from "@/app/components/LocaleProvider";
 import { useVerifyCustomer } from "@/app/hooks/useVerifyCustomer";
@@ -219,11 +219,11 @@ export default function OrderSummary() {
 
                 <div className="flex justify-between items-end">
                   <span className="text-sm font-bold uppercase tracking-tighter text-gray-400 mb-1">{isRTL ? "الإجمالي" : "Grand Total"}</span>
-                  <div className="text-right">
+                  <div className="text-right flex items-center gap-1">
                     <p className="text-5xl font-[1000] tracking-tighter text-primary-theme leading-none">
                       {grandTotal.toLocaleString()}
                     </p>
-                    <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mr-1">Saudi Riyal</span>
+                    <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mr-1"><SaudiRiyal/></span>
                   </div>
                 </div>
               </div>

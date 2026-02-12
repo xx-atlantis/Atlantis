@@ -425,7 +425,7 @@ export default function CheckoutPage() {
                     <h3 className="text-lg font-bold text-gray-800 leading-tight">{cart.package?.title}</h3>
                   </div>
                   <div className="text-right">
-                    <span className="text-lg font-extrabold text-[#2D3247]">{cart.package?.price}</span>
+                    <span className="text-lg font-extrabold text-[#2D3247]">{cart.package?.price} <SaudiRiyalIcon size={16} className="inline-block " /></span>
                   </div>
                 </div>
                 {cart.extraFee > 0 && (
