@@ -1,494 +1,325 @@
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
-import { 
-  Search, Filter, Mail, Phone, MapPin, 
-  Package, ShoppingBag, X, ChevronRight, 
-  ArrowUpRight, Plus, Save, Trash2, Loader2 
+import { useEffect, useState, useCallback } from "react";
+import {
+  Search, Trash2, Eye, Filter, ArrowUpDown, ArrowUp, ArrowDown,
+  ChevronLeft, ChevronRight, UserCheck, UserX, Mail, Phone, ShoppingCart, TrendingUp
 } from "lucide-react";
-import { useAdminAuth } from "@/app/context/AdminAuthContext"; // Integrated Auth Context
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Table, TableBody, TableCell, TableHead, TableHeader, TableRow
+} from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
 
-export default function AdminCustomersPage() {
-  const { permissions } = useAdminAuth(); // Permission check (optional)
-  
-  // State
-  const [customers, setCustomers] = useState([]);
+export default function CustomersAdmin() {
+  const [data, setData] = useState([]);
+  const [meta, setMeta] = useState({ page: 1, totalPages: 1, total: 0 });
   const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState("");
-  
-  // UI States
-  const [selectedCustomer, setSelectedCustomer] = useState(null);
-  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-  const [isEditing, setIsEditing] = useState(false);
-  const [isSaving, setIsSaving] = useState(false);
 
-  // Form State for Add/Edit
-  const [formData, setFormData] = useState({
-    name: "", email: "", phone: "", address: "", status: "Active", notes: ""
-  });
+  // States for API triggers
+  const [search, setSearch] = useState("");
+  const [verifiedFilter, setVerifiedFilter] = useState("all");
+  const [orderSort, setOrderSort] = useState(""); // 'asc', 'desc', or ''
+  const [page, setPage] = useState(1);
 
-  // --- 1. FETCH & AGGREGATE DATA ---
+  /* ================= FETCH ALL CUSTOMERS (API 1) ================= */
+  const fetchCustomers = useCallback(async () => {
+    setLoading(true);
+    try {
+      let url = `/api/admin/customers?page=${page}&limit=10&search=${search}`;
+      if (verifiedFilter !== "all") url += `&verified=${verifiedFilter}`;
+      if (orderSort) url += `&orderSort=${orderSort}`;
+
+      const res = await fetch(url);
+      const json = await res.json();
+      setData(json.customers);
+      setMeta(json.pagination);
+    } catch (err) {
+      console.error("Failed to load customers");
+    } finally {
+      setLoading(false);
+    }
+  }, [page, search, verifiedFilter, orderSort]);
+
   useEffect(() => {
-    const fetchCustomersFromOrders = async () => {
-      try {
-        setLoading(true);
-        const res = await fetch("/api/order");
-        const data = await res.json();
-        
-        // Handle different API response structures
-        const ordersArray = Array.isArray(data) ? data : data.orders || data.data || [];
+    const timer = setTimeout(() => fetchCustomers(), 400); // Debounce search
+    return () => clearTimeout(timer);
+  }, [fetchCustomers]);
 
-        // --- AGGREGATION LOGIC ---
-        // We group orders by Email to create unique "Customer" profiles
-        const customerMap = {};
+  /* ================= DELETE CUSTOMER (API 2) ================= */
+  const handleDelete = async (id) => {
+    if (!confirm("Are you sure? This will not delete their order history but will unlink them.")) return;
 
-        ordersArray.forEach((order) => {
-            const email = order.customerEmail;
-            if (!email) return;
-
-            // If customer doesn't exist in map yet, initialize them
-            if (!customerMap[email]) {
-                customerMap[email] = {
-                    id: order.customerId || order.id, // Fallback if no customerId
-                    name: order.customerName || "Unknown",
-                    email: order.customerEmail,
-                    phone: order.customerPhone || "N/A",
-                    address: order.address || "N/A",
-                    joinDate: new Date(order.createdAt).toISOString().split('T')[0],
-                    status: "Active",
-                    totalSpent: 0,
-                    ordersCount: 0,
-                    notes: order.notes || "",
-                    orders: []
-                };
-            }
-
-            // Update Aggregates
-            customerMap[email].totalSpent += parseFloat(order.total || 0);
-            customerMap[email].ordersCount += 1;
-            
-            // Add to detailed order history
-            customerMap[email].orders.push({
-                id: order.id,
-                date: new Date(order.createdAt).toLocaleDateString(),
-                type: order.orderType || "shop", // Assumes 'orderType' exists or defaults
-                status: order.orderStatus,
-                total: parseFloat(order.total || 0),
-                items: order.packageDetails?.title || `Order #${order.id.slice(-4)}` // Fallback title
-            });
-            
-            // Update phone/address if the new order has better data
-            if(order.customerPhone && (!customerMap[email].phone || customerMap[email].phone === "N/A")) {
-                customerMap[email].phone = order.customerPhone;
-            }
-            if(order.address && (!customerMap[email].address || customerMap[email].address === "N/A")) {
-                customerMap[email].address = order.address;
-            }
-        });
-
-        // Convert Map to Array
-        setCustomers(Object.values(customerMap));
-
-      } catch (err) {
-        console.error("Error fetching customers:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchCustomersFromOrders();
-  }, []);
-
-  // --- 2. FILTER LOGIC ---
-  const filteredCustomers = useMemo(() => {
-    return customers.filter(c => 
-      (c.name && c.name.toLowerCase().includes(searchTerm.toLowerCase())) ||
-      (c.email && c.email.toLowerCase().includes(searchTerm.toLowerCase())) ||
-      (c.phone && c.phone.includes(searchTerm))
-    );
-  }, [customers, searchTerm]);
-
-  // --- 3. HANDLERS ---
-
-  const handleOpenAdd = () => {
-    setFormData({ name: "", email: "", phone: "", address: "", status: "Active", notes: "" });
-    setIsAddModalOpen(true);
+    try {
+      const res = await fetch(`/api/admin/customers/${id}`, { method: "DELETE" });
+      if (res.ok) fetchCustomers();
+    } catch (err) {
+      alert("Delete failed");
+    }
   };
 
-  const handleSaveNew = async () => {
-    setIsSaving(true);
-    // Mimic API delay
-    setTimeout(() => {
-      const newCustomer = {
-        ...formData,
-        id: `cust_${Math.floor(Math.random() * 1000)}`,
-        joinDate: new Date().toISOString().split('T')[0],
-        totalSpent: 0,
-        ordersCount: 0,
-        orders: []
-      };
-      setCustomers([newCustomer, ...customers]); 
-      setIsAddModalOpen(false);
-      setIsSaving(false);
-    }, 800);
+  /* ================= TOGGLE ORDER SORT ================= */
+  const toggleOrderSort = () => {
+    if (orderSort === "") setOrderSort("desc");
+    else if (orderSort === "desc") setOrderSort("asc");
+    else setOrderSort("");
   };
 
-  const handleEditClick = () => {
-    setIsEditing(true);
-    setFormData({
-      name: selectedCustomer.name,
-      email: selectedCustomer.email,
-      phone: selectedCustomer.phone,
-      address: selectedCustomer.address,
-      status: selectedCustomer.status,
-      notes: selectedCustomer.notes
-    });
+  /* ================= STATS CARDS ================= */
+  const stats = {
+    total: meta.total,
+    verified: data.filter(c => c.verified).length,
+    withOrders: data.filter(c => c._count.orders > 0).length,
   };
 
-  const handleUpdateCustomer = async () => {
-    setIsSaving(true);
-    setTimeout(() => {
-      const updatedList = customers.map(c => 
-        c.email === selectedCustomer.email ? { ...c, ...formData } : c
-      );
-      setCustomers(updatedList);
-      setSelectedCustomer({ ...selectedCustomer, ...formData });
-      setIsEditing(false);
-      setIsSaving(false);
-    }, 800);
-  };
-
-  const handleDeleteCustomer = () => {
-    if(!confirm("Are you sure you want to delete this customer?")) return;
-    const updatedList = customers.filter(c => c.email !== selectedCustomer.email);
-    setCustomers(updatedList);
-    setSelectedCustomer(null);
-  };
-
+  /* ================= RENDER ================= */
   return (
-    <div className="min-h-screen bg-gray-50 p-6 md:p-10 font-sans text-[#2D3247]" dir="ltr">
-      
-      {/* --- HEADER --- */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-[#2D3247]">Customers</h1>
-          <p className="text-sm text-gray-500 mt-1">Manage your client base ({customers.length} total)</p>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/20 p-4 sm:p-6 lg:p-8">
+      <div className="max-w-7xl mx-auto space-y-6">
+        
+        {/* Header */}
+        <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900 mb-1">Customer Management</h1>
+              <p className="text-gray-600">Manage users, track orders, and monitor verification status</p>
+            </div>
+            <div className="flex items-center gap-3 text-sm text-gray-500">
+              <div className="px-4 py-2 bg-blue-50 rounded-lg">
+                <span className="font-bold text-blue-600">{meta.total}</span> Total
+              </div>
+            </div>
+          </div>
         </div>
-        <div className="flex gap-3">
-          <button className="bg-white border border-gray-200 text-gray-600 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-50 flex items-center gap-2">
-             <Filter size={16} /> Filter
-          </button>
-          <button 
-            onClick={handleOpenAdd}
-            className="bg-[#2D3247] text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-[#1e2231] flex items-center gap-2 transition-colors"
-          >
-             <Plus size={16} /> Add Customer
-          </button>
+
+        {/* Stats Cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="bg-white rounded-xl p-5 border border-gray-100 shadow-sm">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-600 mb-1">Total Customers</p>
+                <p className="text-2xl font-bold text-gray-900">{stats.total}</p>
+              </div>
+              <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                <UserCheck className="text-blue-600" size={24} />
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-xl p-5 border border-gray-100 shadow-sm">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-600 mb-1">Verified Users</p>
+                <p className="text-2xl font-bold text-green-600">{stats.verified}</p>
+              </div>
+              <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                <UserCheck className="text-green-600" size={24} />
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-xl p-5 border border-gray-100 shadow-sm">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-600 mb-1">Active Shoppers</p>
+                <p className="text-2xl font-bold text-purple-600">{stats.withOrders}</p>
+              </div>
+              <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                <ShoppingCart className="text-purple-600" size={24} />
+              </div>
+            </div>
+          </div>
         </div>
-      </div>
 
-      {/* --- SEARCH BAR --- */}
-      <div className="bg-white p-4 rounded-xl border border-gray-200 mb-6 shadow-sm flex items-center gap-3 focus-within:ring-1 focus-within:ring-[#2D3247]">
-        <Search className="text-gray-400" size={20} />
-        <input 
-          type="text" 
-          placeholder="Search by name, email, or phone..." 
-          className="w-full outline-none text-sm text-gray-700 placeholder:text-gray-400"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
-      </div>
+        {/* Filters Bar */}
+        <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+          <div className="flex flex-wrap gap-3">
+            <div className="relative flex-1 min-w-[280px]">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+              <Input
+                placeholder="Search by name, email or phone..."
+                className="pl-10 h-11 border-gray-200 focus:ring-2 focus:ring-blue-500"
+                value={search}
+                onChange={(e) => { setSearch(e.target.value); setPage(1); }}
+              />
+            </div>
 
-      {/* --- CUSTOMERS TABLE --- */}
-      <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
-        <table className="w-full text-left border-collapse">
-          <thead>
-            <tr className="bg-gray-50 border-b border-gray-100 text-xs uppercase text-gray-500 font-semibold tracking-wider">
-              <th className="p-4">Customer</th>
-              <th className="p-4">Contact</th>
-              <th className="p-4">Status</th>
-              <th className="p-4 text-right">Orders</th>
-              <th className="p-4 text-right">Total Spent</th>
-              <th className="p-4 text-center">Actions</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-100">
-            {loading ? (
-                <tr>
-                    <td colSpan="6" className="p-12 text-center text-gray-400 text-sm">
-                        <div className="flex justify-center items-center gap-2">
-                             <Loader2 className="animate-spin" size={20} /> Loading customer data...
-                        </div>
-                    </td>
-                </tr>
-            ) : filteredCustomers.length === 0 ? (
-              <tr>
-                <td colSpan="6" className="p-12 text-center text-gray-500 text-sm">
-                  No customers found matching "{searchTerm}"
-                </td>
-              </tr>
-            ) : (
-                filteredCustomers.map((customer) => (
-                <tr 
-                    key={customer.email} // Using email as key since it's unique
-                    onClick={() => { setSelectedCustomer(customer); setIsEditing(false); }}
-                    className="hover:bg-gray-50 cursor-pointer transition-colors group"
-                >
-                    <td className="p-4">
+            <select
+              className="h-11 border border-gray-200 rounded-lg px-4 text-sm focus:ring-2 focus:ring-blue-500 outline-none bg-white"
+              value={verifiedFilter}
+              onChange={(e) => { setVerifiedFilter(e.target.value); setPage(1); }}
+            >
+              <option value="all">All Statuses</option>
+              <option value="true">✓ Verified Only</option>
+              <option value="false">⊘ Unverified</option>
+            </select>
+
+            <Button
+              variant="outline"
+              className="h-11 gap-2 border-gray-200"
+              onClick={toggleOrderSort}
+            >
+              {orderSort === "" && <ArrowUpDown size={16} />}
+              {orderSort === "desc" && <ArrowDown size={16} className="text-blue-600" />}
+              {orderSort === "asc" && <ArrowUp size={16} className="text-blue-600" />}
+              Sort by Orders
+              {orderSort && <Badge variant="secondary" className="ml-1 bg-blue-100 text-blue-700">{orderSort === "desc" ? "High→Low" : "Low→High"}</Badge>}
+            </Button>
+          </div>
+        </div>
+
+        {/* Table Data */}
+        <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
+          <Table>
+            <TableHeader>
+              <TableRow className="bg-gray-50 hover:bg-gray-50">
+                <TableHead className="font-semibold">Customer</TableHead>
+                <TableHead className="font-semibold">Contact</TableHead>
+                <TableHead className="font-semibold">Status</TableHead>
+                <TableHead className="font-semibold">Orders</TableHead>
+                <TableHead className="font-semibold">Last Order</TableHead>
+                <TableHead className="text-right font-semibold">Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {loading ? (
+                <TableRow>
+                  <TableCell colSpan={6} className="text-center py-16">
+                    <div className="flex flex-col items-center gap-3">
+                      <div className="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+                      <p className="text-gray-500">Loading customers...</p>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ) : data.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={6} className="text-center py-16">
+                    <div className="flex flex-col items-center gap-2">
+                      <div className="text-5xl mb-2">🔍</div>
+                      <p className="text-gray-600 font-medium">No customers found</p>
+                      <p className="text-sm text-gray-400">Try adjusting your filters</p>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ) : data.map((customer) => (
+                <TableRow key={customer.id} className="hover:bg-blue-50/50 transition-colors">
+                  <TableCell>
                     <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-[#5e7e7d]/10 text-[#5e7e7d] flex items-center justify-center font-bold text-sm">
-                        {(customer.name || "U").charAt(0).toUpperCase()}
-                        </div>
-                        <div>
-                        <p className="font-bold text-sm text-[#2D3247]">{customer.name}</p>
-                        <p className="text-xs text-gray-400">Since: {customer.joinDate}</p>
-                        </div>
+                      <div className="w-11 h-11 rounded-full bg-gradient-to-br from-[#2D3247] to-[#495170] text-white flex items-center justify-center font-bold text-lg shadow-md">
+                        {customer.name?.charAt(0).toUpperCase() || "U"}
+                      </div>
+                      <div>
+                        <p className="font-semibold text-gray-900">{customer.name || "Unnamed User"}</p>
+                        <p className="text-xs text-gray-400">ID: {customer.id.slice(0, 8)}...</p>
+                      </div>
                     </div>
-                    </td>
-                    <td className="p-4 text-sm text-gray-600">
-                    <div className="flex flex-col gap-1">
-                        <span className="flex items-center gap-2"><Mail size={12} className="text-gray-400"/> {customer.email}</span>
-                        <span className="flex items-center gap-2"><Phone size={12} className="text-gray-400"/> {customer.phone}</span>
+                  </TableCell>
+                  
+                  <TableCell>
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2 text-sm text-gray-700">
+                        <Mail size={13} className="text-gray-400" />
+                        {customer.email}
+                      </div>
+                      {customer.phone && (
+                        <div className="flex items-center gap-2 text-sm text-gray-600">
+                          <Phone size={13} className="text-gray-400" />
+                          {customer.phone}
+                        </div>
+                      )}
                     </div>
-                    </td>
-                    <td className="p-4">
-                    <span className={`px-2 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide ${
-                        customer.status === "Active" ? "bg-emerald-50 text-emerald-600 border border-emerald-100" : "bg-gray-100 text-gray-500"
-                    }`}>
-                        {customer.status}
-                    </span>
-                    </td>
-                    <td className="p-4 text-right text-sm font-medium">{customer.ordersCount}</td>
-                    <td className="p-4 text-right text-sm font-bold text-[#2D3247]">{customer.totalSpent.toLocaleString()} SAR</td>
-                    <td className="p-4 text-center">
-                    <button className="text-gray-400 hover:text-[#5e7e7d] p-2 rounded-full hover:bg-[#5e7e7d]/10 transition-all">
-                        <ChevronRight size={18} />
-                    </button>
-                    </td>
-                </tr>
-                ))
-            )}
-          </tbody>
-        </table>
+                  </TableCell>
+
+                  <TableCell>
+                    {customer.verified ? (
+                      <Badge className="bg-green-100 text-green-700 hover:bg-green-100 border-none">
+                        <UserCheck size={12} className="mr-1" /> Verified
+                      </Badge>
+                    ) : (
+                      <Badge variant="secondary" className="bg-amber-100 text-amber-700 hover:bg-amber-100 border-none">
+                        <UserX size={12} className="mr-1" /> Pending
+                      </Badge>
+                    )}
+                  </TableCell>
+
+                  <TableCell>
+                    <div className="flex items-center gap-2">
+                      <div className="w-10 h-10 rounded-lg bg-purple-100 text-purple-700 flex items-center justify-center font-bold">
+                        {customer._count.orders}
+                      </div>
+                      <div className="text-xs text-gray-500">
+                        {customer._count.orders === 1 ? "order" : "orders"}
+                      </div>
+                    </div>
+                  </TableCell>
+
+                  <TableCell>
+                    {customer.orders[0] ? (
+                      <div className="space-y-1">
+                        <p className="text-sm text-gray-700 font-medium">
+                          {new Date(customer.orders[0].createdAt).toLocaleDateString('en-US', {
+                            month: 'short',
+                            day: 'numeric',
+                            year: 'numeric'
+                          })}
+                        </p>
+                        <p className="text-xs font-semibold text-blue-600">
+                          SAR {customer.orders[0].total.toFixed(2)}
+                        </p>
+                      </div>
+                    ) : (
+                      <span className="text-sm text-gray-400">No orders yet</span>
+                    )}
+                  </TableCell>
+
+                  <TableCell className="text-right">
+                    <div className="flex justify-end gap-2">
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        className="text-red-500 hover:text-red-700 hover:bg-red-50" 
+                        onClick={() => handleDelete(customer.id)}
+                      >
+                        <Trash2 size={14} />
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+
+        {/* Pagination Controls */}
+        <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100 flex items-center justify-between">
+          <p className="text-sm text-gray-600">
+            Showing page <span className="font-semibold text-gray-900">{meta.page}</span> of <span className="font-semibold text-gray-900">{meta.totalPages}</span>
+            <span className="ml-2 text-gray-400">({meta.total} total)</span>
+          </p>
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={page === 1}
+              onClick={() => setPage(p => p - 1)}
+              className="gap-1"
+            >
+              <ChevronLeft size={16} /> Previous
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={page === meta.totalPages}
+              onClick={() => setPage(p => p + 1)}
+              className="gap-1"
+            >
+              Next <ChevronRight size={16} />
+            </Button>
+          </div>
+        </div>
+
       </div>
-
-      {/* --- ADD CUSTOMER MODAL --- */}
-      {isAddModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setIsAddModalOpen(false)}></div>
-          <div className="relative bg-white rounded-xl shadow-2xl w-full max-w-md p-6 animate-in zoom-in-95 duration-200">
-             <div className="flex justify-between items-center mb-6">
-                <h3 className="text-lg font-bold text-[#2D3247]">Add New Customer</h3>
-                <button onClick={() => setIsAddModalOpen(false)}><X size={20} className="text-gray-400 hover:text-red-500"/></button>
-             </div>
-             <div className="space-y-4">
-                <input 
-                  className="w-full border border-gray-200 p-3 rounded-lg text-sm outline-none focus:border-[#2D3247]" 
-                  placeholder="Full Name"
-                  value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})}
-                />
-                <input 
-                  className="w-full border border-gray-200 p-3 rounded-lg text-sm outline-none focus:border-[#2D3247]" 
-                  placeholder="Email Address"
-                  value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})}
-                />
-                <input 
-                  className="w-full border border-gray-200 p-3 rounded-lg text-sm outline-none focus:border-[#2D3247]" 
-                  placeholder="Phone Number"
-                  value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})}
-                />
-                <input 
-                  className="w-full border border-gray-200 p-3 rounded-lg text-sm outline-none focus:border-[#2D3247]" 
-                  placeholder="Location / Address"
-                  value={formData.address} onChange={e => setFormData({...formData, address: e.target.value})}
-                />
-                <button 
-                  onClick={handleSaveNew}
-                  disabled={isSaving}
-                  className="w-full bg-[#2D3247] text-white py-3 rounded-lg font-bold text-sm hover:bg-[#1e2231] flex justify-center items-center gap-2"
-                >
-                  {isSaving ? <Loader2 className="animate-spin" size={16} /> : "Create Customer"}
-                </button>
-             </div>
-          </div>
-        </div>
-      )}
-
-      {/* --- DETAIL DRAWER (VIEW & EDIT) --- */}
-      {selectedCustomer && (
-        <div className="fixed inset-0 z-50 flex justify-end">
-          <div className="absolute inset-0 bg-black/20 backdrop-blur-sm" onClick={() => setSelectedCustomer(null)}></div>
-
-          <div className="relative w-full md:w-[480px] bg-white h-full shadow-2xl flex flex-col animate-in slide-in-from-right duration-300">
-            
-            {/* Header */}
-            <div className="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
-               <h2 className="text-lg font-bold text-[#2D3247]">
-                 {isEditing ? "Edit Customer" : "Customer Details"}
-               </h2>
-               <button onClick={() => setSelectedCustomer(null)} className="p-2 hover:bg-gray-200 rounded-full transition-colors">
-                 <X size={20} className="text-gray-500" />
-               </button>
-            </div>
-
-            <div className="flex-1 overflow-y-auto p-6 space-y-8">
-              
-              {/* EDIT MODE FORM */}
-              {isEditing ? (
-                <div className="space-y-5 animate-in fade-in slide-in-from-bottom-4">
-                   <div>
-                     <label className="text-xs font-bold text-gray-500 uppercase mb-1 block">Full Name</label>
-                     <input className="w-full border p-2 rounded text-sm" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} />
-                   </div>
-                   <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <label className="text-xs font-bold text-gray-500 uppercase mb-1 block">Email</label>
-                        <input className="w-full border p-2 rounded text-sm" value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} />
-                      </div>
-                      <div>
-                        <label className="text-xs font-bold text-gray-500 uppercase mb-1 block">Phone</label>
-                        <input className="w-full border p-2 rounded text-sm" value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} />
-                      </div>
-                   </div>
-                   <div>
-                     <label className="text-xs font-bold text-gray-500 uppercase mb-1 block">Address</label>
-                     <input className="w-full border p-2 rounded text-sm" value={formData.address} onChange={e => setFormData({...formData, address: e.target.value})} />
-                   </div>
-                   <div>
-                     <label className="text-xs font-bold text-gray-500 uppercase mb-1 block">Status</label>
-                     <select className="w-full border p-2 rounded text-sm" value={formData.status} onChange={e => setFormData({...formData, status: e.target.value})}>
-                        <option value="Active">Active</option>
-                        <option value="Inactive">Inactive</option>
-                     </select>
-                   </div>
-                   <div>
-                     <label className="text-xs font-bold text-gray-500 uppercase mb-1 block">Notes</label>
-                     <textarea className="w-full border p-2 rounded text-sm h-24" value={formData.notes} onChange={e => setFormData({...formData, notes: e.target.value})} />
-                   </div>
-                </div>
-              ) : (
-                /* VIEW MODE */
-                <>
-                  <div className="flex items-start gap-4">
-                    <div className="w-16 h-16 rounded-full bg-[#2D3247] text-white flex items-center justify-center text-2xl font-bold">
-                      {(selectedCustomer.name || "U").charAt(0).toUpperCase()}
-                    </div>
-                    <div className="flex-1">
-                      <h3 className="text-xl font-bold text-[#2D3247]">{selectedCustomer.name}</h3>
-                      <p className="text-sm text-gray-500">Joined {selectedCustomer.joinDate}</p>
-                      <div className="flex gap-2 mt-3">
-                        <a 
-                          href={`mailto:${selectedCustomer.email}`}
-                          className="text-xs bg-white border border-gray-200 px-3 py-1.5 rounded shadow-sm hover:bg-gray-50 flex items-center gap-2 transition-colors text-gray-700"
-                        >
-                           <Mail size={12} /> Email
-                        </a>
-                        <a 
-                          href={`tel:${selectedCustomer.phone}`}
-                          className="text-xs bg-white border border-gray-200 px-3 py-1.5 rounded shadow-sm hover:bg-gray-50 flex items-center gap-2 transition-colors text-gray-700"
-                        >
-                           <Phone size={12} /> Call
-                        </a>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Stats */}
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="p-4 bg-gray-50 rounded-xl border border-gray-100">
-                      <p className="text-xs text-gray-500 uppercase font-bold mb-1">Total Spent</p>
-                      <p className="text-lg font-bold text-[#5e7e7d]">{selectedCustomer.totalSpent.toLocaleString()} SAR</p>
-                    </div>
-                    <div className="p-4 bg-gray-50 rounded-xl border border-gray-100">
-                      <p className="text-xs text-gray-500 uppercase font-bold mb-1">Total Orders</p>
-                      <p className="text-lg font-bold text-[#2D3247]">{selectedCustomer.ordersCount}</p>
-                    </div>
-                  </div>
-
-                  {/* Info */}
-                  <div className="space-y-4">
-                    <h4 className="text-sm font-bold uppercase text-gray-400 tracking-wider border-b border-gray-100 pb-2">Details</h4>
-                    <div className="space-y-3 text-sm">
-                        <div className="flex items-center gap-3"><Mail size={16} className="text-[#5e7e7d]"/> <span>{selectedCustomer.email}</span></div>
-                        <div className="flex items-center gap-3"><Phone size={16} className="text-[#5e7e7d]"/> <span dir="ltr">{selectedCustomer.phone}</span></div>
-                        <div className="flex items-center gap-3"><MapPin size={16} className="text-[#5e7e7d]"/> <span>{selectedCustomer.address || "No address provided"}</span></div>
-                    </div>
-                  </div>
-
-                  {/* Order History */}
-                  <div className="space-y-4">
-                     <h4 className="text-sm font-bold uppercase text-gray-400 tracking-wider border-b border-gray-100 pb-2">Order History</h4>
-                     <div className="space-y-3">
-                       {selectedCustomer.orders.map((order, idx) => (
-                         <div key={idx} className="flex items-center justify-between p-3 border border-gray-200 rounded-lg hover:border-[#5e7e7d] transition-colors bg-white group cursor-pointer">
-                            <div className="flex items-center gap-3">
-                               <div className={`w-8 h-8 rounded-full flex items-center justify-center ${order.type === 'package' ? 'bg-purple-50 text-purple-600' : 'bg-blue-50 text-blue-600'}`}>
-                                  {order.type === 'package' ? <Package size={14} /> : <ShoppingBag size={14} />}
-                               </div>
-                               <div>
-                                  <p className="text-sm font-bold text-[#2D3247]">{order.items}</p>
-                                  <p className="text-xs text-gray-500">{order.date} • {order.status}</p>
-                               </div>
-                            </div>
-                            <div className="text-right">
-                               <p className="text-sm font-bold">{order.total.toLocaleString()} SAR</p>
-                               <ArrowUpRight size={14} className="ml-auto text-gray-300 group-hover:text-[#5e7e7d]" />
-                            </div>
-                         </div>
-                       ))}
-                     </div>
-                  </div>
-
-                  {/* Notes */}
-                  {selectedCustomer.notes && (
-                    <div className="bg-amber-50 p-4 rounded-lg border border-amber-100 text-sm">
-                      <p className="text-amber-800 font-bold mb-1 text-xs uppercase">Notes</p>
-                      <p className="text-amber-900/80 leading-relaxed">{selectedCustomer.notes}</p>
-                    </div>
-                  )}
-                </>
-              )}
-            </div>
-            
-            {/* Drawer Footer Actions */}
-            <div className="p-4 border-t border-gray-200 bg-gray-50">
-               {isEditing ? (
-                 <div className="flex gap-3">
-                    <button 
-                      onClick={() => setIsEditing(false)}
-                      className="flex-1 py-3 bg-white border border-gray-300 text-gray-700 rounded-lg font-bold text-sm hover:bg-gray-50"
-                    >
-                      Cancel
-                    </button>
-                    <button 
-                      onClick={handleUpdateCustomer}
-                      disabled={isSaving}
-                      className="flex-1 py-3 bg-[#5e7e7d] text-white rounded-lg font-bold text-sm hover:bg-[#4d6b6a] flex justify-center items-center gap-2"
-                    >
-                      {isSaving ? <Loader2 className="animate-spin" size={16}/> : <><Save size={16}/> Save Changes</>}
-                    </button>
-                 </div>
-               ) : (
-                 <div className="flex gap-3">
-                   <button 
-                     onClick={handleDeleteCustomer}
-                     className="px-4 py-3 bg-white border border-red-200 text-red-600 rounded-lg font-bold text-sm hover:bg-red-50 flex items-center justify-center"
-                   >
-                     <Trash2 size={18} />
-                   </button>
-                   <button 
-                     onClick={handleEditClick}
-                     className="flex-1 py-3 bg-[#2D3247] text-white rounded-lg font-bold text-sm hover:bg-[#1e2231]"
-                   >
-                     Edit Customer Profile
-                   </button>
-                 </div>
-               )}
-            </div>
-
-          </div>
-        </div>
-      )}
     </div>
   );
 }

@@ -216,55 +216,66 @@ model ProductTranslation {
 }
 
 model Customer {
-	id String @id @default(auto()) @map("_id") @db.ObjectId
-	name String?
-	email String @unique
-	password String?
-	phone String?
-	avatar String?
-	verified Boolean @default(false)
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  name      String?
+  email     String   @unique
+  password  String?
+  phone     String?
+  avatar    String?
+  verified  Boolean  @default(false)
+  
+  // Relation: A customer can have multiple orders
+  orders    Order[]
 
-	createdAt DateTime @default(now())
-	updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Order {
-	id String @id @default(auto()) @map("_id") @db.ObjectId
-	customerId String? @db.ObjectId
-	customerEmail String
-	customerName String?
-	customerPhone String?
-	address String?
-	orderType String @default("shop")
-	items OrderItem[]
-	packageDetails Json?
-	projectSteps Json?
-	subtotal Float @default(0)
-	shipping Float @default(0)
-	vat Float @default(0)
-	total Float @default(0)
+  id             String      @id @default(auto()) @map("_id") @db.ObjectId
+  
+  // Relation: Link to the Customer model
+  customer       Customer?   @relation(fields: [customerId], references: [id])
+  customerId     String?     @db.ObjectId
 
-	// Payment Information
-	paymentStatus String @default("pending")
-	paymentMethod String?
-	paymentId String? // <--- ADDED THIS FIELD (Required for Tabby)
+  customerEmail  String
+  customerName   String?
+  customerPhone  String?
+  address        String?
+  orderType      String      @default("shop")
+  
+  // Relation: Link to the OrderItem model
+  items          OrderItem[]
+  
+  packageDetails Json?
+  projectSteps   Json?
+  subtotal       Float       @default(0)
+  shipping       Float       @default(0)
+  vat            Float       @default(0)
+  total          Float       @default(0)
 
-	orderStatus String @default("pending")
+  // Payment Information
+  paymentStatus  String      @default("pending")
+  paymentMethod  String?
+  paymentId      String?     // Required for Tabby
+  orderStatus    String      @default("pending")
 
-	createdAt DateTime @default(now())
-	updatedAt DateTime @updatedAt
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
 }
 
 model OrderItem {
-	id String @id @default(auto()) @map("_id") @db.ObjectId
-	orderId String @db.ObjectId
-	order Order @relation(fields: [orderId], references: [id])
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  
+  // Relation: Link back to the Order
+  orderId     String   @db.ObjectId
+  order       Order    @relation(fields: [orderId], references: [id])
 
-	productId String @db.ObjectId
-	name String
-	coverImage String?
-	price Float
-	quantity Int @default(1)
-	variant Json?
-	material String?
+  productId   String   @db.ObjectId
+  name        String
+  coverImage  String?
+  price       Float
+  quantity    Int      @default(1)
+  variant     Json?
+  material    String?
 }
