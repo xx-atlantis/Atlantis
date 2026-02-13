@@ -32,20 +32,20 @@ export async function POST(req) {
     }
 
     // 3. Upsert User (Create if new, Update if exists)
-    // We use upsert because the user might exist (email only) but be missing the phone
+    // 🚨 FIX: Changed 'emailVerified' to 'verified' to match your schema.prisma
     const customer = await prisma.customer.upsert({
       where: { email: email },
       update: { 
         phone: phone,
-        name: name, // Update name just in case
-        emailVerified: true // They used Google, so email is verified
+        name: name,
+        verified: true 
       },
       create: {
         email: email,
         name: name,
         phone: phone,
         password: "", // No password for Google users
-        emailVerified: true
+        verified: true 
       }
     });
 
