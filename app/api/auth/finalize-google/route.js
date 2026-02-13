@@ -35,7 +35,7 @@ export async function POST(req) {
 
     const sessionToken = jwt.sign({ id: customer.id, email: customer.email }, SECRET_KEY, { expiresIn: '30d' });
 
-    // 1. Create response
+    // 1. Create the response FIRST
     const response = NextResponse.json({
       success: true,
       customer: {
@@ -47,7 +47,7 @@ export async function POST(req) {
       }
     });
 
-    // 2. Attach cookies directly to the response
+    // 2. Attach cookies directly to the response object
     response.cookies.set("customer_token", sessionToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
