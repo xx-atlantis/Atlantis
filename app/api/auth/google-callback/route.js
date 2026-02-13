@@ -1,7 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
-import { cookies } from "next/headers"; // <-- ADDED THIS
 
 const SECRET_KEY = process.env.JWT_SECRET || "your-secret-key";
 
@@ -21,23 +20,8 @@ export async function POST(req) {
     if (customer && customer.phone) {
       const token = jwt.sign({ id: customer.id, email: customer.email }, SECRET_KEY, { expiresIn: '7d' });
 
-      // 🚨 FIX: Set the HTTP-only cookie so the session is remembered!
-      cookies().set("customer_token", token, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        maxAge: 60 * 60 * 24 * 7, // 7 days
-        path: "/",
-      });
-
-      // Also set generic token name just in case your standard login uses it
-      cookies().set("token", token, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        maxAge: 60 * 60 * 24 * 7,
-        path: "/",
-      });
-
-      return NextResponse.json({
+      // 1. Create the response object
+      const response = NextResponse.json({
         success: true,
         action: "LOGIN_SUCCESS",
         customer: {
@@ -48,6 +32,23 @@ export async function POST(req) {
           token: token 
         }
       });
+
+      // 2. Attach cookies directly to the response (Safest method)
+      response.cookies.set("customer_token", token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        maxAge: 60 * 60 * 24 * 7, // 7 days
+        path: "/",
+      });
+
+      response.cookies.set("token", token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        maxAge: 60 * 60 * 24 * 7,
+        path: "/",
+      });
+
+      return response;
     } 
     else {
       const tempToken = jwt.sign({ email, name, stage: "incomplete" }, SECRET_KEY, { expiresIn: '1h' });

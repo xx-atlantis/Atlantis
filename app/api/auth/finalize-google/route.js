@@ -1,7 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
-import { cookies } from "next/headers"; // <-- ADDED THIS
 
 const SECRET_KEY = process.env.JWT_SECRET || "your-secret-key";
 
@@ -36,21 +35,8 @@ export async function POST(req) {
 
     const sessionToken = jwt.sign({ id: customer.id, email: customer.email }, SECRET_KEY, { expiresIn: '30d' });
 
-    // 🚨 FIX: Set the HTTP-only cookie so the newly created user is immediately logged in!
-    cookies().set("customer_token", sessionToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      maxAge: 60 * 60 * 24 * 30, // 30 days
-      path: "/",
-    });
-    cookies().set("token", sessionToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      maxAge: 60 * 60 * 24 * 30,
-      path: "/",
-    });
-
-    return NextResponse.json({
+    // 1. Create response
+    const response = NextResponse.json({
       success: true,
       customer: {
         id: customer.id,
@@ -60,6 +46,23 @@ export async function POST(req) {
         token: sessionToken
       }
     });
+
+    // 2. Attach cookies directly to the response
+    response.cookies.set("customer_token", sessionToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      maxAge: 60 * 60 * 24 * 30, // 30 days
+      path: "/",
+    });
+    
+    response.cookies.set("token", sessionToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      maxAge: 60 * 60 * 24 * 30,
+      path: "/",
+    });
+
+    return response;
 
   } catch (error) {
     console.error("Finalize Google Error:", error);
