@@ -25,6 +25,7 @@ export default function CompleteGoogleSignup() {
   const [phone, setPhone] = useState("");
   const [otp, setOtp] = useState("");
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(""); // <--- ADDED ERROR STATE
   const [resendTimer, setResendTimer] = useState(0);
   const [confirmationResult, setConfirmationResult] = useState(null);
   
@@ -57,7 +58,7 @@ export default function CompleteGoogleSignup() {
       size: "invisible", 
       callback: () => {},
       "expired-callback": () => {
-        toast.error("Recaptcha expired");
+        setError(isRTL ? "انتهت صلاحية التحقق، يرجى المحاولة مرة أخرى." : "Recaptcha expired. Please try again.");
         window.recaptchaVerifier?.clear();
       }
     });
@@ -65,9 +66,14 @@ export default function CompleteGoogleSignup() {
 
   // Step 1: Send OTP
   const handleSendOTP = async () => {
+    setError(""); // Clear previous errors
+    
     // Validate Saudi Mobile (5xxxxxxxx)
     const raw = phone.replace(/\D/g, "").replace(/^05|^966/, "");
-    if (!/^5\d{8}$/.test(raw)) return toast.error(isRTL ? "رقم جوال غير صحيح" : "Invalid KSA mobile number");
+    if (!/^5\d{8}$/.test(raw)) {
+      setError(isRTL ? "رقم جوال غير صحيح" : "Invalid KSA mobile number");
+      return;
+    }
     
     const finalPhone = `+966${raw}`;
     setLoading(true);
@@ -81,7 +87,7 @@ export default function CompleteGoogleSignup() {
       toast.success(isRTL ? "تم إرسال الرمز" : "OTP sent");
     } catch (err) {
       console.error(err);
-      toast.error(isRTL ? "فشل إرسال الرمز" : "Failed to send OTP");
+      setError(isRTL ? "فشل إرسال الرمز، يرجى المحاولة لاحقاً." : "Failed to send OTP. Please try again.");
       if (window.recaptchaVerifier) window.recaptchaVerifier.clear();
     } finally {
       setLoading(false);
@@ -92,13 +98,17 @@ export default function CompleteGoogleSignup() {
   const handleVerifyOTP = async () => {
     if (otp.length < 6) return;
     setLoading(true);
+    setError(""); // Clear previous errors
 
     try {
       // 1. Verify with Firebase
-      await confirmationResult.confirm(otp);
+      try {
+        await confirmationResult.confirm(otp);
+      } catch (firebaseErr) {
+        throw new Error(isRTL ? "رمز التحقق غير صحيح" : "Invalid OTP code");
+      }
       
       // 2. Call your Backend to create/update user
-      // We pass the 'tempToken' to prove they actually logged into Google previously
       const raw = phone.replace(/\D/g, "").replace(/^05|^966/, "");
       const finalPhone = `+966${raw}`;
 
@@ -114,7 +124,11 @@ export default function CompleteGoogleSignup() {
       });
 
       const json = await res.json();
-      if (!json.success) throw new Error(json.error);
+      
+      // 🚨 THE FIX: Throw the exact error message coming from the backend
+      if (!json.success) {
+        throw new Error(json.error || "Failed to finalize account");
+      }
 
       // 3. Login Success
       saveCustomer(json.customer);
@@ -123,7 +137,10 @@ export default function CompleteGoogleSignup() {
 
     } catch (err) {
       console.error(err);
-      toast.error(isRTL ? "فشل التحقق" : "Verification failed");
+      // 🚨 THE FIX: Set the exact error message to the UI state
+      const errorMessage = err.message || (isRTL ? "فشل التحقق" : "Verification failed");
+      setError(errorMessage);
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -171,7 +188,7 @@ export default function CompleteGoogleSignup() {
                   value={phone}
                   onChange={(e) => setPhone(e.target.value.replace(/\D/g, ""))}
                   placeholder="5xxxxxxxx"
-                  className="w-full pl-24 pr-4 py-3.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#2D3247] focus:border-[#2D3247] outline-none transition font-mono text-lg"
+                  className={`w-full pl-24 pr-4 py-3.5 border ${error ? 'border-red-500' : 'border-gray-300'} rounded-xl focus:ring-2 focus:ring-[#2D3247] focus:border-[#2D3247] outline-none transition font-mono text-lg`}
                 />
               </div>
               <p className="text-[11px] text-gray-400 mt-2 mx-1">
@@ -180,6 +197,13 @@ export default function CompleteGoogleSignup() {
                   : "Required for payments (Tabby/Tamara) and delivery."}
               </p>
             </div>
+
+            {/* UI Error Message Display */}
+            {error && (
+              <div className="p-3 bg-red-50 border border-red-100 rounded-lg text-center">
+                <p className="text-red-600 text-sm font-medium">{error}</p>
+              </div>
+            )}
 
             <button
               onClick={handleSendOTP}
@@ -205,10 +229,17 @@ export default function CompleteGoogleSignup() {
                 maxLength={6}
                 value={otp}
                 onChange={(e) => setOtp(e.target.value.replace(/\D/g, ""))}
-                className="w-full text-center text-3xl tracking-[10px] font-bold py-3 border-b-2 border-gray-300 focus:border-[#2D3247] outline-none bg-transparent transition"
+                className={`w-full text-center text-3xl tracking-[10px] font-bold py-3 border-b-2 ${error ? 'border-red-500' : 'border-gray-300'} focus:border-[#2D3247] outline-none bg-transparent transition`}
                 placeholder="000000"
               />
             </div>
+
+            {/* UI Error Message Display */}
+            {error && (
+              <div className="p-3 bg-red-50 border border-red-100 rounded-lg text-center">
+                <p className="text-red-600 text-sm font-medium">{error}</p>
+              </div>
+            )}
 
             <button
               onClick={handleVerifyOTP}
@@ -228,7 +259,7 @@ export default function CompleteGoogleSignup() {
             <div className="text-center">
               <button 
                 onClick={handleSendOTP}
-                disabled={resendTimer > 0}
+                disabled={resendTimer > 0 || loading}
                 className="text-sm text-gray-500 hover:text-[#2D3247] disabled:opacity-50 transition font-medium"
               >
                 {resendTimer > 0 
@@ -238,7 +269,7 @@ export default function CompleteGoogleSignup() {
             </div>
             
             <button 
-              onClick={() => { setStep(1); setOtp(""); }}
+              onClick={() => { setStep(1); setOtp(""); setError(""); }}
               className="w-full text-xs text-gray-400 hover:text-gray-600 mt-4"
             >
               {isRTL ? "تغيير رقم الجوال" : "Change Phone Number"}
