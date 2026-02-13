@@ -1,6 +1,7 @@
-import { prisma } from "@/lib/prisma"; // Adjust path to your prisma client
+import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
-import jwt from "jsonwebtoken"; // Ensure you have 'npm install jsonwebtoken'
+import jwt from "jsonwebtoken";
+import { cookies } from "next/headers"; // <-- ADDED THIS
 
 const SECRET_KEY = process.env.JWT_SECRET || "your-secret-key";
 
@@ -13,18 +14,28 @@ export async function POST(req) {
       return NextResponse.json({ success: false, message: "Email required" }, { status: 400 });
     }
 
-    // 1. Check if customer exists in your database
     const customer = await prisma.customer.findUnique({
       where: { email },
     });
 
-    // 2. Logic Flow
     if (customer && customer.phone) {
-      // CASE A: User exists AND has a phone number -> LOGIN SUCCESS
-      
-      // Update last login (optional)
-      // Generate a session token for your app
       const token = jwt.sign({ id: customer.id, email: customer.email }, SECRET_KEY, { expiresIn: '7d' });
+
+      // 🚨 FIX: Set the HTTP-only cookie so the session is remembered!
+      cookies().set("customer_token", token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        maxAge: 60 * 60 * 24 * 7, // 7 days
+        path: "/",
+      });
+
+      // Also set generic token name just in case your standard login uses it
+      cookies().set("token", token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        maxAge: 60 * 60 * 24 * 7,
+        path: "/",
+      });
 
       return NextResponse.json({
         success: true,
@@ -38,13 +49,8 @@ export async function POST(req) {
         }
       });
     } 
-    
-    // CASE B: User does not exist OR User exists but has no phone -> REQUIRE PHONE
     else {
-      // Generate a temporary token to secure the "Complete Profile" page
-      // This ensures someone can't just visit the page without actually logging into Google first
       const tempToken = jwt.sign({ email, name, stage: "incomplete" }, SECRET_KEY, { expiresIn: '1h' });
-
       return NextResponse.json({
         success: true,
         action: "REQUIRE_PHONE",

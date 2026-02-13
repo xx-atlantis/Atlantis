@@ -4,10 +4,12 @@ import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import toast from "react-hot-toast";
 import { useLocale } from "@/app/components/LocaleProvider";
+import { useCustomerAuth } from "@/app/context/CustomerAuthProvider"; // <-- ADDED THIS
 
 export default function GoogleButton() {
   const { locale } = useLocale();
   const isRTL = locale === "ar";
+  const { saveCustomer } = useCustomerAuth(); // <-- ADDED THIS
 
   const handleGoogleLogin = async () => {
     try {
@@ -15,10 +17,8 @@ export default function GoogleButton() {
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
       
-      // Get the ID token to verify on backend
       const idToken = await user.getIdToken();
 
-      // Send to backend to check if user exists and has phone
       const res = await fetch("/api/auth/google-callback", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -32,13 +32,16 @@ export default function GoogleButton() {
       }
 
       if (json.action === "LOGIN_SUCCESS") {
-        // User exists & verified -> Login directly
-        localStorage.setItem("customer", JSON.stringify(json.customer));
+        // 🚨 FIX: Use your context function instead of raw localStorage
+        saveCustomer(json.customer); 
         toast.success(isRTL ? "تم تسجيل الدخول بنجاح" : "Login successful");
-        window.location.href = `/${locale}`;
+        
+        // Add a tiny delay so the cookie and state have time to set
+        setTimeout(() => {
+          window.location.href = `/${locale}`;
+        }, 500);
+
       } else if (json.action === "REQUIRE_PHONE") {
-        // New user or missing phone -> Redirect to Complete Profile
-        // We pass the temp token provided by the backend to secure the next step
         const params = new URLSearchParams({
           email: user.email,
           name: user.displayName,
