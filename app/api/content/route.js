@@ -129,24 +129,33 @@ export async function GET(req) {
       });
     } else {
       // ==========================================
-      // 4. FALLBACK LOGIC (Fixes 404 Error)
+      // 4. GRACEFUL FALLBACK LOGIC
       // ==========================================
       // If page is missing in DB, check if we have a hardcoded fallback
       if (FALLBACKS[pageSlug]) {
-        // Return fallback data under the key the frontend expects (e.g., data.login)
         return NextResponse.json(
           {
             page: pageSlug,
             locale,
             ...globalData,
-            [pageSlug]: FALLBACKS[pageSlug], // <--- Inject Fallback Here
+            [pageSlug]: FALLBACKS[pageSlug], // Inject fallback data
           },
           { status: 200 }
         );
       }
 
-      // If no DB entry AND no fallback, return 404
-      return NextResponse.json({ error: "Page not found" }, { status: 404 });
+      // If no DB entry AND no fallback, return 200 OK with empty page data
+      // This prevents the frontend from crashing on pages like checkout or home
+      // while you are still building your database.
+      return NextResponse.json(
+        {
+          page: pageSlug,
+          locale,
+          ...globalData,
+          [pageSlug]: {} 
+        }, 
+        { status: 200 }
+      );
     }
 
     // ==========================================
