@@ -62,7 +62,7 @@ function OrderSuccessContent() {
         <div className="flex flex-col sm:flex-row gap-3">
           {/* FIX: Tabby QA - Ensure this points to a valid page, like the homepage if you don't have a profile page yet */}
           <Link 
-            href={`/${locale}`} 
+            href={`/${locale}/orders`} 
             className="flex-1 bg-[#2D3247] text-white py-3.5 rounded-xl font-semibold hover:bg-[#1e2231] transition-colors flex items-center justify-center gap-2 shadow-md shadow-[#2D3247]/20"
           >
             <ShoppingBag size={18} />
