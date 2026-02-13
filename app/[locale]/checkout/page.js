@@ -635,7 +635,7 @@ export default function CheckoutPage() {
                         {locale === "ar" ? "تابي" : "Tabby"}
                       </span>
                     </div>
-                    <img src="https://checkout.tabby.ai/assets/logo.png" alt="Tabby" className="h-6 object-contain" />
+                    <img src="/public/tabby.webp" alt="Tabby" className="h-6 object-contain" />
                   </div>
                   
                   {/* FIX: Tabby Checkout Promo Snippet */}
