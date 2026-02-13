@@ -16,6 +16,9 @@ import {
 import { Button } from "../../../components/ui/button";
 import { Separator } from "../../../components/ui/separator";
 
+// IMPORTANT: We need Next.js Script to load the Tabby library globally
+import Script from "next/script"; 
+
 export const CartDrawer = () => {
   const { locale } = useLocale();
   const router = useRouter();
@@ -78,12 +81,7 @@ export const CartDrawer = () => {
     localStorage.setItem("cart", JSON.stringify(cartItems));
   }, [cartItems]);
 
-  /* =====================================================
-      IGNORE PACKAGE CART → Treat as empty cart
-  ====================================================== */
   const isPackageCart = cartItems?.cartType === "package";
-
-  // Force displayCart to empty array for package carts
   const displayCart = isPackageCart ? [] : cartItems;
 
   const subtotal = displayCart.reduce(
@@ -91,12 +89,31 @@ export const CartDrawer = () => {
     0
   );
 
-  /* =====================================================
-      CHECKOUT WITH TOAST PROMISE
-  ====================================================== */
-/* =====================================================
-      CHECKOUT WITH TOAST PROMISE & REDIRECT LOGIC
-  ====================================================== */
+  // ==========================================
+  // TABBY PROMO SNIPPET INITIALIZATION
+  // ==========================================
+  useEffect(() => {
+    if (isCartOpen && displayCart.length > 0 && typeof window !== "undefined" && window.TabbyPromo) {
+      try {
+        // Small delay to ensure the drawer animation finishes and the DOM element exists
+        setTimeout(() => {
+          new window.TabbyPromo({
+            selector: '#TabbyPromoCart', // Target the div below
+            currency: 'SAR',
+            price: subtotal.toFixed(2), // Use the dynamic cart subtotal
+            installmentsCount: 4,
+            lang: locale === "ar" ? "ar" : "en",
+            source: 'cart', // Let Tabby know this is on the cart page
+            publicKey: 'YOUR_TABBY_PUBLIC_KEY', // <-- IMPORTANT: Replace with your actual Public Key
+            merchantCode: 'ACI'
+          });
+        }, 300);
+      } catch (err) {
+        console.error("Tabby Promo Error (Cart):", err);
+      }
+    }
+  }, [isCartOpen, subtotal, locale, displayCart.length]);
+
   const goToCheckout = async () => {
     if (isVerifying) return;
 
@@ -107,9 +124,7 @@ export const CartDrawer = () => {
       if (data.success && data.token) {
         return data;
       } else {
-        // Capture current path to return after login
         const currentPath = window.location.pathname;
-        // Redirect to login with the redirect param
         router.push(`/${locale}/login?redirect=${encodeURIComponent(currentPath)}`);
         throw new Error("Unauthorized");
       }
@@ -123,7 +138,7 @@ export const CartDrawer = () => {
         pending: t.validating,
         success: {
           render() {
-            toggleCart(); // Close drawer on success
+            toggleCart(); 
             router.push(`/${locale}/checkout`);
             return t.authSuccess;
           },
@@ -144,7 +159,10 @@ export const CartDrawer = () => {
 
   return (
     <>
+      {/* Load Tabby Script Globally so the Drawer can use it */}
+      <Script src="https://checkout.tabby.ai/tabby-promo.js" strategy="lazyOnload" />
       <ToastContainer position="bottom-center" autoClose={3000} theme="light" />
+      
       <Sheet open={isCartOpen} onOpenChange={toggleCart}>
         <SheetContent className="w-full sm:max-w-md flex flex-col p-0 gap-0">
           <SheetHeader className="px-6 py-4 border-b">
@@ -279,6 +297,9 @@ export const CartDrawer = () => {
                   <SaudiRiyal size={16} /> {subtotal.toFixed(2)}
                 </span>
               </div>
+
+              {/* TABBY PROMO DIV CONTAINER */}
+              <div id="TabbyPromoCart" className="w-full bg-white rounded-md border border-gray-100 overflow-hidden shadow-sm"></div>
 
               <Button
                 className="w-full text-base py-6 shadow-md"

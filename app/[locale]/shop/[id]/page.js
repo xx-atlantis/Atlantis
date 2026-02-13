@@ -5,11 +5,12 @@ import { ProductDetails } from "@/app/components/app/ProductDetail";
 import { usePathname, useRouter } from "next/navigation";
 import { useLocale } from "@/app/components/LocaleProvider";
 import { FloatingCartButton } from "@/app/components/FloatingCartButton";
+import Script from "next/script"; // <-- IMPORTANT IMPORT
 
 export default function ProductPage() {
   const pathname = usePathname();
   const router = useRouter();
-  const { locale } = useLocale(); // ✅ get current locale
+  const { locale } = useLocale();
 
   const id = pathname.split("/").pop();
 
@@ -19,7 +20,7 @@ export default function ProductPage() {
   useEffect(() => {
     async function load() {
       try {
-        const res = await fetch(`/api/shop/product/${id}?locale=${locale}`); // ✅ locale added
+        const res = await fetch(`/api/shop/product/${id}?locale=${locale}`);
         const json = await res.json();
         setProduct(json.data || null);
       } catch (error) {
@@ -29,10 +30,13 @@ export default function ProductPage() {
       }
     }
     load();
-  }, [id, locale]); // ✅ re-fetch when locale changes
+  }, [id, locale]);
 
   return (
     <>
+      {/* Load Tabby Script so ProductDetails can use it */}
+      <Script src="https://checkout.tabby.ai/tabby-promo.js" strategy="lazyOnload" />
+      
       <ProductDetails
         product={product}
         loading={loading}
