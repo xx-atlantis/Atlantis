@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useLocale } from "@/app/components/LocaleProvider";
 import { useCustomerAuth } from "@/app/context/CustomerAuthProvider";
-import { Smartphone, ArrowRight, CheckCircle2, Loader2 } from "lucide-react";
+import { ArrowRight, CheckCircle2, Loader2 } from "lucide-react";
 import { RecaptchaVerifier, signInWithPhoneNumber } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import toast from "react-hot-toast";
@@ -25,7 +25,7 @@ export default function CompleteGoogleSignup() {
   const [phone, setPhone] = useState("");
   const [otp, setOtp] = useState("");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(""); // <--- ADDED ERROR STATE
+  const [error, setError] = useState(""); 
   const [resendTimer, setResendTimer] = useState(0);
   const [confirmationResult, setConfirmationResult] = useState(null);
   
@@ -125,19 +125,24 @@ export default function CompleteGoogleSignup() {
 
       const json = await res.json();
       
-      // 🚨 THE FIX: Throw the exact error message coming from the backend
       if (!json.success) {
         throw new Error(json.error || "Failed to finalize account");
       }
 
-      // 3. Login Success
+      // 3. FORCE LOCAL STORAGE UPDATE IMMEDIATELY
+      localStorage.setItem("customer", JSON.stringify(json.customer));
+      localStorage.setItem("customer_token", json.customer.token);
+
+      // 4. UPDATE REACT CONTEXT
       saveCustomer(json.customer);
       toast.success(isRTL ? "تم إنشاء الحساب بنجاح" : "Account created successfully");
+      
+      // 5. SOFT REDIRECT & REFRESH NAVBAR
       router.push(`/${locale}`);
+      router.refresh();
 
     } catch (err) {
       console.error(err);
-      // 🚨 THE FIX: Set the exact error message to the UI state
       const errorMessage = err.message || (isRTL ? "فشل التحقق" : "Verification failed");
       setError(errorMessage);
       toast.error(errorMessage);

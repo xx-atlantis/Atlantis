@@ -4,12 +4,14 @@ import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import toast from "react-hot-toast";
 import { useLocale } from "@/app/components/LocaleProvider";
-import { useCustomerAuth } from "@/app/context/CustomerAuthProvider"; // <-- ADDED THIS
+import { useCustomerAuth } from "@/app/context/CustomerAuthProvider";
+import { useRouter } from "next/navigation"; // <-- IMPORT ROUTER
 
 export default function GoogleButton() {
   const { locale } = useLocale();
   const isRTL = locale === "ar";
-  const { saveCustomer } = useCustomerAuth(); // <-- ADDED THIS
+  const { saveCustomer } = useCustomerAuth();
+  const router = useRouter(); // <-- INITIALIZE ROUTER
 
   const handleGoogleLogin = async () => {
     try {
@@ -32,14 +34,17 @@ export default function GoogleButton() {
       }
 
       if (json.action === "LOGIN_SUCCESS") {
-        // 🚨 FIX: Use your context function instead of raw localStorage
+        // 1. GUARANTEE LOCAL STORAGE IS SET IMMEDIATELY
+        localStorage.setItem("customer", JSON.stringify(json.customer));
+        localStorage.setItem("customer_token", json.customer.token);
+
+        // 2. UPDATE REACT CONTEXT
         saveCustomer(json.customer); 
         toast.success(isRTL ? "تم تسجيل الدخول بنجاح" : "Login successful");
         
-        // Add a tiny delay so the cookie and state have time to set
-        setTimeout(() => {
-          window.location.href = `/${locale}`;
-        }, 500);
+        // 3. SOFT REDIRECT & REFRESH NAVBAR
+        router.push(`/${locale}`);
+        router.refresh();
 
       } else if (json.action === "REQUIRE_PHONE") {
         const params = new URLSearchParams({
@@ -47,7 +52,7 @@ export default function GoogleButton() {
           name: user.displayName,
           token: json.tempToken
         });
-        window.location.href = `/${locale}/complete-profile?${params.toString()}`;
+        router.push(`/${locale}/complete-profile?${params.toString()}`);
       }
 
     } catch (error) {
