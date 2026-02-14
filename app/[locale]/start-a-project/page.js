@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { useLocale } from "@/app/components/LocaleProvider";
 import { usePageContent } from "@/app/context/PageContentProvider";
@@ -13,6 +13,31 @@ export default function StartProjectTypePage() {
 
   const content = data?.startproject;
   const kinds = content?.kinds || [];
+
+  // ==========================================
+  // FIX: Force Exact Sort Order (Room -> Apartment -> Villa)
+  // ==========================================
+  const sortedKinds = useMemo(() => {
+    const sortOrder = ["room", "apartment", "villa"];
+    
+    return [...kinds].sort((a, b) => {
+      // safely lowercase to match the sortOrder array exactly
+      const nameA = a.name?.toLowerCase() || "";
+      const nameB = b.name?.toLowerCase() || "";
+      
+      const indexA = sortOrder.indexOf(nameA);
+      const indexB = sortOrder.indexOf(nameB);
+
+      // If both are in our sortOrder list, arrange them by index
+      if (indexA !== -1 && indexB !== -1) return indexA - indexB;
+      // If A is in the list but B is not, A comes first
+      if (indexA !== -1) return -1;
+      // If B is in the list but A is not, B comes first
+      if (indexB !== -1) return 1;
+      
+      return 0; // fallback if neither is in the list
+    });
+  }, [kinds]);
 
   const handleSelectType = (type) => {
     if (typeof window !== "undefined") {
@@ -37,15 +62,15 @@ export default function StartProjectTypePage() {
           </p>
         </div>
 
-        {/* GRID LIST */}
+        {/* GRID LIST - Now using sortedKinds */}
         <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
-          {kinds.map((item) => (
+          {sortedKinds.map((item) => (
             <button
               key={item.name}
               onClick={() => handleSelectType(item.name)}
               className="group relative flex flex-col bg-white rounded-3xl border border-gray-100 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 overflow-hidden text-start"
             >
-              {/* IMAGE CONTAINER - Using aspect-video to show more of the image */}
+              {/* IMAGE CONTAINER */}
               {item.image && (
                 <div className="relative aspect-[16/10] w-full overflow-hidden bg-gray-100">
                   <img
