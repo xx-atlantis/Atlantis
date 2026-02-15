@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Check, Circle, SaudiRiyal, SaudiRiyalIcon, ShieldCheck } from "lucide-react";
+import { Check, Circle, Building2, Home, Hotel, SaudiRiyal, ChevronRight, ArrowRight } from "lucide-react";
 import { useLocale } from "@/app/components/LocaleProvider";
 import { usePageContent } from "@/app/context/PageContentProvider";
 
@@ -42,6 +42,17 @@ export default function PackagesSection({ onSelectPackage, projectType }) {
     onSelectPackage(newSelected === null ? null : pkg);
   };
 
+  // Icon mapping for package types
+  const getPackageIcon = (type) => {
+    const iconMap = {
+      room: Hotel,
+      apartment: Building2,
+      villa: Home,
+    };
+    const IconComponent = iconMap[type?.toLowerCase()] || Building2;
+    return IconComponent;
+  };
+
   if (filteredPackages.length === 0) {
     return (
       <div className="py-20 text-gray-400 font-medium italic">
@@ -52,107 +63,168 @@ export default function PackagesSection({ onSelectPackage, projectType }) {
     );
   }
 
+  // Get all features from filtered packages (combining all packages' features)
+  const allFeatures = filteredPackages.reduce((acc, pkg) => {
+    pkg.features.forEach(feature => {
+      if (!acc.find(f => f.text === feature.text)) {
+        acc.push(feature);
+      }
+    });
+    return acc;
+  }, []);
+
   return (
     <section dir={isRTL ? "rtl" : "ltr"} className="text-center">
-      {/* Header & Guarantee Section */}
-      <div className="max-w-3xl mx-auto mb-6">
-        <h2 className="text-3xl sm:text-3xl font-extrabold text-gray-900 leading-tight tracking-tight">
+      {/* Header Section */}
+      <div className="max-w-3xl mx-auto mb-12">
+        <p className="text-xs font-bold uppercase tracking-[0.2em] text-gray-400 mb-3">
+          {content.sectionLabel || "OUR PLANS"}
+        </p>
+        <h2 className="text-4xl sm:text-5xl font-extrabold text-gray-900 leading-tight tracking-tight">
           {content.mainTitle?.normal}{" "}
           <span className="text-[#5E7E7D]">{content.mainTitle?.highlight}</span>
         </h2>
-        
-        {content.refundHeading && (
-          <div className="mt-4 inline-flex items-center gap-3 bg-amber-50/80 border border-amber-100 px-6 py-3 rounded-2xl">
-            <ShieldCheck size={20} className="text-amber-600" />
-            <p className="text-sm text-amber-900">
-              <span className="font-bold">{content.refundHeading}:</span> {content.refundText}
-            </p>
-          </div>
-        )}
       </div>
 
-      {/* Dynamic Grid Container */}
-      <div className={`w-full mx-auto grid gap-8 justify-center items-stretch ${gridConfig}`}>
+      {/* Packages Grid */}
+      <div className={`w-full mx-auto grid gap-6 justify-center items-stretch ${gridConfig}`}>
         {filteredPackages.map((pkg, index) => {
           const isRecommended = pkg.recommended;
           const isSelected = selected === index;
+          const PackageIcon = getPackageIcon(pkg.type);
 
           return (
             <div
               key={index}
-              className={`relative rounded-[2.5rem] p-8 flex flex-col shadow-sm border transition-all duration-500 ${
+              className={`relative rounded-3xl p-8 flex flex-col transition-all duration-300 ${
                 isRecommended
-                  ? "border-[#5E7E7D] bg-white ring-8 ring-[#5E7E7D]/5 scale-[1.02] z-10"
-                  : "border-gray-100 bg-gray-50/50 hover:bg-white hover:border-gray-200"
-              } ${isSelected ? "ring-2 ring-[#2D3247] border-[#2D3247]" : ""}`}
+                  ? "bg-[#2D3247] text-white scale-105 shadow-2xl z-10"
+                  : "bg-[#2D3247] text-white shadow-lg hover:shadow-xl"
+              } ${isSelected ? "ring-4 ring-[#5E7E7D]" : ""}`}
             >
-              {isRecommended && (
-                <span className="absolute -top-4 left-1/2 -translate-x-1/2 bg-[#5E7E7D] text-white text-[10px] font-black px-5 py-2 rounded-full uppercase tracking-[0.2em] shadow-lg">
-                  {content.recommended || (isRTL ? "موصى به" : "Recommended")}
-                </span>
-              )}
+              {/* Icon */}
+              <div className={`mx-auto mb-6 p-4 rounded-2xl ${
+                isRecommended ? "bg-white/10" : "bg-white/10"
+              }`}>
+                <PackageIcon size={32} className={isRecommended ? "text-white" : "text-white"} />
+              </div>
 
-              {/* Package Identification */}
+              {/* Package Title */}
+              <h3 className={`text-2xl font-bold mb-2 ${
+                isRecommended ? "text-white" : "text-white"
+              }`}>
+                {pkg.title}
+              </h3>
+
+              {/* Subtitle */}
+              <p className={`text-sm mb-8 ${
+                isRecommended ? "text-white/70" : "text-white/70"
+              }`}>
+                {pkg.subtitle || `${pkg.area || "..."}`}
+              </p>
+
+              {/* Price */}
               <div className="mb-8">
-                <div className="inline-block px-3 py-1 rounded-lg bg-gray-100 text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-3">
-                  {pkg.type}
+                <div className="flex items-baseline justify-center gap-2">
+                  <span className={`text-4xl font-black tracking-tighter ${
+                    isRecommended ? "text-white" : "text-white"
+                  }`}>
+                    {pkg.price} <SaudiRiyal size={20} className="inline-block items-center" />
+                  </span>
+                  <span className={`text-sm font-medium ${
+                    isRecommended ? "text-white/60" : "text-white/60"
+                  }`}>
+                    / {pkg.type || "Room"}
+                  </span>
                 </div>
-                <h3 className="text-2xl font-black text-gray-900 uppercase">
-                  {pkg.title}
-                </h3>
+                {pkg.oldPrice && (
+                  <p className={`text-sm line-through mt-2 ${
+                    isRecommended ? "text-white/40" : "text-white/40"
+                  }`}>
+                    ({pkg.oldPrice}) <SaudiRiyal size={20} className="inline-block items-center" />
+                  </p>
+                )}
               </div>
 
-              {/* Features List */}
-              <ul className={`space-y-4 mb-10 flex-1 ${isRTL ? "text-right" : "text-left"}`}>
-                {pkg.features.map((feature, i) => (
-                  <li key={i} className="flex items-start gap-3 group">
-                    {feature.included ? (
-                      <div className="bg-[#2D3247] rounded-full p-1 shrink-0 mt-0.5 shadow-sm">
-                        <Check size={12} className="text-white" />
-                      </div>
-                    ) : (
-                      <Circle size={20} className="text-gray-200 shrink-0 mt-0.5" />
-                    )}
-                    <span className={`text-xs leading-relaxed font-medium ${feature.included ? "text-gray-700" : "text-gray-300"}`}>
-                      {feature.text}
-                    </span>
-                  </li>
-                ))}
-              </ul>
+              {/* CTA Button - Original Select/Selected Logic */}
+              <button
+                onClick={() => handleSelect(pkg, index)}
+                className={`w-full py-4 rounded-2xl text-sm font-bold uppercase tracking-[0.15em] transition-all active:scale-95 flex items-center justify-center gap-2 ${
+                  isSelected
+                    ? isRecommended 
+                      ? "bg-white text-[#2D3247]"
+                      : "bg-white text-[#2D3247] shadow-xl shadow-black/20"
+                    : isRecommended
+                      ? "bg-white text-[#2D3247] hover:bg-gray-100"
+                      : "bg-white text-[#2D3247] hover:bg-gray-100 hover:text-[#2D3247] border-2 border-gray-100 hover:border-[#2D3247] hover:shadow-lg"
+                }`}
+              >
+                {isSelected ? (content.selected || "Selected") : (content.select || "Select Package")}
+                {!isRecommended && <span className=""><ArrowRight size={16} className="text-[#2D3247]" /></span>}
+              </button>
 
-              {/* Pricing & CTA */}
-              <div className="border-t border-gray-100">
-                <div className="mb-4">
-                  <div className="flex items-baseline justify-center gap-1">
-                    <span className="text-3xl font-[1000] tracking-tighter text-[#2D3247]">
-                      {pkg.price} <SaudiRiyalIcon className="inline-block" />
-                    </span>
-                    <span className="text-gray-400 text-xs font-bold uppercase tracking-widest">
-                      {content.perRoom}
-                    </span>
-                  </div>
-                  {pkg.oldPrice && (
-                    <p className="text-gray-300 text-sm line-through decoration-red-400/30 mt-1">
-                      {pkg.oldPrice}
-                    </p>
-                  )}
-                </div>
-
-                <button
-                  onClick={() => handleSelect(pkg, index)}
-                  className={`w-full py-3 rounded-2xl text-xs font-black uppercase tracking-[0.15em] transition-all active:scale-95 ${
-                    isSelected
-                      ? "bg-[#2D3247] text-white shadow-xl shadow-black/20"
-                      : "bg-white hover:bg-[#2D3247] hover:text-white border-2 border-gray-100 hover:border-[#2D3247] hover:shadow-lg"
-                  }`}
-                >
-                  {isSelected ? (content.selected || "Selected") : (content.select || "Select Package")}
-                </button>
-              </div>
+              {/* VAT Notice */}
+              <p className={`text-xs mt-4 ${
+                isRecommended ? "text-white/60" : "text-white/60"
+              }`}>
+                {content.vatNotice}
+              </p>
             </div>
           );
         })}
       </div>
+
+      {/* All Packages Include Section - Features from filtered packages */}
+      {allFeatures.length > 0 && (
+        <div className="bg-gray-50 mt-4 rounded-3xl max-w-7xl mx-auto">
+          {/* Section Header */}
+          <div className="text-center mb-12">
+            <div className="inline-flex items-center gap-3 mb-4">
+              <span className="text-3xl">✨</span>
+              <h3 className="text-3xl font-bold text-gray-900">
+                {content.allPackagesTitle?
+                  content.allPackagesTitle
+                  : isRTL 
+                    ? "تتضمن الحزمة" 
+                    : "Package Include"}
+              </h3>
+            </div>
+            <p className="text-gray-600 max-w-2xl mx-auto">
+              {content.allPackagesSubtitle?
+                content.allPackagesSubtitle
+                : isRTL 
+                  ? "نقدم نفس الجودة العالية والاهتمام بالتفاصيل لجميع أنواع الوحدات" 
+                  : "We provide the same high quality and attention to detail for all unit types"}
+            </p>
+          </div>
+
+          {/* Features Grid */}
+          <div className={`bg-gray-100 rounded-2xl shadown-sm grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 ${isRTL ? "text-right" : "text-left"}`}>
+            {allFeatures.map((feature, i) => (
+              <div key={i} className={`flex items-start gap-4 p-4 rounded-2xl ${
+                feature.included ? "" : "opacity-50"
+              }`}>
+                <div className={`rounded-full p-1 shrink-0 mt-1 ${
+                  feature.included 
+                    ? "bg-gray-300" 
+                    : "bg-gray-200"
+                }`}>
+                  {feature.included ? (
+                    <Check size={14} className="text-black" />
+                  ) : (
+                    <Circle size={14} className="text-gray-400" />
+                  )}
+                </div>
+                <p className={`text-sm leading-relaxed font-medium ${
+                  feature.included ? "text-gray-700" : "text-gray-400"
+                }`}>
+                  {feature.text}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </section>
   );
 }
