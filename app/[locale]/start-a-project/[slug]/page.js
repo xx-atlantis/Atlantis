@@ -25,6 +25,15 @@ export default function StartProjectSinglePage() {
   const [hasAdditionalFee, setHasAdditionalFee] = useState(false);
   const [additionalFeeAmount, setAdditionalFeeAmount] = useState(0);
 
+  // Helper to identify the multi-select question by checking English and Arabic text
+  const isMultiSelectTarget = (text) => {
+    if (!text) return false;
+    const lowerText = text.toLowerCase();
+    // Update the Arabic text string below if it differs in your CMS
+    return lowerText.includes("define your needs in this apartment") || 
+           lowerText.includes("حدد احتياجاتك"); 
+  };
+
   useEffect(() => {
     try {
       const savedData = localStorage.getItem(FORM_KEY);
@@ -46,8 +55,11 @@ export default function StartProjectSinglePage() {
     setForm((prev) => {
       let updatedLocalForm;
 
-      // Handle MULTI-SELECT for the very first question (step_0)
-      if (key === "step_0") {
+      // Check if this specific question should be treated as multi-select
+      const isMultiSelect = isMultiSelectTarget(questionText);
+
+      // Handle MULTI-SELECT for the targeted question
+      if (isMultiSelect) {
         const currentSelections = Array.isArray(prev[key]?.selections) ? prev[key].selections : [];
         const isAlreadySelected = currentSelections.some((item) => item.cardName === value.cardName);
 
@@ -164,6 +176,10 @@ export default function StartProjectSinglePage() {
           <div className="space-y-12">
             {content.steps?.map((step, sIndex) => {
               const stepKey = `step_${sIndex}`;
+              
+              // Determine if this specific step allows multi-select using our helper
+              const isMultiSelectStep = isMultiSelectTarget(step.title);
+
               return (
                 <div key={stepKey} className="pb-8 border-b border-gray-100 last:border-0">
                   <div className="flex items-center gap-3 mb-6">
@@ -174,11 +190,10 @@ export default function StartProjectSinglePage() {
                   </div>
                   <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
                     {step.options.map((opt, oIndex) => {
-                      // Logic to determine if this specific card is selected
-                      const isSelected =
-                        sIndex === 0
-                          ? form[stepKey]?.selections?.some((s) => s.cardName === opt.cardName)
-                          : form[stepKey]?.cardName === opt.cardName;
+                      // Check selection based on whether it's the multi-select step or single-select
+                      const isSelected = isMultiSelectStep
+                        ? form[stepKey]?.selections?.some((s) => s.cardName === opt.cardName)
+                        : form[stepKey]?.cardName === opt.cardName;
 
                       return (
                         <OptionCard
