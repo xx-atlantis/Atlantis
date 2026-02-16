@@ -14,6 +14,7 @@ const PAGE_PERMISSIONS = {
     "/admin/orders": "order.read",
     "/admin/add-shop-product": "product.read",
     "/admin/customers": "customers.read",
+    "/admin/coupon-code": "coupon.read",
     "/admin/blog": "blog.read",
     "/admin/blog-management": "blog.read",
     "/admin/our-portfolio": "portfolio.read",
@@ -90,6 +91,11 @@ const AdminSidebar = ({ collapsed, setCollapsed, setMenuOpen }) => {
                 id:11,
                 slug: "/admin/customers",
                 languages: { en: { title: "Customers" }, ar: { title: "العملاء" } },
+            },
+            {
+                id:12,
+                slug: "/admin/coupon-code",
+                languages: { en: { title: "Coupon Code" }, ar: { title: "رمز الكوبون" } },
             },
             {
                 id: 5,

@@ -25,70 +25,79 @@ export async function POST(req) {
       vat,
       total,
       paymentMethod,
-      // --- New Fields from Frontend ---
-      paymentPlan, // "full" or "deposit"
-      depositPaid, // true or false
+      paymentPlan,
+      depositPaid,
+      couponId,
+      discountTotal,
     } = body;
 
-    // Calculate remaining balance if it's a deposit
-    // If paymentPlan is "deposit", the 'total' sent from frontend is only the 25/40/50%
-    // We should store what is still owed for admin clarity.
     let remainingBalance = 0;
     if (orderType === "package" && paymentPlan === "deposit") {
       const fullPrice = Number(packageDetails?.price?.replace(/\D/g, "")) || 0;
       const fullVat = fullPrice * 0.15;
       const fullTotal = fullPrice + fullVat;
-      remainingBalance = fullTotal - total; 
+      remainingBalance = fullTotal - total;
     }
 
-    const newOrder = await prisma.order.create({
-      data: {
-        customerId: customerId || null,
-        customerEmail,
-        customerName,
-        customerPhone,
-        address,
+    // ==========================================
+    // 🔥 USE TRANSACTION - Both or Nothing
+    // ==========================================
+    const result = await prisma.$transaction(async (tx) => {
+      // 1. Increment coupon usage (if coupon was used)
+      if (couponId) {
+        await tx.coupon.update({
+          where: { id: couponId },
+          data: { usedCount: { increment: 1 } },
+        });
+      }
 
-        orderType,
-        subtotal,
-        shipping,
-        vat,
-        total, // This is the amount the user is paying NOW
-        paymentMethod,
-        
-        // --- Store Payment Plan Status ---
-        paymentPlan: paymentPlan || "full",
-        depositPaid: depositPaid || false,
-        remainingBalance: remainingBalance,
+      // 2. Create the order
+      const newOrder = await tx.order.create({
+        data: {
+          customerId: customerId || null,
+          customerEmail,
+          customerName,
+          customerPhone,
+          address,
+          orderType,
+          subtotal,
+          shipping,
+          vat,
+          total,
+          paymentMethod,
+          paymentPlan: paymentPlan || "full",
+          depositPaid: depositPaid || false,
+          remainingBalance: remainingBalance,
+          couponId: couponId || null,
+          discountTotal: discountTotal || 0,
+          packageDetails: orderType === "package" ? packageDetails : undefined,
+          projectSteps: orderType === "package" ? projectSteps : undefined,
+          items:
+            orderType === "shop" && items
+              ? {
+                  create: items.map((item) => ({
+                    productId: item.productId,
+                    name: item.name,
+                    coverImage: item.coverImage,
+                    price: item.price,
+                    quantity: item.quantity,
+                    variant: item.variant || null,
+                    material: item.material || null,
+                  })),
+                }
+              : undefined,
+        },
+        include: { items: true },
+      });
 
-        // Package → store JSON
-        packageDetails: orderType === "package" ? packageDetails : undefined,
-        projectSteps: orderType === "package" ? projectSteps : undefined,
-
-        // Shop items → create related OrderItem records
-        items:
-          orderType === "shop" && items
-            ? {
-                create: items.map((item) => ({
-                  productId: item.productId,
-                  name: item.name,
-                  coverImage: item.coverImage,
-                  price: item.price,
-                  quantity: item.quantity,
-                  variant: item.variant || null,
-                  material: item.material || null,
-                })),
-              }
-            : undefined,
-      },
-      include: { items: true },
+      return newOrder;
     });
 
     return NextResponse.json(
-      { 
-        success: true, 
-        orderId: newOrder.id, 
-        order: newOrder 
+      {
+        success: true,
+        orderId: result.id,
+        order: result,
       },
       { status: 201 }
     );

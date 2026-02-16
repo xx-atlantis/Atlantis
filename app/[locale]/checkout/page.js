@@ -4,25 +4,16 @@ import { useLocale } from "@/app/components/LocaleProvider";
 import { usePageContent } from "@/app/context/PageContentProvider";
 import { useCart } from "@/app/context/CartContext";
 import { useState, useMemo, useEffect } from "react";
-import { CheckCircle2, CreditCard, Wallet, Sparkles, Landmark } from "lucide-react";
-import Script from "next/script"; // Required for Tabby Snippet
+import { CheckCircle2, CreditCard, Wallet, Sparkles, Landmark, Tag, X, SaudiRiyal } from "lucide-react";
+import Script from "next/script";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 // =====================================================================
 // NEW SAUDI RIYAL SYMBOL COMPONENT
 // =====================================================================
-// Paste the 'd' path from the GitHub repository you provided here.
 const SaudiRiyalIcon = ({ size = 16, className = "" }) => (
-  <svg 
-    width={size} 
-    height={size} 
-    viewBox="0 0 512 512" 
-    fill="currentColor" 
-    className={`inline-block ${className}`}
-    xmlns="http://www.w3.org/2000/svg"
-  >
-    {/* PASTE THE PATH D="..." HERE */}
-    <text x="50%" y="50%" dominantBaseline="middle" textAnchor="middle" fontSize="300" fontWeight="bold">ر.س</text>
-  </svg>
+  <SaudiRiyal size={size} className={className} />
 );
 
 // Helper: Format phone number to Saudi international format
@@ -55,6 +46,11 @@ export default function CheckoutPage() {
   const [notes, setNotes] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
   const [selectedPayment, setSelectedPayment] = useState("paytabs");
+
+  // Coupon state
+  const [couponCode, setCouponCode] = useState("");
+  const [appliedCoupon, setAppliedCoupon] = useState(null);
+  const [couponLoading, setCouponLoading] = useState(false);
 
   useEffect(() => {
     const stored = localStorage.getItem("customer");
@@ -105,7 +101,58 @@ export default function CheckoutPage() {
 
   const shipping = 0;
   const vat = subtotal * 0.15;
-  const total = subtotal + shipping + vat;
+  
+  // Calculate discount
+  const couponDiscount = appliedCoupon ? appliedCoupon.discount.amount : 0;
+  
+  // Total with discount applied
+  const total = subtotal + shipping + vat - couponDiscount;
+
+  // ==========================================
+  // COUPON FUNCTIONS
+  // ==========================================
+  const handleApplyCoupon = async () => {
+    if (!couponCode.trim()) {
+      toast.error(isRTL ? "الرجاء إدخال كود الكوبون" : "Please enter a coupon code");
+      return;
+    }
+
+    setCouponLoading(true);
+    try {
+      const res = await fetch("/api/admin/coupon/apply", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          code: couponCode.toUpperCase(),
+          orderTotal: subtotal + shipping + vat, // Before discount
+          customerId: customer?.id,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (data.valid) {
+        setAppliedCoupon(data);
+        toast.success(
+          isRTL 
+            ? `تم تطبيق الكوبون! وفرت ${data.discount.amount.toFixed(2)} ر.س` 
+            : `Coupon applied! You saved SAR ${data.discount.amount.toFixed(2)}`
+        );
+      } else {
+        toast.error(data.error || (isRTL ? "كود كوبون غير صالح" : "Invalid coupon code"));
+      }
+    } catch (error) {
+      toast.error(isRTL ? "فشل تطبيق الكوبون" : "Failed to apply coupon");
+    } finally {
+      setCouponLoading(false);
+    }
+  };
+
+  const handleRemoveCoupon = () => {
+    setAppliedCoupon(null);
+    setCouponCode("");
+    toast.info(isRTL ? "تم إزالة الكوبون" : "Coupon removed");
+  };
 
   // ==========================================
   // TABBY PROMO SNIPPET INITIALIZATION
@@ -113,7 +160,6 @@ export default function CheckoutPage() {
   useEffect(() => {
     if (selectedPayment === "tabby" && typeof window !== "undefined" && window.TabbyPromo) {
       try {
-        // Small delay to ensure the DOM element #TabbyPromo is rendered
         setTimeout(() => {
           new window.TabbyPromo({
             selector: '#TabbyPromo',
@@ -122,8 +168,8 @@ export default function CheckoutPage() {
             installmentsCount: 4,
             lang: locale === "ar" ? "ar" : "en",
             source: 'checkout',
-            publicKey: 'pk_test_YOUR_PUBLIC_KEY', // <-- IMPORTANT: Replace with your Tabby Public Key
-            merchantCode: 'ACI' // Replace with your Merchant Code
+            publicKey: 'pk_test_YOUR_PUBLIC_KEY',
+            merchantCode: 'ACI'
           });
         }, 100);
       } catch (err) {
@@ -175,6 +221,8 @@ export default function CheckoutPage() {
         subtotal,
         shipping,
         vat,
+        couponCode: appliedCoupon?.coupon?.code || null,
+        couponDiscount: couponDiscount,
         total,
         packageDetails: cart.package,
         projectSteps: cart.steps,
@@ -191,6 +239,8 @@ export default function CheckoutPage() {
         subtotal,
         shipping,
         vat,
+        couponCode: appliedCoupon?.coupon?.code || null,
+        couponDiscount: couponDiscount,
         total,
         items: safeCartItems.map((i) => ({
           productId: i.id,
@@ -229,7 +279,7 @@ export default function CheckoutPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           orderId: json.orderId,
-          lang: locale === "ar" ? "ar" : "en", // Fix for Point 6
+          lang: locale === "ar" ? "ar" : "en",
           firstName,
           lastName,
           phone: formattedPhone,
@@ -257,7 +307,7 @@ export default function CheckoutPage() {
 
   return (
     <>
-      {/* Load Tabby Promo Script */}
+      <ToastContainer position="top-right" theme="light" />
       <Script src="https://checkout.tabby.ai/tabby-promo.js" strategy="lazyOnload" />
 
       <section dir={isRTL ? "rtl" : "ltr"} className="py-20 bg-gray-50">
@@ -356,7 +406,6 @@ export default function CheckoutPage() {
                   </div>
                 </div>
 
-                {/* Quick Stats Block */}
                 <div className="grid grid-cols-4 gap-1 py-3 bg-gray-50 rounded-xl border border-gray-100 mb-4">
                   <div className="text-center border-e border-gray-200">
                     <p className="text-[9px] text-gray-400 uppercase font-medium">{isRTL ? "المساحة" : "Area"}</p>
@@ -514,6 +563,15 @@ export default function CheckoutPage() {
                       <span>{isRTL ? "الضريبة (15%)" : "VAT (15%)"}</span>
                       <span>{vat.toFixed(2)} <SaudiRiyalIcon size={16} className="inline-block " /></span>
                     </div>
+                    
+                    {/* Coupon Discount */}
+                    {appliedCoupon && (
+                      <div className="flex justify-between text-sm text-green-600 font-medium">
+                        <span>{isRTL ? "خصم الكوبون" : "Coupon Discount"}</span>
+                        <span>-{couponDiscount.toFixed(2)} <SaudiRiyalIcon size={16} className="inline-block " /></span>
+                      </div>
+                    )}
+                    
                     <div className="flex justify-between items-center text-lg font-bold border-t border-gray-100 pt-4 mt-4">
                       <span className="text-gray-900">{isRTL ? "الإجمالي" : "Total"}</span>
                       <div className="text-right">
@@ -529,7 +587,6 @@ export default function CheckoutPage() {
                     <p className="text-gray-500 text-sm">{isRTL ? "السلة فارغة" : "No items in cart."}</p>
                   ) : (
                     <>
-                      {/* List of Shop Items */}
                       <div className="space-y-4 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
                         {safeCartItems.map((item) => (
                           <div key={item.id} className="flex justify-between items-center text-sm">
@@ -549,7 +606,6 @@ export default function CheckoutPage() {
 
                       <hr className="my-4 border-gray-100" />
 
-                      {/* Totals Breakdown */}
                       <div className="space-y-2">
                         <div className="flex justify-between text-sm text-gray-500">
                           <span>{isRTL ? "المجموع الفرعي" : "Subtotal"}</span>
@@ -560,6 +616,14 @@ export default function CheckoutPage() {
                           <span>{isRTL ? "الضريبة (15%)" : "VAT (15%)"}</span>
                           <span>{vat.toFixed(2)} <SaudiRiyalIcon size={16} className="inline-block " /></span>
                         </div>
+
+                        {/* Coupon Discount */}
+                        {appliedCoupon && (
+                          <div className="flex justify-between text-sm text-green-600 font-medium">
+                            <span>{isRTL ? "خصم الكوبون" : "Coupon Discount"}</span>
+                            <span>-{couponDiscount.toFixed(2)} <SaudiRiyalIcon size={16} className="inline-block " /></span>
+                          </div>
+                        )}
 
                         <div className="flex justify-between items-center text-lg font-bold border-t border-gray-100 pt-4 mt-4">
                           <span className="text-gray-900">{isRTL ? "الإجمالي" : "Total"}</span>
@@ -573,6 +637,63 @@ export default function CheckoutPage() {
                       </div>
                     </>
                   )}
+                </div>
+              )}
+            </div>
+
+            {/* COUPON CODE SECTION */}
+            <div className="border border-gray-200 bg-white rounded-xl p-6 shadow-sm">
+              <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                <Tag size={20} className="text-primary-btn" />
+                {isRTL ? "كود الخصم" : "Discount Code"}
+              </h2>
+
+              {appliedCoupon ? (
+                <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-2">
+                      <CheckCircle2 className="text-green-600" size={18} />
+                      <span className="font-bold text-green-800 font-mono">
+                        {appliedCoupon.coupon.code}
+                      </span>
+                    </div>
+                    <button
+                      onClick={handleRemoveCoupon}
+                      className="text-red-500 hover:text-red-700 p-1"
+                    >
+                      <X size={18} />
+                    </button>
+                  </div>
+                  <p className="text-xs text-green-700">
+                    {appliedCoupon.coupon.description || (isRTL ? "تم تطبيق الكوبون بنجاح" : "Coupon applied successfully")}
+                  </p>
+                  <p className="text-sm font-bold text-green-800 mt-2">
+                    {isRTL ? "وفرت" : "You saved"}: {couponDiscount.toFixed(2)} <SaudiRiyalIcon size={14} className="inline-block" />
+                  </p>
+                </div>
+              ) : (
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={couponCode}
+                    onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+                    placeholder={isRTL ? "أدخل كود الخصم" : "Enter coupon code"}
+                    className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:border-slate-500 outline-none font-mono"
+                    disabled={couponLoading}
+                  />
+                  <button
+                    onClick={handleApplyCoupon}
+                    disabled={couponLoading || !couponCode.trim()}
+                    className="px-4 py-2 bg-primary-btn hover:bg-slate-700 text-white rounded-lg text-sm font-medium transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                  >
+                    {couponLoading ? (
+                      <>
+                        <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                      </>
+                    ) : (
+                      isRTL ? "تطبيق" : "Apply"
+                    )}
+                  </button>
                 </div>
               )}
             </div>
@@ -630,7 +751,6 @@ export default function CheckoutPage() {
                         onChange={() => setSelectedPayment("tabby")}
                         className="accent-[#3EEDBF] w-4 h-4"
                       />
-                      {/* FIX: Tabby name exactly as per requirements */}
                       <span className="font-bold text-sm">
                         {locale === "ar" ? "تابي" : "Tabby"}
                       </span>
@@ -638,7 +758,6 @@ export default function CheckoutPage() {
                     <img src="/icons/tabby.webp" alt="Tabby" className="h-6 object-contain" />
                   </div>
                   
-                  {/* FIX: Tabby Checkout Promo Snippet */}
                   {selectedPayment === "tabby" && (
                     <div className="mt-4 pt-4 border-t border-[#3EEDBF]/30">
                        <div id="TabbyPromo"></div>
