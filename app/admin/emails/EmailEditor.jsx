@@ -2,23 +2,23 @@
 import { useState } from "react";
 import { updateEmailTemplate } from "@/app/actions/emailTemplates";
 
-// Replace the top generateAtlantisEmail function with this:
-const generateAtlantisEmail = (heading, message) => `
+// The dynamic Atlantis Design Wrapper
+const generateAtlantisEmail = (heading, message, logoUrl, brandColor) => `
 <!DOCTYPE html>
 <html lang="en">
 <body style="font-family: 'Helvetica Neue', Helvetica, sans-serif; background-color: #f4f4f5; margin: 0; padding: 40px 20px;">
   <table width="100%" style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); overflow: hidden;">
     <tr>
-      <td align="center" style="background-color: #111827; padding: 40px 20px;">
-        <img src="https://atlantis.sa/logo-white.png" alt="Atlantis" width="160" style="display: block;">
+      <td align="center" style="background-color: ${brandColor}; padding: 40px 20px;">
+        <img src="${logoUrl}" alt="Brand Logo" width="160" style="display: block; max-width: 100%;">
       </td>
     </tr>
     <tr>
       <td style="padding: 40px; color: #374151; line-height: 1.6;">
-        <h1 style="margin: 0 0 20px 0; font-size: 24px; color: #111827;">${heading}</h1>
+        <h1 style="margin: 0 0 20px 0; font-size: 24px; color: ${brandColor};">${heading}</h1>
         <div style="margin: 0 0 20px 0; white-space: pre-wrap;">${message}</div>
         
-        <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f9fafb; border-left: 4px solid #111827; margin: 30px 0;">
+        <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f9fafb; border-left: 4px solid ${brandColor}; margin: 30px 0;">
           <tr>
             <td style="padding: 20px;">
               <p style="margin: 0 0 15px 0; font-size: 14px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px; font-weight: bold;">Order Summary</p>
@@ -48,8 +48,8 @@ const generateAtlantisEmail = (heading, message) => `
                   <td style="padding-bottom: 8px; text-align: right;">SAR {{vat}}</td>
                 </tr>
                 <tr>
-                  <td style="padding-top: 8px; color: #111827; font-weight: bold;">Total Amount:</td>
-                  <td style="padding-top: 8px; text-align: right; font-weight: bold; color: #111827;">SAR {{totalAmount}}</td>
+                  <td style="padding-top: 8px; color: ${brandColor}; font-weight: bold;">Total Amount:</td>
+                  <td style="padding-top: 8px; text-align: right; font-weight: bold; color: ${brandColor};">SAR {{totalAmount}}</td>
                 </tr>
               </table>
             </td>
@@ -74,26 +74,34 @@ export default function EmailEditor({ templates, stats }) {
 
   // Find current template or use defaults
   const currentTemplate = templates.find(t => t.triggerName === activeTab) || {};
+  
+  // Default states including the new branding variables
   const defaultState = currentTemplate.editorState || { 
     heading: "Thank you for your order, {{customerName}}.", 
-    message: "We have successfully received your request. Our team of expert designers will begin reviewing your project details shortly."
+    message: "We have successfully received your request. Our team of expert designers will begin reviewing your project details shortly.",
+    logoUrl: "https://atlantis.sa/logo-white.png",
+    brandColor: "#111827"
   };
 
   const [subject, setSubject] = useState(currentTemplate.subject || "Your Atlantis Order");
   const [heading, setHeading] = useState(defaultState.heading);
   const [message, setMessage] = useState(defaultState.message);
+  const [logoUrl, setLogoUrl] = useState(defaultState.logoUrl);
+  const [brandColor, setBrandColor] = useState(defaultState.brandColor);
   const [isActive, setIsActive] = useState(currentTemplate.isActive ?? true);
 
   const handleSave = async () => {
     setSaving(true);
-    const finalHtml = generateAtlantisEmail(heading, message);
+    // Pass the new variables to the HTML generator
+    const finalHtml = generateAtlantisEmail(heading, message, logoUrl, brandColor);
     
     await updateEmailTemplate({
       triggerName: activeTab,
       subject,
       isActive,
       bodyHtml: finalHtml,
-      editorState: { heading, message }
+      // Save the branding choices so they reload next time
+      editorState: { heading, message, logoUrl, brandColor }
     });
     
     setSaving(false);
@@ -139,34 +147,76 @@ export default function EmailEditor({ templates, stats }) {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         
         {/* Left Side: Form Controls */}
-        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200 space-y-5">
-          <h2 className="text-lg font-semibold text-gray-900">Edit Content</h2>
+        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200 space-y-6">
           
+          {/* Brand Settings Section */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
-            <select value={isActive} onChange={e => setIsActive(e.target.value === 'true')} className="w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 p-2 border">
-              <option value="true">Active (Sending)</option>
-              <option value="false">Paused</option>
-            </select>
+            <h2 className="text-lg font-semibold text-gray-900 mb-4 border-b pb-2">1. Brand Settings</h2>
+            
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Logo Image URL</label>
+                <input 
+                  type="url" 
+                  value={logoUrl} 
+                  onChange={e => setLogoUrl(e.target.value)} 
+                  placeholder="https://yourwebsite.com/logo.png"
+                  className="w-full border-gray-300 rounded-md shadow-sm p-2 border focus:ring-blue-500" 
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Primary Brand Color</label>
+                <div className="flex items-center space-x-3">
+                  <input 
+                    type="color" 
+                    value={brandColor} 
+                    onChange={e => setBrandColor(e.target.value)} 
+                    className="h-10 w-10 border-0 rounded cursor-pointer" 
+                  />
+                  <input 
+                    type="text" 
+                    value={brandColor}
+                    onChange={e => setBrandColor(e.target.value)}
+                    className="flex-1 border-gray-300 rounded-md shadow-sm p-2 border focus:ring-blue-500 font-mono text-sm uppercase" 
+                  />
+                </div>
+              </div>
+            </div>
           </div>
 
+          {/* Content Settings Section */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Email Subject</label>
-            <input type="text" value={subject} onChange={e => setSubject(e.target.value)} className="w-full border-gray-300 rounded-md shadow-sm p-2 border focus:ring-blue-500" />
+            <h2 className="text-lg font-semibold text-gray-900 mb-4 border-b pb-2">2. Email Content</h2>
+            
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                <select value={isActive} onChange={e => setIsActive(e.target.value === 'true')} className="w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 p-2 border">
+                  <option value="true">Active (Sending)</option>
+                  <option value="false">Paused</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Email Subject</label>
+                <input type="text" value={subject} onChange={e => setSubject(e.target.value)} className="w-full border-gray-300 rounded-md shadow-sm p-2 border focus:ring-blue-500" />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Main Heading</label>
+                <input type="text" value={heading} onChange={e => setHeading(e.target.value)} className="w-full border-gray-300 rounded-md shadow-sm p-2 border focus:ring-blue-500" />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Body Text</label>
+                <textarea rows="5" value={message} onChange={e => setMessage(e.target.value)} className="w-full border-gray-300 rounded-md shadow-sm p-2 border focus:ring-blue-500" />
+                <p className="text-xs text-gray-500 mt-2">Available variables: {`{{customerName}}, {{orderId}}, {{orderType}}, {{paymentMethod}}, {{subtotal}}, {{vat}}, {{totalAmount}}`}</p>
+              </div>
+            </div>
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Main Heading</label>
-            <input type="text" value={heading} onChange={e => setHeading(e.target.value)} className="w-full border-gray-300 rounded-md shadow-sm p-2 border focus:ring-blue-500" />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Body Text</label>
-            <textarea rows="5" value={message} onChange={e => setMessage(e.target.value)} className="w-full border-gray-300 rounded-md shadow-sm p-2 border focus:ring-blue-500" />
-            <p className="text-xs text-gray-500 mt-2">Available variables: {`{{customerName}}, {{orderId}}, {{totalAmount}}`}</p>
-          </div>
-
-          <button onClick={handleSave} disabled={saving} className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-lg transition-all">
+          <button onClick={handleSave} disabled={saving} className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-lg transition-all mt-6">
             {saving ? 'Saving...' : 'Save & Compile Template'}
           </button>
         </div>
@@ -175,10 +225,9 @@ export default function EmailEditor({ templates, stats }) {
         <div className="bg-gray-100 p-6 rounded-xl border border-gray-200 flex flex-col">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">Live Preview</h2>
           <div className="flex-grow bg-white rounded-lg shadow-inner overflow-hidden border border-gray-300">
-            {/* We render the generated HTML directly into a secure iframe */}
             <iframe 
-              srcDoc={generateAtlantisEmail(heading, message)} 
-              className="w-full h-full min-h-[500px]"
+              srcDoc={generateAtlantisEmail(heading, message, logoUrl, brandColor)} 
+              className="w-full h-full min-h-[600px]"
               title="Email Preview"
             />
           </div>
