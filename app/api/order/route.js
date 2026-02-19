@@ -96,41 +96,27 @@ export async function POST(req) {
     });
 
     // ==========================================
-    // 🔥 STEP 4: TRIGGER EMAIL NOTIFICATIONS 🔥
+    // STEP 4: TRIGGER EMAIL NOTIFICATIONS 
     // ==========================================
     
-    // Notify the Customer
+    const emailVariables = {
+      customerName: result.customerName || 'Valued Customer',
+      customerEmail: result.customerEmail || 'Not Provided', // NEW
+      customerPhone: result.customerPhone || 'Not Provided', // NEW
+      address: result.address || 'Not Provided',             // NEW
+      orderId: result.id.slice(-8).toUpperCase(),
+      orderType: result.orderType || 'Standard',
+      paymentMethod: result.paymentMethod || 'Credit Card',
+      subtotal: parseFloat(result.subtotal || 0).toFixed(2),
+      vat: parseFloat(result.vat || 0).toFixed(2),
+      totalAmount: parseFloat(result.total || 0).toFixed(2),
+    };
+
     if (result.customerEmail) {
-      await triggerEmailNotification('NEW_ORDER_CUSTOMER', result.customerEmail, {
-        customerName: result.customerName || 'Valued Customer',
-        orderId: result.id,
-        totalAmount: result.total.toString(),
-      });
+      await triggerEmailNotification('NEW_ORDER_CUSTOMER', result.customerEmail, emailVariables);
     }
 
-    // Notify the Admin
-    await triggerEmailNotification('NEW_ORDER_ADMIN', 'admin@atlantis.sa', { // Use your actual admin email
-      customerName: result.customerName || 'A customer',
-      orderId: result.id,
-      totalAmount: result.total.toString(),
-    });
-
-    return NextResponse.json(
-      {
-        success: true,
-        orderId: result.id,
-        order: result,
-      },
-      { status: 201 }
-    );
-  } catch (error) {
-    console.error("Create Order Error:", error);
-    return NextResponse.json(
-      { success: false, error: "Failed to create order" },
-      { status: 500 }
-    );
-  }
-}
+    await triggerEmailNotification('NEW_ORDER_ADMIN', 'admin@atlantis.sa', emailVariables);
 
 /* ============================================================
    GET → List All Orders (Admin)
@@ -151,3 +137,4 @@ export async function GET() {
     );
   }
 }
+
