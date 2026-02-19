@@ -39,7 +39,7 @@ const generateCustomerEmail = (heading, message, logoUrl, primaryColor, accentCo
 </html>
 `;
 
-// 2. THE ADMIN NOTIFICATION TEMPLATE (Data-Dense)
+// 2. THE ADMIN NOTIFICATION TEMPLATE
 const generateAdminEmail = (heading, message, logoUrl, primaryColor, accentColor, highlightColor) => `
 <!DOCTYPE html>
 <html lang="en">
@@ -92,7 +92,6 @@ export default function EmailEditor({ templates, stats }) {
 
   const currentTemplate = templates.find(t => t.triggerName === activeTab) || {};
   
-  // Dynamic defaults based on which tab we are looking at
   const defaultHeading = activeTab === "NEW_ORDER_ADMIN" ? "New Action Required" : "Thank you for your order, {{customerName}}.";
   const defaultMessage = activeTab === "NEW_ORDER_ADMIN" ? "A new order has been placed on the website. Please review the details below to begin processing." : "We have successfully received your request. Our team of expert designers will begin reviewing your project details shortly.";
 
@@ -102,7 +101,8 @@ export default function EmailEditor({ templates, stats }) {
     logoUrl: "https://atlantis.sa/logo.jpg", 
     primaryColor: "#2C3654",
     accentColor: "#679796",
-    highlightColor: "#F3C358"
+    highlightColor: "#F3C358",
+    internalRecipients: "admin@atlantis.sa" // <-- NEW DEFAULT
   };
 
   const [subject, setSubject] = useState(currentTemplate.subject || (activeTab === "NEW_ORDER_ADMIN" ? "Action Required: New Order Placed" : "Your Atlantis Order"));
@@ -112,40 +112,47 @@ export default function EmailEditor({ templates, stats }) {
   const [primaryColor, setPrimaryColor] = useState(defaultState.primaryColor);
   const [accentColor, setAccentColor] = useState(defaultState.accentColor);
   const [highlightColor, setHighlightColor] = useState(defaultState.highlightColor);
+  const [internalRecipients, setInternalRecipients] = useState(defaultState.internalRecipients); // <-- NEW STATE
   const [isActive, setIsActive] = useState(currentTemplate.isActive ?? true);
 
-  // When switching tabs, update the local state to match the loaded template
   const handleTabSwitch = (tab) => {
     setActiveTab(tab);
     const newTemplate = templates.find(t => t.triggerName === tab) || {};
     const newState = newTemplate.editorState || {
       heading: tab === "NEW_ORDER_ADMIN" ? "New Action Required" : "Thank you for your order, {{customerName}}.", 
-      message: tab === "NEW_ORDER_ADMIN" ? "A new order has been placed on the website. Please review the details below." : "We have successfully received your request.",
-      logoUrl: logoUrl, // Keep existing branding
+      message: tab === "NEW_ORDER_ADMIN" ? "A new order has been placed. Please review the details." : "We have successfully received your request.",
+      logoUrl: logoUrl, 
       primaryColor: primaryColor,
       accentColor: accentColor,
-      highlightColor: highlightColor
+      highlightColor: highlightColor,
+      internalRecipients: "admin@atlantis.sa"
     };
     setSubject(newTemplate.subject || (tab === "NEW_ORDER_ADMIN" ? "Action Required: New Order" : "Your Atlantis Order"));
     setHeading(newState.heading);
     setMessage(newState.message);
+    setInternalRecipients(newState.internalRecipients || "admin@atlantis.sa");
     setIsActive(newTemplate.isActive ?? true);
   };
 
   const handleSave = async () => {
     setSaving(true);
     
-    // Pick the correct HTML generator based on the active tab
     const finalHtml = activeTab === "NEW_ORDER_ADMIN" 
       ? generateAdminEmail(heading, message, logoUrl, primaryColor, accentColor, highlightColor)
       : generateCustomerEmail(heading, message, logoUrl, primaryColor, accentColor, highlightColor);
     
+    // Only save the internal recipients if we are on the Admin tab
+    const editorStateToSave = { heading, message, logoUrl, primaryColor, accentColor, highlightColor };
+    if (activeTab === "NEW_ORDER_ADMIN") {
+      editorStateToSave.internalRecipients = internalRecipients;
+    }
+
     await updateEmailTemplate({
       triggerName: activeTab,
       subject,
       isActive,
       bodyHtml: finalHtml,
-      editorState: { heading, message, logoUrl, primaryColor, accentColor, highlightColor }
+      editorState: editorStateToSave
     });
     
     setSaving(false);
@@ -154,7 +161,7 @@ export default function EmailEditor({ templates, stats }) {
 
   return (
     <div className="p-6 max-w-7xl mx-auto space-y-8">
-      {/* Stats Cards */}
+      {/* Stats Dashboard */}
       <div className="grid grid-cols-3 gap-4">
         <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
           <p className="text-sm font-medium text-gray-500">Total Emails Processed</p>
@@ -224,6 +231,29 @@ export default function EmailEditor({ templates, stats }) {
             <h2 className="text-lg font-semibold text-gray-900 mb-4 border-b pb-2">2. Email Content</h2>
             <div className="space-y-4">
               <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                <select value={isActive} onChange={e => setIsActive(e.target.value === 'true')} className="w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 p-2 border">
+                  <option value="true">Active (Sending)</option>
+                  <option value="false">Paused</option>
+                </select>
+              </div>
+
+              {/* 🔥 NEW: Recipient Email routing (Only shows for Admin Tab) */}
+              {activeTab === 'NEW_ORDER_ADMIN' && (
+                <div className="bg-blue-50 p-4 rounded-lg border border-blue-100">
+                  <label className="block text-sm font-semibold text-blue-900 mb-1">Send Notifications To:</label>
+                  <input 
+                    type="text" 
+                    value={internalRecipients} 
+                    onChange={e => setInternalRecipients(e.target.value)} 
+                    placeholder="admin@atlantis.sa, sales@atlantis.sa"
+                    className="w-full border-blue-200 rounded-md shadow-sm p-2 border focus:ring-blue-500" 
+                  />
+                  <p className="text-xs text-blue-600 mt-1">You can add multiple emails separated by a comma.</p>
+                </div>
+              )}
+
+              <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Email Subject</label>
                 <input type="text" value={subject} onChange={e => setSubject(e.target.value)} className="w-full border-gray-300 rounded-md shadow-sm p-2 border focus:ring-blue-500" />
               </div>
@@ -235,7 +265,6 @@ export default function EmailEditor({ templates, stats }) {
                 <label className="block text-sm font-medium text-gray-700 mb-1">Body Text</label>
                 <textarea rows="5" value={message} onChange={e => setMessage(e.target.value)} className="w-full border-gray-300 rounded-md shadow-sm p-2 border focus:ring-blue-500" />
                 
-                {/* Dynamically show the right hint variables based on the active tab */}
                 <p className="text-xs text-gray-500 mt-2">
                   {activeTab === 'NEW_ORDER_ADMIN' 
                     ? `Admin Variables: {{customerName}}, {{customerEmail}}, {{customerPhone}}, {{address}}, {{orderId}}, {{totalAmount}}`
