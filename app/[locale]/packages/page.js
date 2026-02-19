@@ -154,10 +154,16 @@ export default function OrderSummary() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-10">
                 {selections.map(({ key, data }) => {
                   const isMulti = Array.isArray(data.selections);
-                  const displayTitle = isMulti 
+                  let displayTitle = isMulti 
                     ? data.selections.map(s => s.cardTitle).join(", ")
                     : (data.cardTitle || data.label || data.value);
                   
+                  // Check if this is the architectural plan question and a file is attached
+                  const isPlanQuestion = data.question?.toLowerCase().includes("architectural plan") || data.question?.includes("معماري");
+                  if (isPlanQuestion && form.uploadedPlan?.value) {
+                    displayTitle = isRTL ? "نعم، تم إرفاق ملف" : "Yes, a file is attached";
+                  }
+
                   const displayImage = isMulti 
                     ? data.selections[0]?.cardImageUrl 
                     : data.cardImageUrl;
@@ -209,7 +215,7 @@ export default function OrderSummary() {
                 {hasAdditionalFee && (
                   <div className="flex justify-between items-center text-sm">
                     <span className="text-amber-600 font-medium flex items-center gap-1 italic">
-                      Service Surcharge
+                      {isRTL ? "رسوم معمارية" : "Architectural Fee"}
                     </span>
                     <span className="font-bold text-amber-600">+{extraFee}</span>
                   </div>
