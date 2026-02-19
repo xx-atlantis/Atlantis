@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { updateEmailTemplate } from "@/app/actions/emailTemplates";
 
-// 1. CUSTOMER RECEIPT HTML GENERATOR
+// 1. CUSTOMER RECEIPT HTML GENERATOR (Now includes {{calendlyBlock}})
 const generateCustomerEmail = (data, settings) => `
 <!DOCTYPE html>
 <html lang="en">
@@ -15,6 +15,9 @@ const generateCustomerEmail = (data, settings) => `
       <td style="padding: 35px 40px; color: #374151; line-height: 1.6;">
         <h1 style="margin: 0 0 20px 0; font-size: 24px; color: ${settings.primaryColor};">${data.heading}</h1>
         <div style="margin: 0 0 20px 0; white-space: pre-wrap;">${data.message}</div>
+        
+        {{calendlyBlock}}
+
         <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f9fafb; border-left: 4px solid ${settings.accentColor}; margin: 30px 0;">
           <tr>
             <td style="padding: 20px;">
@@ -39,7 +42,7 @@ const generateCustomerEmail = (data, settings) => `
 </html>
 `;
 
-// 2. ADMIN NOTIFICATION HTML GENERATOR
+// 2. ADMIN NOTIFICATION HTML GENERATOR (Unchanged)
 const generateAdminEmail = (data, settings) => `
 <!DOCTYPE html>
 <html lang="en">
@@ -90,20 +93,19 @@ export default function EmailEditor({ templates, stats }) {
   const [activeTab, setActiveTab] = useState("SETTINGS");
   const [saving, setSaving] = useState(false);
 
-  // Extract existing data from DB or set defaults
   const custDb = templates.find(t => t.triggerName === "NEW_ORDER_CUSTOMER") || {};
   const adminDb = templates.find(t => t.triggerName === "NEW_ORDER_ADMIN") || {};
   
-  // 1. GLOBAL SETTINGS STATE
+  // ADDED calendlyUrl to the global state
   const [settings, setSettings] = useState({
     logoUrl: adminDb.editorState?.logoUrl || custDb.editorState?.logoUrl || "https://atlantis.sa/logo.jpg",
     primaryColor: adminDb.editorState?.primaryColor || "#2C3654",
     accentColor: adminDb.editorState?.accentColor || "#679796",
     highlightColor: adminDb.editorState?.highlightColor || "#F3C358",
-    internalRecipients: adminDb.editorState?.internalRecipients || "admin@atlantis.sa"
+    internalRecipients: adminDb.editorState?.internalRecipients || "admin@atlantis.sa",
+    calendlyUrl: adminDb.editorState?.calendlyUrl || "https://calendly.com/your-username"
   });
 
-  // 2. CUSTOMER TEMPLATE STATE
   const [customerTpl, setCustomerTpl] = useState({
     subject: custDb.subject || "Your Atlantis Order",
     heading: custDb.editorState?.heading || "Thank you for your order, {{customerName}}.",
@@ -111,7 +113,6 @@ export default function EmailEditor({ templates, stats }) {
     isActive: custDb.isActive ?? true
   });
 
-  // 3. ADMIN TEMPLATE STATE
   const [adminTpl, setAdminTpl] = useState({
     subject: adminDb.subject || "Action Required: New Order Placed",
     heading: adminDb.editorState?.heading || "New Action Required",
@@ -119,12 +120,10 @@ export default function EmailEditor({ templates, stats }) {
     isActive: adminDb.isActive ?? true
   });
 
-  // Save Function: Handles saving based on which tab is open
   const handleSave = async () => {
     setSaving(true);
     
     if (activeTab === "SETTINGS") {
-      // If saving settings, we update BOTH templates so the new colors/logo apply everywhere
       await updateEmailTemplate({
         triggerName: "NEW_ORDER_CUSTOMER",
         subject: customerTpl.subject,
@@ -165,6 +164,28 @@ export default function EmailEditor({ templates, stats }) {
     setSaving(false);
   };
 
+  // MOCK PREVIEW LOGIC: Replaces the tag with the actual HTML button just for the live preview screen
+  const getPreviewHtml = () => {
+    if (activeTab === "NEW_ORDER_ADMIN") {
+      return generateAdminEmail(adminTpl, settings);
+    }
+    
+    // Show a mock of the Calendly block for the preview
+    const mockCalendlyBlock = `
+      <table width="100%" cellpadding="0" cellspacing="0" style="margin: 30px 0; background-color: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px;">
+        <tr>
+          <td align="center" style="padding: 30px;">
+            <h2 style="margin: 0 0 10px 0; font-size: 18px; color: ${settings.primaryColor};">Schedule Your Design Consultation</h2>
+            <p style="margin: 0 0 20px 0; font-size: 15px; color: #4b5563;">Please select a time that works best for you to kick off your project.</p>
+            <a href="${settings.calendlyUrl}" style="display: inline-block; background-color: ${settings.primaryColor}; color: #ffffff; text-decoration: none; padding: 12px 24px; border-radius: 6px; font-weight: bold; font-size: 16px;">Book Meeting on Calendly</a>
+          </td>
+        </tr>
+      </table>
+    `;
+    
+    return generateCustomerEmail(customerTpl, settings).replace('{{calendlyBlock}}', mockCalendlyBlock);
+  };
+
   return (
     <div className="p-6 max-w-7xl mx-auto space-y-8">
       {/* Stats Dashboard */}
@@ -183,7 +204,6 @@ export default function EmailEditor({ templates, stats }) {
         </div>
       </div>
 
-      {/* 3-Tab Navigation */}
       <div className="flex space-x-2 border-b border-gray-200">
         {[
           { id: 'SETTINGS', label: '⚙️ Global Settings' },
@@ -206,7 +226,6 @@ export default function EmailEditor({ templates, stats }) {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         
-        {/* LEFT PANEL: Form Controls based on Active Tab */}
         <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200 space-y-6">
           
           {/* --- SETTINGS TAB --- */}
@@ -224,6 +243,22 @@ export default function EmailEditor({ templates, stats }) {
                     className="w-full border-blue-200 rounded-md shadow-sm p-2 border focus:ring-blue-500" 
                   />
                   <p className="text-xs text-blue-600 mt-1">Add multiple emails separated by a comma.</p>
+                </div>
+              </div>
+
+              {/* 🔥 NEW CALENDLY SETTING 🔥 */}
+              <div>
+                <h2 className="text-lg font-semibold text-gray-900 mb-4 border-b pb-2 mt-6">Integrations</h2>
+                <div className="bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
+                  <label className="block text-sm font-semibold text-gray-800 mb-1">Calendly Scheduling Link</label>
+                  <input 
+                    type="url" 
+                    value={settings.calendlyUrl} 
+                    onChange={e => setSettings({...settings, calendlyUrl: e.target.value})} 
+                    placeholder="https://calendly.com/your-username"
+                    className="w-full border-gray-300 rounded-md shadow-sm p-2 border focus:ring-blue-500" 
+                  />
+                  <p className="text-xs text-gray-500 mt-1">This button will <strong>only</strong> appear on receipts if the customer bought a design package.</p>
                 </div>
               </div>
 
@@ -321,11 +356,7 @@ export default function EmailEditor({ templates, stats }) {
           <h2 className="text-lg font-semibold text-gray-900 mb-4">Live Preview</h2>
           <div className="flex-grow bg-white rounded-lg shadow-inner overflow-hidden border border-gray-300">
             <iframe 
-              srcDoc={
-                activeTab === "NEW_ORDER_ADMIN" 
-                  ? generateAdminEmail(adminTpl, settings) 
-                  : generateCustomerEmail(customerTpl, settings) // Settings tab also previews Customer email to show brand colors
-              } 
+              srcDoc={getPreviewHtml()} 
               className="w-full h-full min-h-[600px]"
               title="Email Preview"
             />
