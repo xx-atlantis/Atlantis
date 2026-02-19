@@ -2,19 +2,39 @@
 import { useState } from "react";
 import { updateEmailTemplate } from "@/app/actions/emailTemplates";
 
-// The dynamic Atlantis Design Wrapper
-const generateAtlantisEmail = (heading, message, logoUrl, primaryColor, accentColor) => `
+// The Redesigned "Premium Letterhead" Atlantis Email
+const generateAtlantisEmail = (heading, message, logoUrl, primaryColor, accentColor, highlightColor) => `
 <!DOCTYPE html>
 <html lang="en">
 <body style="font-family: 'Helvetica Neue', Helvetica, sans-serif; background-color: #f4f4f5; margin: 0; padding: 40px 20px;">
-  <table width="100%" style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); overflow: hidden;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); overflow: hidden;">
+    
     <tr>
-      <td align="center" style="background-color: #ffffff; padding: 40px 20px; border-bottom: 3px solid ${primaryColor};">
-        <img src="${logoUrl}" alt="Atlantis Logo" width="120" style="display: block; max-width: 100%;">
+      <td style="padding: 0;">
+        <table width="100%" cellpadding="0" cellspacing="0" border="0">
+          <tr>
+            <td height="6" width="33.33%" style="background-color: ${primaryColor};"></td>
+            <td height="6" width="33.33%" style="background-color: ${accentColor};"></td>
+            <td height="6" width="33.33%" style="background-color: ${highlightColor};"></td>
+          </tr>
+        </table>
       </td>
     </tr>
+
     <tr>
-      <td style="padding: 40px; color: #374151; line-height: 1.6;">
+      <td align="center" style="background-color: #ffffff; padding: 45px 20px 20px 20px;">
+        <img src="${logoUrl}" alt="Atlantis Logo" width="130" style="display: block; max-width: 100%; margin: 0 auto;">
+      </td>
+    </tr>
+
+    <tr>
+      <td align="center" style="padding: 0 40px;">
+        <div style="height: 1px; background-color: #f3f4f6; width: 100%;"></div>
+      </td>
+    </tr>
+
+    <tr>
+      <td style="padding: 35px 40px; color: #374151; line-height: 1.6;">
         <h1 style="margin: 0 0 20px 0; font-size: 24px; color: ${primaryColor};">${heading}</h1>
         <div style="margin: 0 0 20px 0; white-space: pre-wrap;">${message}</div>
         
@@ -57,6 +77,7 @@ const generateAtlantisEmail = (heading, message, logoUrl, primaryColor, accentCo
         </table>
       </td>
     </tr>
+
     <tr>
       <td style="background-color: #f9fafb; padding: 30px 40px; text-align: center; border-top: 1px solid #e5e7eb;">
         <p style="margin: 0 0 10px 0; font-size: 13px; color: #9ca3af;">Atlantis Interior Design Platform | Saudi Arabia</p>
@@ -74,13 +95,14 @@ export default function EmailEditor({ templates, stats }) {
 
   const currentTemplate = templates.find(t => t.triggerName === activeTab) || {};
   
-  // Updated default states to match the new logo colors
+  // Extracting the exact hex codes from your provided logo
   const defaultState = currentTemplate.editorState || { 
     heading: "Thank you for your order, {{customerName}}.", 
     message: "We have successfully received your request. Our team of expert designers will begin reviewing your project details shortly.",
-    logoUrl: "https://atlantis.sa/logo.jpg", // Update with your actual uploaded logo path
-    primaryColor: "#2C3654", // The Navy from your logo
-    accentColor: "#679796"   // The Teal from your logo
+    logoUrl: "https://atlantis.sa/logo.jpg", 
+    primaryColor: "#2C3654",   // Logo Navy
+    accentColor: "#679796",    // Logo Teal
+    highlightColor: "#F3C358"  // Logo Yellow
   };
 
   const [subject, setSubject] = useState(currentTemplate.subject || "Your Atlantis Order");
@@ -89,18 +111,19 @@ export default function EmailEditor({ templates, stats }) {
   const [logoUrl, setLogoUrl] = useState(defaultState.logoUrl);
   const [primaryColor, setPrimaryColor] = useState(defaultState.primaryColor);
   const [accentColor, setAccentColor] = useState(defaultState.accentColor);
+  const [highlightColor, setHighlightColor] = useState(defaultState.highlightColor);
   const [isActive, setIsActive] = useState(currentTemplate.isActive ?? true);
 
   const handleSave = async () => {
     setSaving(true);
-    const finalHtml = generateAtlantisEmail(heading, message, logoUrl, primaryColor, accentColor);
+    const finalHtml = generateAtlantisEmail(heading, message, logoUrl, primaryColor, accentColor, highlightColor);
     
     await updateEmailTemplate({
       triggerName: activeTab,
       subject,
       isActive,
       bodyHtml: finalHtml,
-      editorState: { heading, message, logoUrl, primaryColor, accentColor }
+      editorState: { heading, message, logoUrl, primaryColor, accentColor, highlightColor }
     });
     
     setSaving(false);
@@ -109,6 +132,7 @@ export default function EmailEditor({ templates, stats }) {
 
   return (
     <div className="p-6 max-w-7xl mx-auto space-y-8">
+      {/* Stats Cards remain unchanged */}
       <div className="grid grid-cols-3 gap-4">
         <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
           <p className="text-sm font-medium text-gray-500">Total Emails Processed</p>
@@ -157,19 +181,27 @@ export default function EmailEditor({ templates, stats }) {
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              {/* Updated Grid to hold 3 colors neatly */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Primary Color (Navy)</label>
+                  <label className="block text-xs font-medium text-gray-700 mb-1">Navy (Primary)</label>
                   <div className="flex items-center space-x-2">
                     <input type="color" value={primaryColor} onChange={e => setPrimaryColor(e.target.value)} className="h-8 w-8 border-0 rounded cursor-pointer" />
-                    <input type="text" value={primaryColor} onChange={e => setPrimaryColor(e.target.value)} className="flex-1 border-gray-300 rounded-md shadow-sm p-1.5 border focus:ring-blue-500 font-mono text-sm uppercase" />
+                    <input type="text" value={primaryColor} onChange={e => setPrimaryColor(e.target.value)} className="flex-1 border-gray-300 rounded-md shadow-sm p-1.5 border focus:ring-blue-500 font-mono text-xs uppercase" />
                   </div>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Accent Color (Teal)</label>
+                  <label className="block text-xs font-medium text-gray-700 mb-1">Teal (Accent)</label>
                   <div className="flex items-center space-x-2">
                     <input type="color" value={accentColor} onChange={e => setAccentColor(e.target.value)} className="h-8 w-8 border-0 rounded cursor-pointer" />
-                    <input type="text" value={accentColor} onChange={e => setAccentColor(e.target.value)} className="flex-1 border-gray-300 rounded-md shadow-sm p-1.5 border focus:ring-blue-500 font-mono text-sm uppercase" />
+                    <input type="text" value={accentColor} onChange={e => setAccentColor(e.target.value)} className="flex-1 border-gray-300 rounded-md shadow-sm p-1.5 border focus:ring-blue-500 font-mono text-xs uppercase" />
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-700 mb-1">Yellow (Highlight)</label>
+                  <div className="flex items-center space-x-2">
+                    <input type="color" value={highlightColor} onChange={e => setHighlightColor(e.target.value)} className="h-8 w-8 border-0 rounded cursor-pointer" />
+                    <input type="text" value={highlightColor} onChange={e => setHighlightColor(e.target.value)} className="flex-1 border-gray-300 rounded-md shadow-sm p-1.5 border focus:ring-blue-500 font-mono text-xs uppercase" />
                   </div>
                 </div>
               </div>
@@ -211,7 +243,7 @@ export default function EmailEditor({ templates, stats }) {
           <h2 className="text-lg font-semibold text-gray-900 mb-4">Live Preview</h2>
           <div className="flex-grow bg-white rounded-lg shadow-inner overflow-hidden border border-gray-300">
             <iframe 
-              srcDoc={generateAtlantisEmail(heading, message, logoUrl, primaryColor, accentColor)} 
+              srcDoc={generateAtlantisEmail(heading, message, logoUrl, primaryColor, accentColor, highlightColor)} 
               className="w-full h-full min-h-[600px]"
               title="Email Preview"
             />
