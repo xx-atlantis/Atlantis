@@ -2,8 +2,6 @@
 import { useState } from "react";
 import { updateEmailTemplate } from "@/app/actions/emailTemplates";
 
-// The fixed Atlantis Design Wrapper
-const generateAtlantisEmail = (heading, message) => `
 // Replace the top generateAtlantisEmail function with this:
 const generateAtlantisEmail = (heading, message) => `
 <!DOCTYPE html>
