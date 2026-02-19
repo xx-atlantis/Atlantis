@@ -246,7 +246,7 @@ export default function OrderSummary() {
               <div className="mt-8 pt-8 border-t border-gray-50 flex justify-center">
                 <div className="flex items-center gap-2 text-[10px] font-bold text-gray-400 uppercase tracking-widest">
                   <ShieldCheck className="text-green-500" size={16}/> 
-                  {isRTL ? "دفع آمن" : "Secure"}
+                  {isRTL ? "دفع آمن" : "Secured Payment"}
                 </div>
               </div>
             </div>
