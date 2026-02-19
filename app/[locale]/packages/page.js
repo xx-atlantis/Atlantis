@@ -131,7 +131,6 @@ export default function OrderSummary() {
                   <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">{isRTL ? "نوع العقار" : "Property Type"}</p>
                 </div>
                 <p className="text-3xl font-bold capitalize">{type}</p>
-                <br></br>
               </div>
 
               {form.uploadedPlan?.value && (

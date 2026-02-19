@@ -101,12 +101,16 @@ export default function CheckoutPage() {
 
   const shipping = 0;
   const vat = subtotal * 0.15;
+  const preDiscountTotal = subtotal + shipping + vat;
   
-  // Calculate discount
+  // Calculate discount and percentage
   const couponDiscount = appliedCoupon ? appliedCoupon.discount.amount : 0;
+  const discountPercentage = appliedCoupon && preDiscountTotal > 0 
+    ? Math.round((couponDiscount / preDiscountTotal) * 100) 
+    : 0;
   
   // Total with discount applied
-  const total = subtotal + shipping + vat - couponDiscount;
+  const total = preDiscountTotal - couponDiscount;
 
   // ==========================================
   // COUPON FUNCTIONS
@@ -124,7 +128,7 @@ export default function CheckoutPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           code: couponCode.toUpperCase(),
-          orderTotal: subtotal + shipping + vat, // Before discount
+          orderTotal: preDiscountTotal, // Before discount
           customerId: customer?.id,
         }),
       });
@@ -499,7 +503,7 @@ export default function CheckoutPage() {
           <div className="space-y-8">
             <div className="border border-gray-200 rounded-xl p-6 md:p-8 shadow-sm bg-white">
               <h2 className="text-xl font-bold mb-6 text-[#2D3247]">
-                {isRTL ? "ملخص الباقة" : "Package Summary"}
+                {cart.cartType === "package" ? (isRTL ? "ملخص الباقة" : "Package Summary") : (isRTL ? "ملخص الطلب" : "Order Summary")}
               </h2>
 
               {cart.cartType === "package" ? (
@@ -567,7 +571,7 @@ export default function CheckoutPage() {
                     {/* Coupon Discount */}
                     {appliedCoupon && (
                       <div className="flex justify-between text-sm text-green-600 font-medium">
-                        <span>{isRTL ? "خصم الكوبون" : "Coupon Discount"}</span>
+                        <span>{isRTL ? "خصم الكوبون" : "Coupon Discount"} ({discountPercentage}%)</span>
                         <span>-{couponDiscount.toFixed(2)} <SaudiRiyalIcon size={16} className="inline-block " /></span>
                       </div>
                     )}
@@ -620,7 +624,7 @@ export default function CheckoutPage() {
                         {/* Coupon Discount */}
                         {appliedCoupon && (
                           <div className="flex justify-between text-sm text-green-600 font-medium">
-                            <span>{isRTL ? "خصم الكوبون" : "Coupon Discount"}</span>
+                            <span>{isRTL ? "خصم الكوبون" : "Coupon Discount"} ({discountPercentage}%)</span>
                             <span>-{couponDiscount.toFixed(2)} <SaudiRiyalIcon size={16} className="inline-block " /></span>
                           </div>
                         )}
@@ -655,6 +659,9 @@ export default function CheckoutPage() {
                       <CheckCircle2 className="text-green-600" size={18} />
                       <span className="font-bold text-green-800 font-mono">
                         {appliedCoupon.coupon.code}
+                      </span>
+                      <span className="bg-green-100 text-green-800 text-[10px] font-bold px-2 py-0.5 rounded-full rtl:mr-2 ltr:ml-2">
+                        {discountPercentage}% {isRTL ? "خصم" : "OFF"}
                       </span>
                     </div>
                     <button
