@@ -317,3 +317,21 @@ model Coupon {
   createdAt     DateTime     @default(now())
   updatedAt     DateTime     @updatedAt
 }
+
+model EmailTemplate {
+  id          String   @id @default(cuid())
+  triggerName String   @unique // e.g., "NEW_ORDER", "CUSTOMER_WELCOME"
+  subject     String
+  bodyHtml    String   // Store HTML with placeholders like {{customerName}}
+  isActive    Boolean  @default(true)
+  updatedAt   DateTime @updatedAt
+}
+
+model EmailLog {
+  id          String   @id @default(cuid())
+  recipient   String
+  template    String   // Which template was used
+  status      String   // e.g., "SENT", "FAILED"
+  errorMsg    String?
+  sentAt      DateTime @default(now())
+}

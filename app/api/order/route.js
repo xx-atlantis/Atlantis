@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
+// 1. IMPORT THE EMAIL SERVICE
+import { triggerEmailNotification } from "@/lib/emailService"; // Adjust path if needed
 
 const prisma = new PrismaClient();
 
@@ -91,6 +93,26 @@ export async function POST(req) {
       });
 
       return newOrder;
+    });
+
+    // ==========================================
+    // 🔥 STEP 4: TRIGGER EMAIL NOTIFICATIONS 🔥
+    // ==========================================
+    
+    // Notify the Customer
+    if (result.customerEmail) {
+      await triggerEmailNotification('NEW_ORDER_CUSTOMER', result.customerEmail, {
+        customerName: result.customerName || 'Valued Customer',
+        orderId: result.id,
+        totalAmount: result.total.toString(),
+      });
+    }
+
+    // Notify the Admin
+    await triggerEmailNotification('NEW_ORDER_ADMIN', 'admin@atlantis.sa', { // Use your actual admin email
+      customerName: result.customerName || 'A customer',
+      orderId: result.id,
+      totalAmount: result.total.toString(),
     });
 
     return NextResponse.json(
