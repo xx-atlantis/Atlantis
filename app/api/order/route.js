@@ -95,8 +95,8 @@ export async function POST(req) {
       return newOrder;
     });
 
-    // ==========================================
-    // STEP 4: TRIGGER EMAIL NOTIFICATIONS 
+// ==========================================
+    // 🔥 STEP 4: TRIGGER EMAIL NOTIFICATIONS 🔥
     // ==========================================
     
     const emailVariables = {
@@ -117,6 +117,27 @@ export async function POST(req) {
     }
 
     await triggerEmailNotification('NEW_ORDER_ADMIN', 'admin@atlantis.sa', emailVariables);
+      customerName: result.customerName || 'A customer',
+      orderId: result.id,
+      totalAmount: result.total.toString(),
+    });
+
+    return NextResponse.json(
+      {
+        success: true,
+        orderId: result.id,
+        order: result,
+      },
+      { status: 201 }
+    );
+  } catch (error) {
+    console.error("Create Order Error:", error);
+    return NextResponse.json(
+      { success: false, error: "Failed to create order" },
+      { status: 500 }
+    );
+  }
+}
 
 /* ============================================================
    GET → List All Orders (Admin)
