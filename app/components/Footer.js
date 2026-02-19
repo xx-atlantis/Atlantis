@@ -17,12 +17,25 @@ export default function Footer() {
     { name: "X", url: "https://x.com/AtlantisCo10692" },
   ];
 
-  // Helper component for uniform icon containers
-  const IconBox = ({ src, alt }) => (
-    <div className="flex items-center justify-center bg-white border border-gray-100 rounded-md w-16 h-10 p-1 shadow-sm">
-      <img src={src} alt={alt} className="max-h-full max-w-full object-contain" />
-    </div>
-  );
+  // Helper component updated to support optional external links
+  const IconBox = ({ src, alt, href }) => {
+    const content = (
+      <div className={`flex items-center justify-center bg-white border border-gray-100 rounded-md w-16 h-10 p-1 shadow-sm ${href ? 'hover:shadow-md transition cursor-pointer' : ''}`}>
+        <img src={src} alt={alt} className="max-h-full max-w-full object-contain" />
+      </div>
+    );
+
+    // If an href is passed, wrap it in an anchor tag pointing to a new tab
+    if (href) {
+      return (
+        <a href={href} target="_blank" rel="noopener noreferrer" className="block">
+          {content}
+        </a>
+      );
+    }
+
+    return content;
+  };
 
   return (
     <footer dir={isRTL ? "rtl" : "ltr"} className="bg-white border-t border-gray-200 pt-16 pb-8 text-gray-800">
@@ -119,8 +132,13 @@ export default function Footer() {
             <p>VAT: 310112048500003</p>
           </div>
           <div className="flex flex-wrap justify-center gap-2">
-            {["/footerCreditcard.png", "/footerVat.png", "/moc.png"].map((src, i) => (
-              <IconBox key={i} src={src} alt="legal-icon" />
+            {/* Array updated to objects to support individual links */}
+            {[
+              { src: "/footerCreditcard.png" },
+              { src: "/footerVat.png", href: "/files/VAT%20Certificate.pdf" },
+              { src: "/moc.png" }
+            ].map((item, i) => (
+              <IconBox key={i} src={item.src} alt="legal-icon" href={item.href} />
             ))}
           </div>
         </div>
