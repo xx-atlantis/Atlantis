@@ -4,6 +4,8 @@ import { updateEmailTemplate } from "@/app/actions/emailTemplates";
 
 // The fixed Atlantis Design Wrapper
 const generateAtlantisEmail = (heading, message) => `
+// Replace the top generateAtlantisEmail function with this:
+const generateAtlantisEmail = (heading, message) => `
 <!DOCTYPE html>
 <html lang="en">
 <body style="font-family: 'Helvetica Neue', Helvetica, sans-serif; background-color: #f4f4f5; margin: 0; padding: 40px 20px;">
@@ -18,12 +20,40 @@ const generateAtlantisEmail = (heading, message) => `
         <h1 style="margin: 0 0 20px 0; font-size: 24px; color: #111827;">${heading}</h1>
         <div style="margin: 0 0 20px 0; white-space: pre-wrap;">${message}</div>
         
-        <table width="100%" style="background-color: #f9fafb; border-left: 4px solid #111827; margin: 30px 0;">
+        <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f9fafb; border-left: 4px solid #111827; margin: 30px 0;">
           <tr>
             <td style="padding: 20px;">
-              <p style="margin: 0 0 10px 0; font-size: 14px; color: #6b7280; text-transform: uppercase;">Order Details</p>
-              <p style="margin: 0 0 8px 0;"><strong>Order ID:</strong> {{orderId}}</p>
-              <p style="margin: 0;"><strong>Total Amount:</strong> SAR {{totalAmount}}</p>
+              <p style="margin: 0 0 15px 0; font-size: 14px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px; font-weight: bold;">Order Summary</p>
+              
+              <table width="100%" cellpadding="0" cellspacing="0" style="font-size: 15px;">
+                <tr>
+                  <td style="padding-bottom: 8px; color: #6b7280;">Order ID:</td>
+                  <td style="padding-bottom: 8px; text-align: right; font-weight: 500;">{{orderId}}</td>
+                </tr>
+                <tr>
+                  <td style="padding-bottom: 8px; color: #6b7280;">Order Type:</td>
+                  <td style="padding-bottom: 8px; text-align: right; font-weight: 500; text-transform: capitalize;">{{orderType}}</td>
+                </tr>
+                <tr>
+                  <td style="padding-bottom: 8px; color: #6b7280;">Payment Method:</td>
+                  <td style="padding-bottom: 8px; text-align: right; font-weight: 500; text-transform: capitalize;">{{paymentMethod}}</td>
+                </tr>
+                <tr>
+                  <td colspan="2" style="border-bottom: 1px solid #e5e7eb; padding-bottom: 8px; margin-bottom: 8px;"></td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px 0; color: #6b7280;">Subtotal:</td>
+                  <td style="padding: 8px 0; text-align: right;">SAR {{subtotal}}</td>
+                </tr>
+                <tr>
+                  <td style="padding-bottom: 8px; color: #6b7280;">VAT (15%):</td>
+                  <td style="padding-bottom: 8px; text-align: right;">SAR {{vat}}</td>
+                </tr>
+                <tr>
+                  <td style="padding-top: 8px; color: #111827; font-weight: bold;">Total Amount:</td>
+                  <td style="padding-top: 8px; text-align: right; font-weight: bold; color: #111827;">SAR {{totalAmount}}</td>
+                </tr>
+              </table>
             </td>
           </tr>
         </table>
