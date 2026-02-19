@@ -6,44 +6,41 @@ import { revalidatePath } from "next/cache";
 
 const prisma = new PrismaClient();
 
-// Fetch all templates to display in the admin list
 export async function getEmailTemplates() {
-  try {
-    const templates = await prisma.emailTemplate.findMany({
-      orderBy: { triggerName: "asc" },
-    });
-    return templates;
-  } catch (error) {
-    console.error("Error fetching templates:", error);
-    return [];
-  }
+  return await prisma.emailTemplate.findMany({ orderBy: { triggerName: "asc" } });
 }
 
-// Update a specific template when the admin submits the form
-export async function updateEmailTemplate(formData) {
-  try {
-    const id = formData.get("id");
-    const subject = formData.get("subject");
-    const bodyHtml = formData.get("bodyHtml");
-    const isActive = formData.get("isActive") === "true";
+// NEW: Fetch Stats
+export async function getEmailStats() {
+  const total = await prisma.emailLog.count();
+  const sent = await prisma.emailLog.count({ where: { status: 'SENT' } });
+  const failed = await prisma.emailLog.count({ where: { status: 'FAILED' } });
+  return { total, sent, failed };
+}
 
+export async function updateEmailTemplate(data) {
+  try {
     await prisma.emailTemplate.upsert({
-      where: { id: id || "" },
-      update: { subject, bodyHtml, isActive },
+      where: { triggerName: data.triggerName },
+      update: { 
+        subject: data.subject, 
+        bodyHtml: data.bodyHtml, 
+        editorState: data.editorState,
+        isActive: data.isActive 
+      },
       create: {
-        triggerName: formData.get("triggerName"),
-        subject,
-        bodyHtml,
-        isActive,
+        triggerName: data.triggerName,
+        subject: data.subject,
+        bodyHtml: data.bodyHtml,
+        editorState: data.editorState,
+        isActive: data.isActive,
       }
     });
 
-    // Refresh the admin page data instantly
     revalidatePath("/admin/emails");
-    
     return { success: true };
   } catch (error) {
-    console.error("Error updating template:", error);
-    return { success: false, error: "Failed to update template" };
+    console.error("Update error:", error);
+    return { success: false, error: "Failed to save" };
   }
 }

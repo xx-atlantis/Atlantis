@@ -320,9 +320,10 @@ model Coupon {
 
 model EmailTemplate {
   id          String   @id @default(cuid()) @map("_id")
-  triggerName String   @unique // e.g., "NEW_ORDER", "CUSTOMER_WELCOME"
+  triggerName String   @unique
   subject     String
-  bodyHtml    String   // Store HTML with placeholders like {{customerName}}
+  bodyHtml    String   // The final HTML sent to the customer
+  editorState Json?    // <-- NEW: Saves your text inputs for the UI
   isActive    Boolean  @default(true)
   updatedAt   DateTime @updatedAt
 }
