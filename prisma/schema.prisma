@@ -319,7 +319,7 @@ model Coupon {
 }
 
 model EmailTemplate {
-  id          String   @id @default(cuid())
+  id          String   @id @default(cuid()) @map("_id")
   triggerName String   @unique // e.g., "NEW_ORDER", "CUSTOMER_WELCOME"
   subject     String
   bodyHtml    String   // Store HTML with placeholders like {{customerName}}
@@ -328,7 +328,7 @@ model EmailTemplate {
 }
 
 model EmailLog {
-  id          String   @id @default(cuid())
+  id          String   @id @default(cuid()) @map("_id")
   recipient   String
   template    String   // Which template was used
   status      String   // e.g., "SENT", "FAILED"
