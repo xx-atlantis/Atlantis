@@ -95,7 +95,7 @@ export default function ProjectsManager({
             {canCreate && (
               <Link
                 href="/admin/our-portfolio/new"
-                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium flex items-center gap-2 transition-colors shadow-sm"
+                className="px-4 py-2 bg-gray-900 hover:bg-gray-800 text-white rounded-lg font-medium flex items-center gap-2 transition-colors shadow-sm"
               >
                 <Plus size={16} />
                 Add Project
@@ -114,7 +114,7 @@ export default function ProjectsManager({
           {canCreate && (
             <Link
               href="/admin/our-portfolio/new"
-              className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-gray-900 hover:bg-gray-800 text-white rounded-lg font-medium transition-colors"
             >
               <Plus size={18} />
               Create First Project
@@ -175,7 +175,7 @@ export default function ProjectsManager({
                 {/* Actions */}
                 <div className="flex gap-2 pt-3 border-t border-gray-100">
                   <Link
-                    href={`/our-portfolio/${p.slug}`}
+                    href={`/en/our-portfolio/${p.id}`}
                     target="_blank"
                     className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 bg-gray-50 hover:bg-gray-100 text-gray-700 rounded-lg text-sm font-medium transition-colors"
                   >

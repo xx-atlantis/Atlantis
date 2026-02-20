@@ -73,7 +73,7 @@ export function ProductModal({ editing, setEditing, onSave, onClose }) {
 			<div className="bg-white w-full max-w-4xl rounded-2xl shadow-2xl flex flex-col max-h-[95vh] animate-in zoom-in-95 duration-200">
 
 				{/* HEADER */}
-				<div className="p-5 border-b flex justify-between items-center bg-gradient-to-r from-blue-50 to-indigo-50">
+				<div className="p-5 border-b flex justify-between items-center bg-gradient-to-r from-gray-50 to-white">
 					<div>
 						<h2 className="text-xl font-bold text-gray-900">
 							{editing.id ? "Edit Product" : "Create New Product"}
@@ -98,7 +98,7 @@ export function ProductModal({ editing, setEditing, onSave, onClose }) {
 						<div className="flex gap-2 bg-gray-100 p-1 rounded-lg w-fit">
 							<button
 								className={`px-6 py-2.5 rounded-md font-medium transition-all ${tab === "en"
-									? "bg-white shadow-sm text-blue-600"
+									? "bg-black shadow-sm text-white"
 									: "text-gray-600 hover:text-gray-900"
 									}`}
 								onClick={() => setTab("en")}
@@ -107,7 +107,7 @@ export function ProductModal({ editing, setEditing, onSave, onClose }) {
 							</button>
 							<button
 								className={`px-6 py-2.5 rounded-md font-medium transition-all ${tab === "ar"
-									? "bg-white shadow-sm text-blue-600"
+									? "bg-black shadow-sm text-white"
 									: "text-gray-600 hover:text-gray-900"
 									}`}
 								onClick={() => setTab("ar")}
@@ -117,7 +117,7 @@ export function ProductModal({ editing, setEditing, onSave, onClose }) {
 						</div>
 
 						{/* TRANSLATION SECTION */}
-						<div className="bg-gradient-to-br from-blue-50/50 to-indigo-50/50 rounded-xl p-5 border border-blue-100 space-y-5">
+						<div className="bg-gradient-to-br from-gray-50/50 to-gray-100 rounded-xl p-5 border border-blue-100 space-y-5">
 							<h3 className="font-semibold text-gray-900 flex items-center gap-2">
 								<span className="w-1 h-5 bg-blue-500 rounded"></span>
 								{tab === "en" ? "English" : "Arabic"} Translation
@@ -281,7 +281,7 @@ export function ProductModal({ editing, setEditing, onSave, onClose }) {
 						</div>
 
 						{/* IMAGES SECTION */}
-						<div className="bg-gradient-to-br from-purple-50/50 to-pink-50/50 rounded-xl p-5 border border-purple-100 space-y-5">
+						<div className="bg-gradient-to-br from-gray-50/50 to-gray-100 rounded-xl p-5 border border-purple-100 space-y-5">
 							<h3 className="font-semibold text-gray-900 flex items-center gap-2">
 								<span className="w-1 h-5 bg-purple-500 rounded"></span>
 								Product Images

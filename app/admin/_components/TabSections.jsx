@@ -58,7 +58,7 @@ export default function TabSections({
           <button
             onClick={() => setTab("en")}
             className={`flex items-center gap-2 px-4 py-1.5 rounded-md text-xs font-bold transition-all ${
-              tab === "en" ? "bg-white shadow-sm text-black" : "text-gray-400 hover:text-gray-600"
+              tab === "en" ? "bg-black shadow-sm text-white" : "text-gray-400 hover:text-gray-600"
             }`}
           >
             <Globe size={14} /> ENGLISH
@@ -66,7 +66,7 @@ export default function TabSections({
           <button
             onClick={() => setTab("ar")}
             className={`flex items-center gap-2 px-4 py-1.5 rounded-md text-xs font-bold transition-all ${
-              tab === "ar" ? "bg-white shadow-sm text-black" : "text-gray-400 hover:text-gray-600"
+              tab === "ar" ? "bg-black shadow-sm text-white" : "text-gray-400 hover:text-gray-600"
             }`}
           >
             <Languages size={14} /> ARABIC

@@ -107,6 +107,11 @@ const AdminSidebar = ({ collapsed, setCollapsed, setMenuOpen }) => {
                 slug: "/admin/roles",
                 languages: { en: { title: "Roles" }, ar: { title: "الأدوار" } },
             },
+            {
+                id: 13,
+                slug: "/admin/emails",
+                languages: { en: { title: "Email Notifications" }, ar: { title: "إشعارات البريد الإلكتروني" } },
+            },
         ],
         []
     );

@@ -111,7 +111,7 @@ export default function ProjectEditor({ mode = "create", projectId }) {
   return (
     <main className="max-w-6xl mx-auto p-4 sm:p-6 lg:p-8 space-y-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-2xl border border-blue-100">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 shadow-sm bg-white p-6 rounded-2xl border border-gray-100">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">
             {mode === "create" ? "Create Project" : "Edit Project"}
@@ -125,14 +125,14 @@ export default function ProjectEditor({ mode = "create", projectId }) {
             onClick={() => setActive("en")}
             className="min-w-[70px]"
           >
-            🇬🇧 EN
+            English
           </Button>
           <Button
             variant={active === "ar" ? "default" : "outline"}
             onClick={() => setActive("ar")}
             className="min-w-[70px]"
           >
-            🇸🇦 AR
+            Arabic
           </Button>
         </div>
       </div>
@@ -147,7 +147,7 @@ export default function ProjectEditor({ mode = "create", projectId }) {
         <div className="space-y-5">
           <div>
             <label className="text-sm font-medium text-gray-700 mb-2 block">Project Slug</label>
-            <Input value={slug} disabled className="bg-gray-50" />
+            <Input value={slug} disabled className="bg-gray-50" placeholder="Generated automatically" />
           </div>
 
           {/* Gallery Images */}

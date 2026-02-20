@@ -144,13 +144,13 @@ export default function BlogEditor({ mode = "create", blogId }) {
             variant={active === "en" ? "default" : "outline"}
             onClick={() => setActive("en")}
           >
-            EN
+            English
           </Button>
           <Button
             variant={active === "ar" ? "default" : "outline"}
             onClick={() => setActive("ar")}
           >
-            AR
+            Arabic
           </Button>
         </div>
       </div>
