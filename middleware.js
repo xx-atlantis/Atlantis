@@ -4,7 +4,7 @@ import jwt from "jsonwebtoken";
 // Environment Variables
 const ADMIN_SECRET = process.env.ADMIN_JWT_SECRET;
 const LICENSE_HUB_KEY = process.env.LICENSE_HUB_KEY; 
-const API_URL = 'https://license.themgdev.com/check-license.php';
+const API_URL = 'https://license.themgdev.com/index.php';
 
 const ROUTE_PERMISSIONS = {
   "/admin/orders": "order.read",
