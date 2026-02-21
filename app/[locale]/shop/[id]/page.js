@@ -34,15 +34,20 @@ export default function ProductPage() {
   // Tabby Point 3: Initialize the snippet once the product is loaded
   useEffect(() => {
     if (product && typeof window !== "undefined" && window.TabbyPromo) {
-      new window.TabbyPromo({
-        selector: '#tabby-promo-snippet', // Ensure this ID exists in ProductDetails component
-        currency: 'SAR',
-        price: product.price,
-        installmentsCount: 4,
-        lang: locale,
-        publicKey: 'pk_test_YOUR_ACTUAL_TEST_KEY', // Replace with your Tabby Public Test Key
-        merchantCode: 'atlantis' // Usually provided by Tabby
-      });
+      // Added a small delay to ensure ProductDetails has rendered the target div
+      const timer = setTimeout(() => {
+        new window.TabbyPromo({
+          selector: '#tabby-promo-snippet', // IMPORTANT: Ensure this ID is used for the container inside your ProductDetails component
+          currency: 'SAR',
+          price: product.price,
+          installmentsCount: 4,
+          lang: locale,
+          publicKey: 'pk_test_YOUR_ACTUAL_TEST_KEY', // Replace with your Tabby Public Test Key
+          merchantCode: 'atlantis'
+        });
+      }, 300);
+      
+      return () => clearTimeout(timer);
     }
   }, [product, locale]);
 
@@ -60,8 +65,9 @@ export default function ProductPage() {
         onNavigateProduct={(pid) => router.push(`/${locale}/shop/${pid}`)}
       />
       
-      {/* Tabby Point 3: The snippet container */}
-      <div id="tabby-promo-snippet"></div>
+      {/* REMOVED: The stray <div id="tabby-promo-snippet"></div> has been deleted from here.
+        This fixes the duplicate banner at the bottom of the page.
+      */}
 
       <FloatingCartButton />
     </>
