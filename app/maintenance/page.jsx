@@ -1,32 +1,37 @@
 export default function Maintenance() {
   return (
-    <div className="min-h-screen bg-black text-green-500 font-mono p-8 text-sm md:text-base selection:bg-green-900 selection:text-white">
-      <div className="max-w-4xl mx-auto space-y-2">
-        <p className="text-white font-bold">[ CRITICAL SYSTEM FAILURE ]</p>
-        <p className="opacity-70">Timestamp: {new Date().toISOString()}</p>
-        <p className="mt-4">Checking hardware status... <span className="text-white">OK</span></p>
-        <p>Verifying storage partitions... <span className="text-white">OK</span></p>
-        <p>Loading kernel modules... <span className="text-white">OK</span></p>
-        <p className="text-yellow-500 animate-pulse">Mounting root filesystem... [ FAILED ]</p>
-        
-        <div className="bg-red-900/20 border-l-4 border-red-600 p-4 my-6 text-red-400">
-          <p className="font-bold">FATAL ERROR: VPS INSTANCE NOT AVAILABLE</p>
-          <p>Reason: Resource initialization failed on block device (vda1)</p>
-          <p>Action: SYSTEM HALTED. Check pm2 logs or contact infrastructure provider.</p>
+    <div className="min-h-screen bg-[#0a0a0a] text-[#33ff33] font-mono p-6 sm:p-12 text-xs sm:text-sm selection:bg-green-500 selection:text-black">
+      <div className="max-w-3xl mx-auto border border-gray-800 p-4 sm:p-8 rounded shadow-2xl bg-black">
+        <div className="flex gap-2 mb-6">
+          <div className="w-3 h-3 rounded-full bg-red-500"></div>
+          <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
+          <div className="w-3 h-3 rounded-full bg-green-500"></div>
         </div>
 
-        <p className="mt-4 opacity-50">---------------------------------------------------------</p>
-        <p className="text-blue-400">Initiating emergency shell dump...</p>
-        <p className="opacity-70 font-bold mt-2">
-          $ journalctl -xe | grep "vps_init" <br />
-          &gt; No response from daemon. <br />
-          &gt; Heartbeat lost. <br />
-          &gt; Shutting down virtual CPUs...
-        </p>
+        <p className="mb-2 font-bold">[  0.000000] Initializing CGROUP v2</p>
+        <p className="mb-2">[  0.004122] Memory: 16284K/32768K available</p>
+        <p className="mb-2">[  0.102391] checking generic x86 support... OK</p>
+        <p className="mb-2">[  0.501120] vps_init: checking storage nodes...</p>
         
-        <div className="pt-10 flex items-center gap-2">
-          <span className="w-2 h-5 bg-green-500 animate-pulse inline-block"></span>
-          <span className="text-xs opacity-40 uppercase tracking-widest">Connection Terminated</span>
+        <div className="my-6 p-4 border border-red-900 bg-red-950/20 text-red-500 rounded">
+          <p className="font-bold">CRITICAL: VFS_MOUNT_ERROR</p>
+          <p>The VPS instance at (atlantis.sa) failed to initialize block device /dev/vda1.</p>
+          <p className="mt-2 text-white italic underline">ERROR_CODE: 0x000412_RESOURCE_UNAVAILABLE</p>
+        </div>
+
+        <p className="mb-2 animate-pulse text-white">&gt; _ SYSTEM HALTED.</p>
+        <p className="opacity-50 mt-10">--------------------------------------------------</p>
+        <p className="text-gray-500 italic text-[10px]">
+          Note: This is a system-level infrastructure error. Please check hypervisor logs via SSH or contact your hosting provider.
+        </p>
+
+        <div className="mt-8 flex items-center gap-3">
+          <div className="px-3 py-1 bg-green-900/30 border border-green-500/50 rounded text-[10px] text-green-400">
+            KERNEL_VER: 6.1.0-21-AMD64
+          </div>
+          <div className="px-3 py-1 bg-gray-900 border border-gray-700 rounded text-[10px] text-gray-400">
+            INSTANCE_ID: ATL-SA-91
+          </div>
         </div>
       </div>
     </div>
