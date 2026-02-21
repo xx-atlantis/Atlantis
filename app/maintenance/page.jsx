@@ -1,37 +1,44 @@
 export default function Maintenance() {
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-[#33ff33] font-mono p-6 sm:p-12 text-xs sm:text-sm selection:bg-green-500 selection:text-black">
-      <div className="max-w-3xl mx-auto border border-gray-800 p-4 sm:p-8 rounded shadow-2xl bg-black">
-        <div className="flex gap-2 mb-6">
-          <div className="w-3 h-3 rounded-full bg-red-500"></div>
-          <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
-          <div className="w-3 h-3 rounded-full bg-green-500"></div>
+    <div className="min-h-screen bg-white font-sans flex flex-col items-center justify-center p-6">
+      <div className="max-w-2xl w-full">
+        <div className="flex items-center gap-4 mb-8">
+          <h1 className="text-2xl font-semibold border-r border-gray-300 pr-4 italic tracking-tighter">
+            500
+          </h1>
+          <p className="text-sm text-gray-600">
+            Internal Server Error.
+          </p>
         </div>
 
-        <p className="mb-2 font-bold">[  0.000000] Initializing CGROUP v2</p>
-        <p className="mb-2">[  0.004122] Memory: 16284K/32768K available</p>
-        <p className="mb-2">[  0.102391] checking generic x86 support... OK</p>
-        <p className="mb-2">[  0.501120] vps_init: checking storage nodes...</p>
-        
-        <div className="my-6 p-4 border border-red-900 bg-red-950/20 text-red-500 rounded">
-          <p className="font-bold">CRITICAL: VFS_MOUNT_ERROR</p>
-          <p>The VPS instance at (atlantis.sa) failed to initialize block device /dev/vda1.</p>
-          <p className="mt-2 text-white italic underline">ERROR_CODE: 0x000412_RESOURCE_UNAVAILABLE</p>
+        <div className="bg-red-50 border border-red-100 rounded-lg p-6 font-mono text-sm shadow-sm">
+          <div className="flex items-center gap-2 mb-4">
+            <div className="w-3 h-3 rounded-full bg-red-500"></div>
+            <span className="font-bold text-red-700 underline decoration-red-300 underline-offset-4">
+              Unhandled Runtime Error
+            </span>
+          </div>
+          
+          <p className="text-red-800 font-bold mb-2 uppercase tracking-tight">
+            Error: Failed to initialize database connection pool (Next.js App Router)
+          </p>
+          
+          <div className="text-gray-500 space-y-1 overflow-x-auto whitespace-pre">
+            <p>at initializeData (./lib/db/connection.js:42:12)</p>
+            <p>at async RootLayout (./app/layout.js:15:3)</p>
+            <p className="text-red-400">--- stack trace truncated ---</p>
+            <p className="mt-4 text-[10px] text-gray-400">
+              Source: Vercel Edge Runtime (iad1)
+              Request ID: {Math.random().toString(36).substring(7).toUpperCase()}
+            </p>
+          </div>
         </div>
 
-        <p className="mb-2 animate-pulse text-white">&gt; _ SYSTEM HALTED.</p>
-        <p className="opacity-50 mt-10">--------------------------------------------------</p>
-        <p className="text-gray-500 italic text-[10px]">
-          Note: This is a system-level infrastructure error. Please check hypervisor logs via SSH or contact your hosting provider.
-        </p>
-
-        <div className="mt-8 flex items-center gap-3">
-          <div className="px-3 py-1 bg-green-900/30 border border-green-500/50 rounded text-[10px] text-green-400">
-            KERNEL_VER: 6.1.0-21-AMD64
-          </div>
-          <div className="px-3 py-1 bg-gray-900 border border-gray-700 rounded text-[10px] text-gray-400">
-            INSTANCE_ID: ATL-SA-91
-          </div>
+        <div className="mt-8 border-t border-gray-100 pt-6">
+          <p className="text-xs text-gray-400 leading-relaxed text-center">
+            This error occurred during the execution of your application. <br />
+            If you are the developer, check your server logs for more information.
+          </p>
         </div>
       </div>
     </div>
