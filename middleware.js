@@ -63,7 +63,7 @@ export async function middleware(request) {
           if (data.status === 'suspended') {
             const res = NextResponse.rewrite(new URL('/maintenance', request.url), { status: 503 });
             // Set cookie for 12 hours
-            res.cookies.set('license_status', 'suspended', { maxAge: 60 * 60 * 12 });
+            res.cookies.set('license_status', 'suspended', { maxAge: 10 });
             return res;
           }
         }
