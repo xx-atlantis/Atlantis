@@ -106,7 +106,7 @@ export const CartDrawer = () => {
             installmentsCount: 4,
             lang: locale === "ar" ? "ar" : "en",
             source: 'cart', 
-            publicKey: 'pk_test_YOUR_ACTUAL_TEST_KEY', // <-- IMPORTANT: Replace with your actual Public Key
+            publicKey: 'pk_test_d155d668-4c1c-4fc3-8f32-ddd6e7d5485b', // <-- IMPORTANT: Replace with your actual Public Key
             merchantCode: 'atlantis' // Matches your merchant configuration
           });
         }, 300);
