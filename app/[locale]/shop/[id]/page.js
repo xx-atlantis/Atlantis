@@ -64,11 +64,6 @@ export default function ProductPage() {
         onBack={() => router.push(`/${locale}/shop`)}
         onNavigateProduct={(pid) => router.push(`/${locale}/shop/${pid}`)}
       />
-      
-      {/* REMOVED: The stray <div id="tabby-promo-snippet"></div> has been deleted from here.
-        This fixes the duplicate banner at the bottom of the page.
-      */}
-
       <FloatingCartButton />
     </>
   );
