@@ -72,7 +72,7 @@ export const CartDrawer = () => {
 
   useEffect(() => {
     const stored = localStorage.getItem("cart");
-    if (stored && cartItems.length === 0) {
+    if (stored && (!cartItems || cartItems.length === 0)) {
       setCartItems(JSON.parse(stored));
     }
   }, []);
@@ -84,11 +84,13 @@ export const CartDrawer = () => {
   const isPackageCart = cartItems?.cartType === "package";
   const displayCart = isPackageCart ? [] : cartItems;
 
+  // 1. Calculate Subtotal FIRST
   const subtotal = displayCart.reduce(
     (acc, item) => acc + Number(item.price) * Number(item.quantity),
     0
   );
 
+  // 2. THEN run Tabby Initialization
   // ==========================================
   // TABBY PROMO SNIPPET INITIALIZATION
   // ==========================================
@@ -96,18 +98,19 @@ export const CartDrawer = () => {
     if (isCartOpen && displayCart.length > 0 && typeof window !== "undefined" && window.TabbyPromo) {
       try {
         // Small delay to ensure the drawer animation finishes and the DOM element exists
-        setTimeout(() => {
+        const timer = setTimeout(() => {
           new window.TabbyPromo({
-            selector: '#TabbyPromoCart', // Target the div below
+            selector: '#TabbyPromoCart', 
             currency: 'SAR',
-            price: subtotal.toFixed(2), // Use the dynamic cart subtotal
+            price: subtotal.toFixed(2), 
             installmentsCount: 4,
             lang: locale === "ar" ? "ar" : "en",
-            source: 'cart', // Let Tabby know this is on the cart page
-            publicKey: 'YOUR_TABBY_PUBLIC_KEY', // <-- IMPORTANT: Replace with your actual Public Key
-            merchantCode: 'ACI'
+            source: 'cart', 
+            publicKey: 'pk_test_YOUR_ACTUAL_TEST_KEY', // <-- IMPORTANT: Replace with your actual Public Key
+            merchantCode: 'atlantis' // Matches your merchant configuration
           });
         }, 300);
+        return () => clearTimeout(timer);
       } catch (err) {
         console.error("Tabby Promo Error (Cart):", err);
       }
@@ -186,11 +189,11 @@ export const CartDrawer = () => {
             ) : (
               <div className="space-y-6">
                 {displayCart.map((item) => (
-                <div
-                  key={`${item.id}-${item.variant?.value}`}
-                  className="flex gap-4"
-                >
-                  {/* IMAGE */}
+                  <div
+                    key={`${item.id}-${item.variant?.value}`}
+                    className="flex gap-4"
+                  >
+                    {/* IMAGE */}
                     <div className="h-20 w-20 shrink-0 overflow-hidden rounded-md border border-gray-200">
                       <img
                         src={item.coverImage || item.image}
@@ -212,46 +215,46 @@ export const CartDrawer = () => {
                           {item.category?.[locale] || ""}
                         </p>
 
-                      {/* VARIANT / MATERIAL */}
-                      {(item.variant?.value || item.material) && (
-                        <p className="mt-1 text-xs text-gray-500">
-                          {item.variant?.value
-                            ? `${t.variant}: ${item.variant.value}`
-                            : ""}
-                          {item.material
-                            ? `  •  ${t.material}: ${item.material}`
-                            : ""}
-                        </p>
-                      )}
+                        {/* VARIANT / MATERIAL */}
+                        {(item.variant?.value || item.material) && (
+                          <p className="mt-1 text-xs text-gray-500">
+                            {item.variant?.value
+                              ? `${t.variant}: ${item.variant.value}`
+                              : ""}
+                            {item.material
+                              ? `  •  ${t.material}: ${item.material}`
+                              : ""}
+                          </p>
+                        )}
                       </div>
 
                       <div className="flex items-center justify-between">
                         <div className="flex items-center border border-gray-200 rounded-md h-8">
                           <button
-                          onClick={() =>
-                            updateQuantity(
-                              item.id,
-                              Math.max(1, item.quantity - 1),
-                              item.variant
-                            )
-                          }
+                            onClick={() =>
+                              updateQuantity(
+                                item.id,
+                                Math.max(1, item.quantity - 1),
+                                item.variant
+                              )
+                            }
                             className="px-2 hover:bg-gray-100 h-full flex items-center"
                           >
                             <Minus size={12} />
                           </button>
 
-                        <span className="px-2 text-xs font-medium">
-                          {item.quantity}
-                        </span>
+                          <span className="px-2 text-xs font-medium">
+                            {item.quantity}
+                          </span>
 
                           <button
-                          onClick={() =>
-                            updateQuantity(
-                              item.id,
-                              item.quantity + 1,
-                              item.variant
-                            )
-                          }
+                            onClick={() =>
+                              updateQuantity(
+                                item.id,
+                                item.quantity + 1,
+                                item.variant
+                              )
+                            }
                             className="px-2 hover:bg-gray-100 h-full flex items-center"
                           >
                             <Plus size={12} />
@@ -261,9 +264,9 @@ export const CartDrawer = () => {
                         <Button
                           variant="ghost"
                           size="sm"
-                        onClick={() =>
-                          removeFromCart(item.id, item.variant || null)
-                        }
+                          onClick={() =>
+                            removeFromCart(item.id, item.variant || null)
+                          }
                           className="h-8 px-2 text-red-500 hover:text-red-600 hover:bg-red-50"
                         >
                           <Trash2 size={14} />
@@ -285,10 +288,10 @@ export const CartDrawer = () => {
                 </span>
               </div>
 
-            <div className="flex justify-between text-sm">
-              <span className="text-gray-500">{t.shipping}</span>
-              <span className="text-gray-500">{t.shippingCalc}</span>
-            </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-gray-500">{t.shipping}</span>
+                <span className="text-gray-500">{t.shippingCalc}</span>
+              </div>
 
               <Separator />
               <div className="flex justify-between text-base font-medium">

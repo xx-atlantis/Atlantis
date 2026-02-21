@@ -10,7 +10,7 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 // =====================================================================
-// NEW SAUDI RIYAL SYMBOL COMPONENT
+// SAUDI RIYAL SYMBOL COMPONENT
 // =====================================================================
 const SaudiRiyalIcon = ({ size = 16, className = "" }) => (
   <SaudiRiyal size={size} className={className} />
@@ -159,26 +159,27 @@ export default function CheckoutPage() {
   };
 
   // ==========================================
-  // TABBY PROMO SNIPPET INITIALIZATION
+  // TABBY PROMO SNIPPET INITIALIZATION (FIXED)
   // ==========================================
   useEffect(() => {
     if (selectedPayment === "tabby" && typeof window !== "undefined" && window.TabbyPromo) {
-      try {
-        setTimeout(() => {
+      const timer = setTimeout(() => {
+        try {
           new window.TabbyPromo({
             selector: '#TabbyPromo',
             currency: 'SAR',
-            price: total.toFixed(2),
+            price: total.toFixed(2), // Dynamically passes the calculated total
             installmentsCount: 4,
             lang: locale === "ar" ? "ar" : "en",
             source: 'checkout',
-            publicKey: 'pk_test_YOUR_PUBLIC_KEY',
-            merchantCode: 'ACI'
+            publicKey: 'pk_test_YOUR_PUBLIC_KEY', // <-- Ensure this is your test public key
+            merchantCode: 'atlantis' // Adjusted to your merchant code
           });
-        }, 100);
-      } catch (err) {
-        console.error("Tabby Promo Error:", err);
-      }
+        } catch (err) {
+          console.error("Tabby Promo Error:", err);
+        }
+      }, 200); // Slight delay ensures DOM is fully rendered
+      return () => clearTimeout(timer);
     }
   }, [selectedPayment, total, locale]);
 
@@ -268,7 +269,7 @@ export default function CheckoutPage() {
       if (!json.success || !json.orderId) throw new Error(json.message || "Order creation failed");
 
       if (selectedPayment === "bank_transfer") {
-        localStorage.removeItem("cart");
+        localStorage.removeItem("cart"); // Allowed here since it's an immediate success
         window.location.href = `/${locale}/order-success?orderId=${json.orderId}&method=bank`;
         return;
       }
@@ -294,10 +295,26 @@ export default function CheckoutPage() {
       });
 
       const paymentData = await paymentRes.json();
+
+      // ==========================================
+      // TABBY REJECTION FIX (Point 13)
+      // ==========================================
+      if (paymentData.status === "rejected") {
+        setErrorMsg(isRTL 
+          ? "عذراً، تابي غير قادرة على الموافقة على هذا الطلب حالياً. يرجى اختيار وسيلة دفع أخرى." 
+          : "Sorry, Tabby is unable to approve this purchase. Please use an alternative payment method.");
+        setLoading(false);
+        return; // Exits without clearing the cart
+      }
+
       const redirectUrl = paymentData.url || paymentData.redirectUrl;
 
       if (redirectUrl) {
-        localStorage.removeItem("cart");
+        // ==========================================
+        // CART PERSISTENCE FIX (Point 9 & 10)
+        // ==========================================
+        // Removed localStorage.removeItem("cart") here.
+        // It should ONLY be cleared on the order-success page.
         window.location.href = redirectUrl;
       } else {
         throw new Error(paymentData.message || "Failed to initiate payment");

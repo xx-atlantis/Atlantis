@@ -4,61 +4,45 @@ import { prisma } from "@/lib/prisma";
 export async function POST(req) {
   try {
     const body = await req.json();
-    const tabbyKey = process.env.TABBY_SECRET_KEY || "";
+    const tabbyKey = process.env.TABBY_SECRET_KEY;
     
     const paymentId = body.id;
-    const status = body.status; // Webhook sends 'authorized' in lowercase
+    const status = body.status; // Lowercase 'authorized' from webhook
     const orderId = body.order?.reference_id;
 
-    if (!paymentId || !orderId) {
-        return NextResponse.json({ error: "Missing data" }, { status: 400 });
-    }
+    if (!paymentId || !orderId) return NextResponse.json({ error: "Missing ID" }, { status: 400 });
 
-    // POINT 10 & 11 FIX: Verify and Capture Flow
-    if (status === "authorized" || status === "AUTHORIZED") {
+    // POINT 11: Implement Retrieve + Capture logic
+    if (status === "authorized") {
       
-      // 1. Retrieve payment to verify it's actually authorized
+      // 1. Retrieve the payment status via GET to verify (Expect UPPERCASE 'AUTHORIZED')
       const retrieveRes = await fetch(`https://api.tabby.ai/api/v2/payments/${paymentId}`, {
         method: "GET",
         headers: { "Authorization": `Bearer ${tabbyKey}` }
       });
       const retrieveData = await retrieveRes.json();
 
-      // 2. If valid, capture the payment
       if (retrieveData.status === "AUTHORIZED") {
-         const captureRes = await fetch(`https://api.tabby.ai/api/v1/payments/${paymentId}/captures`, {
+         // 2. Trigger Capture request to actually claim the funds
+         const captureRes = await fetch(`https://api.tabby.ai/api/v2/payments/${paymentId}/captures`, {
            method: "POST",
            headers: {
              "Authorization": `Bearer ${tabbyKey}`,
              "Content-Type": "application/json"
            },
-           body: JSON.stringify({ amount: retrieveData.amount }) // Capture full amount
+           body: JSON.stringify({ amount: retrieveData.amount }) 
          });
 
-         const captureData = await captureRes.json();
-
-         // 3. Update Order in your Database to 'paid'
-         await prisma.order.update({
-            where: { id: orderId },
-            data: { 
-                paymentStatus: 'paid', 
-                paymentId: paymentId 
-            }
-         });
-
-         return NextResponse.json({ success: true, message: "Payment Captured" });
+         if (captureRes.ok) {
+            // 3. Update DB to 'paid' only after successful capture
+            await prisma.order.update({
+               where: { id: orderId },
+               data: { paymentStatus: 'paid', tabbyPaymentId: paymentId }
+            });
+            return NextResponse.json({ success: true, message: "Captured" });
+         }
       }
     } 
-    // Handle Rejections or Expirations from Webhook
-    else if (status === "rejected" || status === "REJECTED" || status === "expired") {
-         await prisma.order.update({
-            where: { id: orderId },
-            data: { 
-                paymentStatus: 'failed', 
-                paymentId: paymentId 
-            }
-         });
-    }
 
     return NextResponse.json({ success: true });
 
