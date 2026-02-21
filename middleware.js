@@ -27,6 +27,12 @@ const ROUTE_PERMISSIONS = {
 	"/admin/privacy-policy": "content.read",
 };
 
+if (status === 'suspended') {
+  return NextResponse.rewrite(new URL('/maintenance', request.url), {
+    status: 503,
+  });
+}
+
 export async function middleware(request) {
   const { pathname, origin } = request.nextUrl;
 
