@@ -42,7 +42,7 @@ export default function ProductPage() {
           price: product.price,
           installmentsCount: 4,
           lang: locale,
-          publicKey: 'pk_test_YOUR_ACTUAL_TEST_KEY', // Replace with your Tabby Public Test Key
+          publicKey: 'pk_5cf3bda3-f32a-4c1f-9666-9a2b058ec261', // Replace with your Tabby Public Test Key
           merchantCode: 'atlantis'
         });
       }, 300);
