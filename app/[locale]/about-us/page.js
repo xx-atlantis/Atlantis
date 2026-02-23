@@ -178,7 +178,7 @@ export default function AboutUs() {
           </div>
         </div>
 
-        {/* 2. TEMPORARY TEST BUTTON FOR TELEMETRY */}
+{/* 2. TEMPORARY TEST BUTTON FOR TELEMETRY */}
         <div className="flex justify-center mt-8 pb-10 border-t border-gray-200 pt-10">
           <button
             onClick={async () => {
@@ -202,6 +202,8 @@ export default function AboutUs() {
             Test Telemetry Pipeline
           </button>
         </div>
+
+      </div> {/* <--- THIS IS THE DIV THAT WAS MISSING! */}
     </section>
   );
 }

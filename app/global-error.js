@@ -1,22 +1,27 @@
-'use client'; // Error boundaries MUST be client components
+'use client'; 
 
 import { useEffect } from 'react';
-import { logErrorToHub } from '@/lib/logErrorAction'; // Adjust this path to match where you saved Step 1
 
 export default function GlobalError({ error, reset }) {
   
   useEffect(() => {
-    // 1. Log the error to your local console for debugging
     console.error("Atlantis Critical Error:", error);
     
-    // 2. Beam the error to the MG Core PHP Dashboard in the background
-    logErrorToHub(error.message, error.stack);
+    // Beam the error to the API route in the background
+    fetch('/api/telemetry', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            errorMessage: error.message || "Global System Fault",
+            stackTrace: error.stack || "Unknown File"
+        })
+    }).catch(e => console.error("Failed to send error", e));
+
   }, [error]);
 
   return (
     <html lang="en">
       <body>
-        {/* A sleek, modern error screen that matches the MG Dev theme */}
         <div style={{ display: 'flex', minHeight: '100vh', width: '100vw', alignItems: 'center', justifyContent: 'center', backgroundColor: '#0f172a', color: 'white', fontFamily: 'sans-serif' }}>
           <div style={{ textAlign: 'center', backgroundColor: 'rgba(255,255,255,0.05)', padding: '48px', borderRadius: '24px', border: '1px solid rgba(255,255,255,0.1)', maxWidth: '400px', backdropFilter: 'blur(12px)' }}>
             
