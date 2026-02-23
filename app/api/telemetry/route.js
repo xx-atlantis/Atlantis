@@ -18,6 +18,7 @@ export async function POST(request) {
     const payload = {
       action: 'log_error',
       license_key: LICENSE_HUB_KEY,
+      domain_name: 'atlantis.sa',
       error_message: body.errorMessage || "Unknown Error",
       file: body.stackTrace || "Unknown File",
       line: 0
