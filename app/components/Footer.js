@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image"; // 1. Import Next Image
 import { useLocale } from "@/app/components/LocaleProvider";
 import { usePageContent } from "@/app/context/PageContentProvider";
 
@@ -17,15 +18,21 @@ export default function Footer() {
     { name: "X", url: "https://x.com/AtlantisCo10692" },
   ];
 
-  // Helper component updated to support optional external links
+  // Helper component updated to use Next.js Image
   const IconBox = ({ src, alt, href }) => {
     const content = (
-      <div className={`flex items-center justify-center bg-white border border-gray-100 rounded-md w-16 h-10 p-1 shadow-sm ${href ? 'hover:shadow-md transition cursor-pointer' : ''}`}>
-        <img src={src} alt={alt} className="max-h-full max-w-full object-contain" />
+      <div className={`relative flex items-center justify-center bg-white border border-gray-100 rounded-md w-16 h-10 p-1 shadow-sm ${href ? 'hover:shadow-md transition cursor-pointer' : ''}`}>
+        {/* 2. Next.js Server Optimization Trigger */}
+        <Image 
+          src={src} 
+          alt={alt} 
+          width={64} // Matches the w-16 container
+          height={40} // Matches the h-10 container
+          className="max-h-full max-w-full object-contain" 
+        />
       </div>
     );
 
-    // If an href is passed, wrap it in an anchor tag pointing to a new tab
     if (href) {
       return (
         <a href={href} target="_blank" rel="noopener noreferrer" className="block">
@@ -43,14 +50,28 @@ export default function Footer() {
         {/* Brand Info */}
         <div className={isRTL ? "text-right" : "text-left"}>
           <div className="flex justify-start items-center gap-2 mb-4">
-            <img src="/logo.png" alt="Atlantis Logo" width={45} />
+            {/* 3. Fixed Logo CLS issue and optimized size */}
+            <Image 
+              src="/logo.png" 
+              alt="Atlantis Logo" 
+              width={45} 
+              height={45} 
+              className="w-[45px] h-auto object-contain" 
+            />
             <span className="font-bold text-lg tracking-tight">Atlantis</span>
           </div>
           <p className="text-sm leading-relaxed text-gray-600 mb-6 max-w-xs">{footer?.description}</p>
           <div className="flex justify-start gap-4">
             {socialLinks.map((social, i) => (
               <a key={i} href={social.url} target="_blank" rel="noopener noreferrer" className="hover:opacity-80 transition">
-                <img src={`/${social.name}.png`} alt={social.name} className="w-6 h-6" />
+                {/* 4. Optimized Social Icons */}
+                <Image 
+                  src={`/${social.name}.png`} 
+                  alt={social.name} 
+                  width={24} 
+                  height={24} 
+                  className="w-6 h-6 object-contain" 
+                />
               </a>
             ))}
           </div>
@@ -132,7 +153,6 @@ export default function Footer() {
             <p>VAT: 310112048500003</p>
           </div>
           <div className="flex flex-wrap justify-center gap-2">
-            {/* Array updated to objects to support individual links */}
             {[
               { src: "/footerCreditcard.png" },
               { src: "/footerVat.png", href: "/files/VAT%20Certificate.pdf" },
