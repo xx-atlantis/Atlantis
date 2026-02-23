@@ -1,27 +1,28 @@
-import { Tajawal } from 'next/font/google'; // Optimized font loader
+import { Tajawal } from 'next/font/google'; 
 import { Toaster } from "react-hot-toast";
 import "./globals.css";
 import { AdminAuthProvider } from "./context/AdminAuthContext";
 import { GoogleAnalytics } from '@next/third-parties/google';
 
-// Configure the font once
+// 1. Import our new telemetry script
+import { sendServerTelemetry } from '@/lib/telemetry'; // Adjust the path if you put it elsewhere!
+
 const tajawal = Tajawal({
-    subsets: ['latin', 'arabic'], // Downloads only what you need
+    subsets: ['latin', 'arabic'], 
     weight: ['400', '700'],
-    variable: '--font-tajawal',   // Optional: useful for Tailwind
+    variable: '--font-tajawal',   
     display: 'swap',
 });
 
 export const metadata = {
     title: {
         default: "ATLANTIS",
-        template: "%s | ATLANTIS" // Creates titles like "About | ATLANTIS" automatically
+        template: "%s | ATLANTIS" 
     },
     description: "Exterior & Interior Designs Company",
     verification: {
         google: "r85ymFdlzbgXaLsNprhlxr1nwzUC4wUhWqPICWEU0DI",
     },
-    // Added OpenGraph for better social sharing on WhatsApp/Twitter
     openGraph: {
         title: 'ATLANTIS',
         description: 'Exterior & Interior Designs Company',
@@ -30,17 +31,18 @@ export const metadata = {
 };
 
 export default function RootLayout({ children }) {
+    // 2. Fire the telemetry in the background. 
+    // No 'await' here means 0 milliseconds added to the page load time.
+    sendServerTelemetry();
+
     return (
-        // The lang should be 'ar' if your content is mainly Arabic, or 'en' for English
         <html lang="en">
-            {/* The <head> link is removed because we use the import above */}
             <body className={tajawal.className}>
                 <AdminAuthProvider>
                     {children}
                 </AdminAuthProvider>
                 
                 <Toaster position="bottom-right" reverseOrder={false} />
-                
                 <GoogleAnalytics gaId="G-BX1G329QJ0" />
             </body>
         </html>
