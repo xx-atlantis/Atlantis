@@ -6,9 +6,6 @@ import { useLocale } from "@/app/components/LocaleProvider";
 import { usePageContent } from "@/app/context/PageContentProvider";
 import { Award, Users, UserRoundCog, Ungroup, Lightbulb } from "lucide-react";
 
-// 1. IMPORT THE SERVER ACTION
-import { logErrorToHub } from "@/lib/logErrorAction";
-
 export default function AboutUs() {
   const { locale } = useLocale();
   const { data } = usePageContent();
