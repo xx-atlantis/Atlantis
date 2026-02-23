@@ -43,7 +43,7 @@ export default function HeroSection() {
             alt="Atlantis Logo"
             width={50}
             height={50}
-            className="sm:w-[45px] md:w-[50px]"
+            className="w-[40px] sm:w-[45px] md:w-[50px] h-auto"
           />
           <span className="font-semibold text-gray-700 text-sm sm:text-base md:text-lg">
             {hero.brand}
