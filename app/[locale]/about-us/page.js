@@ -183,7 +183,6 @@ export default function AboutUs() {
 }
 
 
-export default function MyPage() {
   return (
     <div style={{ padding: '100px', textAlign: 'center' }}>
       <h1>Welcome to Atlantis</h1>
