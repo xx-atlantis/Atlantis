@@ -182,18 +182,26 @@ export default function AboutUs() {
         <div className="flex justify-center mt-8 pb-10 border-t border-gray-200 pt-10">
           <button
             onClick={async () => {
-              console.log("Button clicked! Sending directly to Server Action...");
-              await logErrorToHub("DIRECT PIPELINE TEST: Force bypass React", "at AboutUs.js:283:1");
-              console.log("Server Action finished.");
-              alert("Telemetry Sent! Check your PM2 logs and MG Core Dashboard.");
+              console.log("Button clicked! Fetching API route...");
+              
+              const res = await fetch('/api/telemetry', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  errorMessage: "API ROUTE TEST: Hardware pipeline is active.",
+                  stackTrace: "AboutUs.js (Manual Trigger)"
+                })
+              });
+              
+              const data = await res.json();
+              console.log("API Result:", data);
+              alert("Telemetry Sent! Check PM2 logs.");
             }}
             className="bg-red-600 text-white px-8 py-4 rounded-xl font-bold hover:bg-red-700 transition shadow-lg shadow-red-600/20"
           >
             Test Telemetry Pipeline
           </button>
         </div>
-
-      </div>
     </section>
   );
 }
