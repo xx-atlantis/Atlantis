@@ -811,7 +811,7 @@ export default function CheckoutPage() {
                           : "Tamara - Split in 3"}
                       </span>
                     </div>
-                    <img src="/icons/tamara.png" alt="Tamara" className="h-6 object-contain" />
+                    <Image src="/icons/tamara.png" alt="Tamara" className="h-6 object-contain" />
                   </div>
                 </div>
 

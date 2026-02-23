@@ -24,8 +24,8 @@ export default function HeroSection() {
         src={hero.heroImage}
         alt="Hero Background"
         fill
-        className="object-cover object-center"
         priority
+        className="object-cover object-center"
       />
 
       {/* ===== White Overlay Card ===== */}
@@ -40,8 +40,8 @@ export default function HeroSection() {
           <img
             src="/logo.png"
             alt="Atlantis Logo"
-            width={40}
-            height={40}
+            width={50}
+            height={50}
             className="sm:w-[45px] md:w-[50px]"
           />
           <span className="font-semibold text-gray-700 text-sm sm:text-base md:text-lg">
