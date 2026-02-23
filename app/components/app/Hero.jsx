@@ -24,7 +24,8 @@ export default function HeroSection() {
         src={hero.heroImage}
         alt="Hero Background"
         fill
-        priority
+        priority={true} 
+        fetchPriority="high"
         className="object-cover object-center"
       />
 
