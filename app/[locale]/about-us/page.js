@@ -178,11 +178,7 @@ export default function AboutUs() {
           </div>
         </div>
       </div>
-    </section>
-  );
-}
-
-<div style={{ padding: '100px', textAlign: 'center' }}>
+      <div style={{ padding: '100px', textAlign: 'center' }}>
       <h1>Welcome to Atlantis</h1>
       
       {/* TEMPORARY TEST BUTTON */}
@@ -195,4 +191,7 @@ export default function AboutUs() {
         Force System Crash
       </button>
 
-</div>
+      </div>
+    </section>
+  );
+}
