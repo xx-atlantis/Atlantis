@@ -28,7 +28,7 @@ export default function MyPage() {
     </div>
   );
 }
-
+/
 export default function AboutUs() {
   const { locale } = useLocale();
   const { data } = usePageContent();
@@ -204,3 +204,4 @@ export default function AboutUs() {
     </section>
   );
 }
+*/
