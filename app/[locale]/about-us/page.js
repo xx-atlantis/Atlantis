@@ -6,6 +6,9 @@ import { useLocale } from "@/app/components/LocaleProvider";
 import { usePageContent } from "@/app/context/PageContentProvider";
 import { Award, Users, UserRoundCog, Ungroup, Lightbulb } from "lucide-react";
 
+// 1. IMPORT THE SERVER ACTION
+import { logErrorToHub } from "@/lib/logErrorAction";
+
 export default function AboutUs() {
   const { locale } = useLocale();
   const { data } = usePageContent();
@@ -104,13 +107,10 @@ export default function AboutUs() {
             {content?.values?.items?.map((val, i) => {
               const Icon = IconMap[val.icon] || Lightbulb;
 
-              // Perfect staggered (honeycomb) layout
               let position = "";
-
               if (i === 0) position = "lg:col-start-1 lg:col-span-2";
               if (i === 1) position = "lg:col-start-3 lg:col-span-2";
               if (i === 2) position = "lg:col-start-5 lg:col-span-2";
-
               if (i === 3) position = "lg:col-start-2 lg:col-span-2";
               if (i === 4) position = "lg:col-start-4 lg:col-span-2";
 
@@ -177,6 +177,22 @@ export default function AboutUs() {
             ))}
           </div>
         </div>
+
+        {/* 2. TEMPORARY TEST BUTTON FOR TELEMETRY */}
+        <div className="flex justify-center mt-8 pb-10 border-t border-gray-200 pt-10">
+          <button
+            onClick={async () => {
+              console.log("Button clicked! Sending directly to Server Action...");
+              await logErrorToHub("DIRECT PIPELINE TEST: Force bypass React", "at AboutUs.js:283:1");
+              console.log("Server Action finished.");
+              alert("Telemetry Sent! Check your PM2 logs and MG Core Dashboard.");
+            }}
+            className="bg-red-600 text-white px-8 py-4 rounded-xl font-bold hover:bg-red-700 transition shadow-lg shadow-red-600/20"
+          >
+            Test Telemetry Pipeline
+          </button>
+        </div>
+
       </div>
     </section>
   );
