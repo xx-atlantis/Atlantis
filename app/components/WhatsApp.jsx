@@ -4,7 +4,7 @@ import React from "react";
 import Image from "next/image";
 
 export default function WhatsAppFloatingIcon({ 
-  phoneNumber = "966595742424", 
+  phoneNumber = "966537878794", 
   message = "Hello! I have a question about my design project." 
 }) {
   
