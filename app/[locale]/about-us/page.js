@@ -178,28 +178,6 @@ export default function AboutUs() {
           </div>
         </div>
       </div>
-      
-      
-      <div style={{ padding: '100px', textAlign: 'center' }}>
-      <h1>Welcome to Atlantis</h1>
-      
-      <div style={{ padding: '100px', textAlign: 'center' }}>
-      <h1>Welcome to Atlantis</h1>
-      
-      {/* 2. Direct Pipeline Test Button */}
-      <button 
-        onClick={async () => {
-          console.log("Button clicked! Sending directly to Server Action...");
-          // Send a fake error directly to the backend
-          await logErrorToHub("DIRECT PIPELINE TEST: Force bypass React", "at FakeComponent.js:99:1");
-          console.log("Server Action finished.");
-        }}
-        style={{ padding: '10px 20px', background: 'red', color: 'white', marginTop: '20px' }}
-      >
-        Test Telemetry Pipeline
-      </button>
-
-    </div>
     </section>
   );
 }
