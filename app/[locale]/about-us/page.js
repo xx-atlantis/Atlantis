@@ -203,7 +203,7 @@ export default function AboutUs() {
           </button>
         </div>
 
-      </div> {/* <--- THIS IS THE DIV THAT WAS MISSING! */}
+      </div> 
     </section>
   );
 }
