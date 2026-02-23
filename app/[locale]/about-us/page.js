@@ -6,29 +6,6 @@ import { useLocale } from "@/app/components/LocaleProvider";
 import { usePageContent } from "@/app/context/PageContentProvider";
 import { Award, Users, UserRoundCog, Ungroup, Lightbulb } from "lucide-react";
 
-
-
-'use client';
-
-export default function MyPage() {
-  return (
-    <div style={{ padding: '100px', textAlign: 'center' }}>
-      <h1>Welcome to Atlantis</h1>
-      
-      {/* TEMPORARY TEST BUTTON */}
-      <button 
-        onClick={() => {
-          throw new Error("MG CORE MANUAL TEST: Verifying Telemetry Pipeline!");
-        }}
-        style={{ padding: '10px 20px', background: 'red', color: 'white', marginTop: '20px' }}
-      >
-        Force System Crash
-      </button>
-
-    </div>
-  );
-}
-/
 export default function AboutUs() {
   const { locale } = useLocale();
   const { data } = usePageContent();
@@ -204,4 +181,23 @@ export default function AboutUs() {
     </section>
   );
 }
-*/
+
+
+export default function MyPage() {
+  return (
+    <div style={{ padding: '100px', textAlign: 'center' }}>
+      <h1>Welcome to Atlantis</h1>
+      
+      {/* TEMPORARY TEST BUTTON */}
+      <button 
+        onClick={() => {
+          throw new Error("MG CORE MANUAL TEST: Verifying Telemetry Pipeline!");
+        }}
+        style={{ padding: '10px 20px', background: 'red', color: 'white', marginTop: '20px' }}
+      >
+        Force System Crash
+      </button>
+
+    </div>
+  );
+}
