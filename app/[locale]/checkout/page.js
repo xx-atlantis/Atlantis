@@ -173,8 +173,8 @@ export default function CheckoutPage() {
             installmentsCount: 4,
             lang: locale === "ar" ? "ar" : "en",
             source: 'checkout',
-            publicKey: 'pk_test_YOUR_PUBLIC_KEY', // <-- Ensure this is your test public key
-            merchantCode: 'atlantis' // Adjusted to your merchant code
+            publicKey: 'pk_test_d155d668-4c1c-4fc3-8f32-ddd6e7d5485b',
+            merchantCode: 'ACI'
           });
         } catch (err) {
           console.error("Tabby Promo Error:", err);
