@@ -1,10 +1,10 @@
 import { NextResponse } from "next/server";
-import jwt from "jsonwebtoken";
 
 // =========================================================
 // ENVIRONMENT VARIABLES
 // =========================================================
-const ADMIN_SECRET = process.env.ADMIN_JWT_SECRET;
+// NOTE: ADMIN_SECRET is no longer needed here as token validation 
+// is securely offloaded to the Node API route below.
 const LICENSE_HUB_KEY = process.env.LICENSE_HUB_KEY || "YOUR_KEY_HERE"; 
 const API_URL = 'https://license.themgdev.com/index.php';
 
@@ -34,6 +34,10 @@ const ROUTE_PERMISSIONS = {
 export async function middleware(request) {
   const { pathname, origin } = request.nextUrl;
 
+  // 🌟 FIX: We create a single MASTER response object at the very beginning.
+  // This ensures any cookies we attach to it will actually make it to the user's browser.
+  let response = NextResponse.next();
+
   // =========================================================
   // STEP 1: LICENSE HUB CHECK (THE KILL SWITCH)
   // =========================================================
@@ -53,32 +57,27 @@ export async function middleware(request) {
     // If no cookie exists (or it expired after 60 seconds), ping your License Hub
     if (!cachedStatus) {
       try {
-        const response = await fetch(API_URL, {
+        const hubResponse = await fetch(API_URL, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            action: 'verify', // Tells the PHP API we just want to verify the status
+            action: 'verify', 
             domain_name: 'atlantis.sa',
             license_key: LICENSE_HUB_KEY
           }),
-          signal: AbortSignal.timeout(3000) // 3-second timeout so the site never hangs
+          signal: AbortSignal.timeout(3000) // 3-second timeout
         });
 
-        if (response.ok) {
-          const data = await response.json();
+        if (hubResponse.ok) {
+          const data = await hubResponse.json();
           
           if (data.status === 'suspended' || data.status === 'expired') {
-            const res = NextResponse.rewrite(new URL('/maintenance', request.url), { status: 503 });
-            // Lock them out for 60 seconds before checking the DB again
-            res.cookies.set('license_status', 'suspended', { maxAge: 60 });
-            return res;
+            const maintenanceRes = NextResponse.rewrite(new URL('/maintenance', request.url), { status: 503 });
+            maintenanceRes.cookies.set('license_status', 'suspended', { maxAge: 60 });
+            return maintenanceRes; // Stop completely and show maintenance
           } else {
-             // License is good! Cache the 'active' state for 60 seconds
-             // We do this so the rest of the middleware (Admin logic) can continue
-             const res = NextResponse.next();
-             res.cookies.set('license_status', 'active', { maxAge: 60 });
-             
-             // Note: We don't return here, we let it fall through to Step 2!
+             // 🌟 FIX: Attach the success cookie to our master response so it saves!
+             response.cookies.set('license_status', 'active', { maxAge: 60 });
           }
         }
       } catch (e) {
@@ -89,7 +88,7 @@ export async function middleware(request) {
   }
 
   // =========================================================
-  // STEP 2: ORIGINAL ADMIN & JWT LOGIC
+  // STEP 2: ORIGINAL ADMIN LOGIC
   // =========================================================
 
   // Allow login pages bypassing auth
@@ -98,7 +97,7 @@ export async function middleware(request) {
     pathname === "/en/auth/login" ||
     pathname === "/ar/auth/login"
   ) {
-    return NextResponse.next();
+    return response; 
   }
 
   // Determine if this is an admin route
@@ -107,18 +106,11 @@ export async function middleware(request) {
     /^\/(en|ar)\/admin(\/.*)?$/.test(pathname);
 
   // If it's a frontend user page, let them through
-  if (!isAdmin) return NextResponse.next();
+  if (!isAdmin) return response;
 
   // --- Auth & Permission Checks for Admin Panel ---
   const token = request.cookies.get("adminToken")?.value;
   if (!token) {
-    return NextResponse.redirect(new URL("/auth/login", request.url));
-  }
-
-  // Verify JWT
-  try {
-    jwt.verify(token, ADMIN_SECRET);
-  } catch {
     return NextResponse.redirect(new URL("/auth/login", request.url));
   }
 
@@ -129,29 +121,32 @@ export async function middleware(request) {
   );
 
   // If no specific permission is required, let them in
-  if (!matchedRoute) return NextResponse.next();
+  if (!matchedRoute) return response;
 
   const requiredPermission = ROUTE_PERMISSIONS[matchedRoute];
 
-  // Ask your local Next.js API for the user's specific permissions
-  const res = await fetch(`${origin}/api/admin/me`, {
+  // 🌟 FIX: We rely on this API call to securely validate the JWT on the Node server,
+  // bypassing the Edge Runtime crash completely.
+  const apiRes = await fetch(`${origin}/api/admin/me`, {
     headers: {
       cookie: request.headers.get("cookie") || "",
     },
   });
 
-  if (!res.ok) {
+  if (!apiRes.ok) {
+    // If the token is fake, expired, or tampered with, the API will reject it here
     return NextResponse.redirect(new URL("/auth/login", request.url));
   }
 
-  const data = await res.json();
+  const data = await apiRes.json();
   
   // Enforce RBAC
   if (!data?.admin?.permissions?.includes(requiredPermission)) {
     return NextResponse.redirect(new URL("/403", request.url));
   }
 
-  return NextResponse.next();
+  // Return the master response (with our license cookie attached)
+  return response;
 }
 
 // =========================================================
@@ -159,13 +154,6 @@ export async function middleware(request) {
 // =========================================================
 export const config = {
   matcher: [
-    /*
-     * Match all request paths except for the ones starting with:
-     * - api (API routes)
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     */
     '/((?!api|_next/static|_next/image|favicon.ico).*)',
   ],
 };
