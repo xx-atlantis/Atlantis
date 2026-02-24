@@ -28,7 +28,6 @@ export default function Header() {
   const [mobileExpanded, setMobileExpanded] = useState(null); 
 
   // Calculate Cart Quantity
-  // Calculate Cart Quantity
   const cartCount = Array.isArray(cartItems) 
     ? cartItems.reduce((acc, item) => acc + item.quantity, 0) 
     : 0;
@@ -47,7 +46,7 @@ export default function Header() {
     },
     {
       title: isRTL ? "لوحة الإلهام" : "Mood Board",
-      link: "/virtual-tour", // Fallback link
+      link: "/virtual-tour", 
       sublinks: [
         { title: "Boho Style", link: "/portfolio?tab=boho" },
         { title: "Modern Style", link: "/portfolio?tab=modern" },
@@ -59,8 +58,7 @@ export default function Header() {
     },
     {
       title: isRTL ? "معرض الأعمال" : "Portfolio",
-      link: "/our-portfolio", // Fallback link
-      // UPDATED SUBMENU AS REQUESTED
+      link: "/our-portfolio", 
       sublinks: [
         { title: isRTL ? "خدماتنا" : "Our Services", link: "/services" },
         { title: isRTL ? "مشاريعنا" : "Our Portfolio", link: "/our-portfolio" },
@@ -179,8 +177,13 @@ export default function Header() {
         ======================= */}
         <div className="flex items-center gap-3 lg:gap-4">
           
+          {/* ♿ ADDED: aria-label for accessibility */}
           {/* CART ICON */}
-          <Link href={`/${locale}/checkout`} className="relative p-2 text-gray-700 hover:text-[#2D3247] transition">
+          <Link 
+            href={`/${locale}/checkout`} 
+            className="relative p-2 text-gray-700 hover:text-[#2D3247] transition"
+            aria-label={isRTL ? "عربة التسوق" : "Shopping Cart"}
+          >
             <ShoppingBag size={22} />
             {cartCount > 0 && (
               <span className="absolute -top-1 -right-1 bg-red-600 text-white text-[10px] font-bold h-5 w-5 flex items-center justify-center rounded-full border-2 border-white">
@@ -233,10 +236,12 @@ export default function Header() {
             {header.cta}
           </button>
 
+          {/* ♿ ADDED: aria-label for accessibility */}
           {/* MOBILE MENU TOGGLE */}
           <button
             className="lg:hidden p-2 rounded-md hover:bg-gray-100 text-gray-700"
             onClick={() => setMenuOpen(!menuOpen)}
+            aria-label={menuOpen ? "Close Menu" : "Open Menu"}
           >
             {menuOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
