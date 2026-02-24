@@ -8,6 +8,7 @@ import { useLocale } from "./LocaleProvider";
 import { usePageContent } from "@/app/context/PageContentProvider";
 import { useCustomerAuth } from "@/app/context/CustomerAuthProvider";
 import { useCart } from "@/app/context/CartContext"; 
+import Image from "next/image";
 
 export default function Header() {
   const router = useRouter();
