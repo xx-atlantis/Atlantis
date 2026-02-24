@@ -1,12 +1,11 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import Image from "next/image"; // 1. IMPORT NEXT IMAGE
 import { useLocale } from "@/app/components/LocaleProvider";
 import { usePageContent } from "@/app/context/PageContentProvider";
-import {
-  ReactCompareSlider,
-  ReactCompareSliderImage,
-} from "react-compare-slider";
+// 2. ONLY IMPORT THE SLIDER (Remove ReactCompareSliderImage)
+import { ReactCompareSlider } from "react-compare-slider";
 import { Star } from "lucide-react";
 
 // Fallback map in case JSON data is missing the avatar field
@@ -112,18 +111,25 @@ export default function ProjectsShowcase() {
           ref={sliderRef}
           className="flex-1 w-full rounded-2xl overflow-hidden shadow-lg"
         >
+          {/* 3. OPTIMIZED SLIDER IMAGES */}
           <ReactCompareSlider
             position={50}
             itemOne={
-              <ReactCompareSliderImage
+              <Image
                 src={activeProject.before}
                 alt={beforeLabel}
+                width={728}
+                height={546}
+                className="w-full h-full object-cover"
               />
             }
             itemTwo={
-              <ReactCompareSliderImage
+              <Image
                 src={activeProject.after}
                 alt={afterLabel}
+                width={728}
+                height={546}
+                className="w-full h-full object-cover"
               />
             }
             style={{ width: "100%", height: "100%" }}
@@ -137,11 +143,13 @@ export default function ProjectsShowcase() {
         >
           <div>
             <div className="flex items-center gap-3 mb-4">
-              {/* --- AVATAR LOGIC --- */}
+              {/* 4. OPTIMIZED AVATAR IMAGE */}
               {avatarSrc ? (
-                <img
+                <Image
                   src={avatarSrc}
                   alt={activeProject.review.name}
+                  width={48}
+                  height={48}
                   className="w-12 h-12 rounded-full object-cover border border-gray-100"
                 />
               ) : (
