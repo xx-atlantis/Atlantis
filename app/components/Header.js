@@ -119,7 +119,13 @@ export default function Header() {
         
         {/* LOGO */}
         <Link href={`/${locale}`} className="flex items-center gap-2">
-          <img src="/logo.png" width={40} height={40} alt="Atlantis" />
+          <Image 
+            src="/logo.png" 
+            alt="Atlantis" 
+            width={40} 
+            height={40} 
+            className="object-contain shrink-0" 
+          />
           <span className="hidden lg:flex font-bold text-lg text-[#2D3247]">Atlantis</span>
         </Link>
 
