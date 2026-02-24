@@ -777,7 +777,7 @@ export default function CheckoutPage() {
                         className="accent-[#3EEDBF] w-4 h-4"
                       />
                       <span className="font-bold text-sm">
-                        {locale === "ar" ? "تابي" : "Tabby"}
+                        {locale === "ar" ? "ادفع لاحقًا عبر تابي" : "Pay later with Tabby"}
                       </span>
                     </div>
                     <img src="/icons/tabby.webp" alt="Tabby" className="h-6 object-contain" />

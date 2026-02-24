@@ -3,10 +3,41 @@ import { NextResponse } from "next/server";
 // =========================================================
 // ENVIRONMENT VARIABLES
 // =========================================================
-// NOTE: ADMIN_SECRET is no longer needed here as token validation 
-// is securely offloaded to the Node API route below.
 const LICENSE_HUB_KEY = process.env.LICENSE_HUB_KEY || "YOUR_KEY_HERE"; 
 const API_URL = 'https://license.themgdev.com/index.php';
+
+// =========================================================
+// SECURITY: PAYLOAD SIGNING FUNCTION (EDGE COMPATIBLE)
+// =========================================================
+async function signPayload(payloadObject) {
+  // Make sure to add SIGNING_SECRET to your .env file!
+  const secret = process.env.SIGNING_SECRET || "mg_core_super_secret_keychain_998877"; 
+  const payloadString = JSON.stringify(payloadObject);
+  
+  const encoder = new TextEncoder();
+  const keyData = encoder.encode(secret);
+  
+  // Create a Web Crypto Key (Edge Runtime safe)
+  const cryptoKey = await crypto.subtle.importKey(
+    "raw", 
+    keyData, 
+    { name: "HMAC", hash: "SHA-256" }, 
+    false, 
+    ["sign"]
+  );
+  
+  // Sign the payload
+  const signatureBuffer = await crypto.subtle.sign(
+    "HMAC", 
+    cryptoKey, 
+    encoder.encode(payloadString)
+  );
+  
+  // Convert buffer to hex string
+  return Array.from(new Uint8Array(signatureBuffer))
+    .map(b => b.toString(16).padStart(2, '0'))
+    .join('');
+}
 
 // =========================================================
 // ROUTE PERMISSIONS
@@ -35,7 +66,6 @@ export async function middleware(request) {
   const { pathname, origin } = request.nextUrl;
 
   // 🌟 FIX: We create a single MASTER response object at the very beginning.
-  // This ensures any cookies we attach to it will actually make it to the user's browser.
   let response = NextResponse.next();
 
   // =========================================================
@@ -47,25 +77,30 @@ export async function middleware(request) {
   const isMaintenance = pathname.includes('/maintenance');
 
   if (!isStatic && !isMaintenance) {
-    // Check for cached status to avoid hitting the PHP database on every single click
     const cachedStatus = request.cookies.get('license_status')?.value;
 
     if (cachedStatus === 'suspended') {
       return NextResponse.rewrite(new URL('/maintenance', request.url), { status: 503 });
     }
 
-    // If no cookie exists (or it expired after 60 seconds), ping your License Hub
     if (!cachedStatus) {
       try {
+        // 🔐 Prepare the payload and generate the mathematical seal
+        const payload = {
+          action: 'verify', 
+          domain_name: 'atlantis.sa',
+          license_key: LICENSE_HUB_KEY
+        };
+        const signature = await signPayload(payload);
+
         const hubResponse = await fetch(API_URL, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            action: 'verify', 
-            domain_name: 'atlantis.sa',
-            license_key: LICENSE_HUB_KEY
-          }),
-          signal: AbortSignal.timeout(3000) // 3-second timeout
+          headers: { 
+            'Content-Type': 'application/json',
+            'X-Signature': signature // 🔐 Attach the seal here!
+          },
+          body: JSON.stringify(payload),
+          signal: AbortSignal.timeout(3000) 
         });
 
         if (hubResponse.ok) {
@@ -74,14 +109,12 @@ export async function middleware(request) {
           if (data.status === 'suspended' || data.status === 'expired') {
             const maintenanceRes = NextResponse.rewrite(new URL('/maintenance', request.url), { status: 503 });
             maintenanceRes.cookies.set('license_status', 'suspended', { maxAge: 60 });
-            return maintenanceRes; // Stop completely and show maintenance
+            return maintenanceRes; 
           } else {
-             // 🌟 FIX: Attach the success cookie to our master response so it saves!
              response.cookies.set('license_status', 'active', { maxAge: 60 });
           }
         }
       } catch (e) {
-        // If your PHP server is down, we "Fail-Open" and let Atlantis run normally
         console.error("License Hub Unreachable - Fail-Open activated.");
       }
     }
@@ -125,8 +158,6 @@ export async function middleware(request) {
 
   const requiredPermission = ROUTE_PERMISSIONS[matchedRoute];
 
-  // 🌟 FIX: We rely on this API call to securely validate the JWT on the Node server,
-  // bypassing the Edge Runtime crash completely.
   const apiRes = await fetch(`${origin}/api/admin/me`, {
     headers: {
       cookie: request.headers.get("cookie") || "",
@@ -134,7 +165,6 @@ export async function middleware(request) {
   });
 
   if (!apiRes.ok) {
-    // If the token is fake, expired, or tampered with, the API will reject it here
     return NextResponse.redirect(new URL("/auth/login", request.url));
   }
 
