@@ -1,5 +1,6 @@
 "use client";
-Import Image from "next/image";
+
+import Image from "next/image";
 
 export default function LoadingScreen() {
   return (
