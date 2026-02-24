@@ -38,12 +38,12 @@ export default function HeroSection() {
         } bg-white/95 shadow-2xl rounded-2xl p-5 sm:p-8 md:p-10 max-w-[90%] sm:max-w-md md:max-w-xl`}
       >
         <div className="flex items-center gap-2 mb-4 sm:mb-5">
-          <img
-            src="/logo.png"
-            alt="Atlantis Logo"
-            width={50}
-            height={50}
-            className="w-[40px] sm:w-[45px] md:w-[50px] h-auto"
+          <Image 
+            src="/logo.png" 
+            alt="Atlantis Logo" 
+            width={90} 
+            height={90} 
+            className="object-contain" 
           />
           <span className="font-semibold text-gray-700 text-sm sm:text-base md:text-lg">
             {hero.brand}

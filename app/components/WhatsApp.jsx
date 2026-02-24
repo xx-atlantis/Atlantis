@@ -35,6 +35,7 @@ export default function WhatsAppFloatingIcon({
             src="/icons/whatsapp.png" 
             alt="WhatsApp" 
             fill
+            sizes="32px"
             className="object-contain"
           />
         </div>
