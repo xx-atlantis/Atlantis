@@ -20,10 +20,8 @@ export default function PortfolioSection({ data }) {
           <p className="text-gray-600 mb-6 leading-relaxed">
             {data.description}
           </p>
-          
-          {/* 👇 HERE IS THE UPDATED LINK 👇 */}
           <Link
-            href={`/${locale}/start-a-project`}
+            href="#"
             className="px-6 py-3 rounded-md bg-[#2D2E4E] text-white font-medium text-sm hover:bg-[#242545] transition "
           >
             {data.button}
