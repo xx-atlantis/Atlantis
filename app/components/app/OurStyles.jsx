@@ -16,9 +16,8 @@ export default function OurStyles() {
   const styles = stylesData?.list || [];
   const mainTitle = stylesData?.mainTitle || {};
 
-  // 👇 UPDATED ROUTE HERE
   const handleCta = () => {
-    router.push(`/${locale}/start-a-project`);
+    router.push(`/${locale}/portfolio`);
   };
 
   return (
