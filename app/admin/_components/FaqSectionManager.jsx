@@ -327,11 +327,11 @@ export default function FaqSectionManager({
         {canUpdate && (
           <button
             onClick={handleSave}
-            disabled={!dirty}
+            // disabled={!dirty}
             className={`inline-flex items-center gap-2 rounded-xl px-5 py-2 text-sm font-bold transition-all duration-150 shadow-sm ${
               dirty
                 ? "bg-blue-600 text-white hover:bg-blue-700 shadow-blue-200"
-                : "bg-slate-100 text-slate-400 cursor-not-allowed"
+                : "bg-blue-600 text-white hover:bg-blue-700 shadow-blue-200"
             }`}
           >
             <Check className="w-4 h-4" />
