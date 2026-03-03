@@ -1,7 +1,6 @@
+// app/api/order/route.js
 import { NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
-// 1. IMPORT THE EMAIL SERVICE
-import { triggerEmailNotification } from "@/lib/emailService"; // Adjust path if needed
 
 const prisma = new PrismaClient();
 
@@ -95,31 +94,8 @@ export async function POST(req) {
       return newOrder;
     });
 
-    // ==========================================
-    // 🔥 STEP 4: TRIGGER EMAIL NOTIFICATIONS 🔥
-    // ==========================================
-    
-    // Create an object with all the order details formatted for the new templates
-    const emailVariables = {
-      customerName: result.customerName || 'Valued Customer',
-      customerEmail: result.customerEmail || 'Not Provided', 
-      customerPhone: result.customerPhone || 'Not Provided', 
-      address: result.address || 'Not Provided',             
-      orderId: result.id.slice(-8).toUpperCase(), // Short, clean ID
-      orderType: result.orderType || 'Standard',
-      paymentMethod: result.paymentMethod || 'Credit Card',
-      subtotal: parseFloat(result.subtotal || 0).toFixed(2),
-      vat: parseFloat(result.vat || 0).toFixed(2),
-      totalAmount: parseFloat(result.total || 0).toFixed(2),
-    };
-
-    // Notify the Customer
-    if (result.customerEmail) {
-      await triggerEmailNotification('NEW_ORDER_CUSTOMER', result.customerEmail, emailVariables);
-    }
-
-    // Notify the Admin (Make sure to change this to the real Atlantis admin email if needed!)
-    await triggerEmailNotification('NEW_ORDER_ADMIN', 'admin@atlantis.sa', emailVariables);
+    // Emails have been removed from here! 
+    // They will now be handled by the payment success webhooks/callbacks.
 
     return NextResponse.json(
       {

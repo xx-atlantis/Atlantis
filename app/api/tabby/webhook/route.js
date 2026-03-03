@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+// 1. IMPORT YOUR EMAIL SERVICE
+import { triggerEmailNotification } from "@/lib/emailService";
 
 export async function POST(req) {
   try {
@@ -35,11 +37,37 @@ export async function POST(req) {
 
          if (captureRes.ok) {
             // 3. Update DB to 'paid' only after successful capture
-            await prisma.order.update({
+            // We capture the returned order to use in our email variables
+            const updatedOrder = await prisma.order.update({
                where: { id: orderId },
                data: { paymentStatus: 'paid', tabbyPaymentId: paymentId }
             });
-            return NextResponse.json({ success: true, message: "Captured" });
+
+            // ==========================================
+            // 🔥 4. TRIGGER EMAIL NOTIFICATIONS HERE 🔥
+            // ==========================================
+            const emailVariables = {
+              customerName: updatedOrder.customerName || 'Valued Customer',
+              customerEmail: updatedOrder.customerEmail || 'Not Provided',
+              customerPhone: updatedOrder.customerPhone || 'Not Provided',
+              address: updatedOrder.address || 'Not Provided',
+              orderId: updatedOrder.id.slice(-8).toUpperCase(),
+              orderType: updatedOrder.orderType || 'Standard',
+              paymentMethod: 'Tabby',
+              subtotal: parseFloat(updatedOrder.subtotal || 0).toFixed(2),
+              vat: parseFloat(updatedOrder.vat || 0).toFixed(2),
+              totalAmount: parseFloat(updatedOrder.total || 0).toFixed(2),
+            };
+
+            // Notify Customer
+            if (updatedOrder.customerEmail) {
+              await triggerEmailNotification('NEW_ORDER_CUSTOMER', updatedOrder.customerEmail, emailVariables);
+            }
+
+            // Notify Admin
+            await triggerEmailNotification('NEW_ORDER_ADMIN', 'admin@atlantis.sa', emailVariables);
+
+            return NextResponse.json({ success: true, message: "Captured and Emails Sent" });
          }
       }
     } 
