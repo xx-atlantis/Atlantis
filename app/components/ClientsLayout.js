@@ -50,7 +50,7 @@ export default function ClientLayout({ children }) {
       {/* WhatsApp Icon logic: Hidden on restricted routes, same as Header/Footer */}
       {!hideLayout && (
         <WhatsAppFloatingIcon
-          phoneNumber="966595742424" 
+          phoneNumber="966537878794" 
           message={locale === "ar" ? "مرحباً، لدي استفسار بخصوص مشروعي." : "Hello, I have a query regarding my project."} 
         />
       )}

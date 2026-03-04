@@ -26,7 +26,8 @@ const ImageCard = ({ item, onClick, height }) => {
 
       {/* Title */}
       <div className="absolute inset-0 flex items-end md:items-center justify-center p-4">
-        <p className="text-white text-lg md:text-xl font-semibold text-center transform md:translate-y-4 md:opacity-0 md:group-hover:translate-y-0 md:group-hover:opacity-100 transition-all duration-300">
+        {/* OPTIMIZED: text-base on mobile, text-xl on desktop. Adjusted font weight for better mobile readability */}
+        <p className="text-white text-base font-medium md:text-xl md:font-semibold text-center transform md:translate-y-4 md:opacity-0 md:group-hover:translate-y-0 md:group-hover:opacity-100 transition-all duration-300">
           {item.title}
         </p>
       </div>
@@ -60,7 +61,6 @@ const PortfolioGrid = () => {
     return chunks;
   };
 
-  // ✅ USE SLUG (preferred), fallback to id
   const handleClick = (item) => {
     const slugOrId = item.id || item.slug;
     router.push(`/${locale}/our-portfolio/${slugOrId}`);
@@ -79,7 +79,7 @@ const PortfolioGrid = () => {
       return (
         <ImageCard
           item={items[0]}
-          height="h-[420px]"
+          height="h-[300px] md:h-[420px]" // OPTIMIZED: responsive height
           onClick={() => handleClick(items[0])}
         />
       );
@@ -88,12 +88,12 @@ const PortfolioGrid = () => {
     // 🔹 2 IMAGES
     if (count === 2) {
       return (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6"> {/* OPTIMIZED: responsive gap */}
           {items.map((item) => (
             <ImageCard
               key={item.id}
               item={item}
-              height="h-[320px]"
+              height="h-[250px] md:h-[320px]" // OPTIMIZED: responsive height
               onClick={() => handleClick(item)}
             />
           ))}
@@ -104,7 +104,7 @@ const PortfolioGrid = () => {
     // 🔹 3–5 IMAGES
     return (
       <div
-        className={`flex flex-col md:flex-row gap-6 ${
+        className={`flex flex-col md:flex-row gap-4 md:gap-6 ${ // OPTIMIZED: responsive gap
           reverse ? "md:flex-row-reverse" : ""
         }`}
       >
@@ -112,14 +112,14 @@ const PortfolioGrid = () => {
         <div className="w-full md:w-1/2">
           <ImageCard
             item={items[0]}
-            height="h-[420px]"
+            height="h-[300px] md:h-[420px]" // OPTIMIZED: responsive height
             onClick={() => handleClick(items[0])}
           />
         </div>
 
         {/* Small Images */}
         <div
-          className={`w-full md:w-1/2 grid gap-6 ${
+          className={`w-full md:w-1/2 grid gap-4 md:gap-6 ${ // OPTIMIZED: responsive gap
             count === 3 ? "grid-cols-1" : "grid-cols-2"
           }`}
         >
@@ -127,7 +127,7 @@ const PortfolioGrid = () => {
             <ImageCard
               key={item.id}
               item={item}
-              height="h-[200px]"
+              height="h-[180px] md:h-[200px]" // OPTIMIZED: responsive height
               onClick={() => handleClick(item)}
             />
           ))}
@@ -145,16 +145,17 @@ const PortfolioGrid = () => {
       className="px-4 md:px-16 py-10 lg:py-20"
     >
       <div className="container mx-auto text-center">
-        <h2 className="text-3xl md:text-4xl font-bold text-gray-900">
+        {/* OPTIMIZED: Main titles scaled down on mobile */}
+        <h2 className="text-2xl md:text-4xl font-bold text-gray-900">
           {portfolioData.mainTitle}
         </h2>
-        <p className="mt-4 text-base md:text-lg text-gray-600">
+        <p className="mt-3 md:mt-4 text-sm md:text-lg text-gray-600">
           {portfolioData.subtitle}
         </p>
       </div>
 
       {sections.map((section, index) => (
-        <div key={index} className="mt-14">
+        <div key={index} className="mt-10 md:mt-14"> {/* OPTIMIZED: responsive top margin */}
           {renderRow(section, index % 2 === 1)}
         </div>
       ))}
