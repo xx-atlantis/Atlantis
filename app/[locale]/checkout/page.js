@@ -734,25 +734,27 @@ isRTL ? "تطبيق" : "Apply"
     }`}
   onClick={() => setSelectedPayment("paytabs")}
 >
-  <div className="flex items-center justify-between">
+  {/* Added flex-wrap and gap-3 to allow safe wrapping on small screens */}
+  <div className="flex flex-wrap items-center justify-between gap-3">
     <div className="flex items-center gap-3">
+      {/* Added shrink-0 to prevent the radio button from getting squished */}
       <input
         type="radio"
         checked={selectedPayment === "paytabs"}
         onChange={() => setSelectedPayment("paytabs")}
-        className="accent-[#2D3247] w-4 h-4"
+        className="accent-[#2D3247] w-4 h-4 shrink-0"
       />
-      <span className="font-medium text-sm">
+      <span className="font-medium text-sm leading-tight">
         {locale === "ar"
           ? "بطاقة ائتمان / مدى / ابل باي"
           : "Credit / Debit / Mada / Apple Pay"}
       </span>
     </div>
-    <div className="flex gap-1.5">
+    {/* Added shrink-0 to protect icon sizes, and ms-7 so they align with the text if they wrap to the next line */}
+    <div className="flex flex-wrap gap-1.5 shrink-0 ms-7 sm:ms-0">
       <img src="/icons/visa.png" alt="Visa" className="h-5 object-contain" />
       <img src="/icons/mastercard.png" alt="Mastercard" className="h-5 object-contain" />
       <img src="/icons/mada.png" alt="Mada" className="h-5 object-contain" />
-      {/* Added Apple Pay Icon */}
       <img src="/icons/apple-pay.png" alt="Apple Pay" className="h-5 object-contain" />
     </div>
   </div>
