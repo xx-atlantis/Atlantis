@@ -10,7 +10,7 @@ import { Star } from "lucide-react";
 
 // Fallback map in case JSON data is missing the avatar field
 const FALLBACK_AVATARS = {
-  "Ashwaq Bander": "/avatars/ashwaq-bander.webp",
+  "Ashwaq Bander": "/avatars/ashwaq-bander.png",
   "Nouf Al-Johaini": "/avatars/nouf-al-johaini.webp",
   "Amal Alahmari": "/avatars/amal-alahmari.webp",
   "Osama Bukhari": "/avatars/osama-bukhari.webp",
