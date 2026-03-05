@@ -101,15 +101,21 @@ return base;
 }, [cart, safeCartItems, paymentType, depositPercentage]);
 
 const shipping = 0;
-const vat = subtotal * 0.15;
-const preDiscountTotal = subtotal + shipping + vat;
+
+// Since prices already include VAT, preDiscountTotal is just subtotal + shipping
+const preDiscountTotal = subtotal + shipping; 
+
 // Calculate discount and percentage
 const couponDiscount = appliedCoupon ? appliedCoupon.discount.amount : 0;
 const discountPercentage = appliedCoupon && preDiscountTotal > 0
-? Math.round((couponDiscount / preDiscountTotal) * 100)
-: 0;
+  ? Math.round((couponDiscount / preDiscountTotal) * 100)
+  : 0;
+
 // Total with discount applied
 const total = preDiscountTotal - couponDiscount;
+
+// Calculate VAT from the final total (15% inclusive VAT extraction)
+const vat = total - (total / 1.15);
 
 // ==========================================
 // COUPON FUNCTIONS
