@@ -31,15 +31,32 @@ export default function CompleteGoogleSignup() {
   
   const recaptchaRef = useRef(null);
 
-  // Cleanup Recaptcha
+  // Setup Recaptcha on mount
   useEffect(() => {
+    if (!window.recaptchaVerifier && recaptchaRef.current) {
+      window.recaptchaVerifier = new RecaptchaVerifier(auth, recaptchaRef.current, {
+        size: "normal", // Changed from invisible to normal
+        callback: (response) => {
+          // reCAPTCHA solved
+        },
+        "expired-callback": () => {
+          setError(isRTL ? "انتهت صلاحية التحقق، يرجى المحاولة مرة أخرى." : "Recaptcha expired. Please try again.");
+          if (window.recaptchaVerifier) {
+            window.recaptchaVerifier.clear();
+            window.recaptchaVerifier = null;
+          }
+        }
+      });
+      window.recaptchaVerifier.render(); // Force it to render immediately
+    }
+
     return () => {
       if (window.recaptchaVerifier) {
         window.recaptchaVerifier.clear();
         window.recaptchaVerifier = null;
       }
     };
-  }, []);
+  }, [isRTL]);
 
   // Timer Logic
   useEffect(() => {
@@ -49,20 +66,6 @@ export default function CompleteGoogleSignup() {
     }
     return () => clearInterval(interval);
   }, [resendTimer]);
-
-  const initRecaptcha = () => {
-    if (!recaptchaRef.current) return;
-    if (window.recaptchaVerifier) window.recaptchaVerifier.clear();
-
-    window.recaptchaVerifier = new RecaptchaVerifier(auth, recaptchaRef.current, {
-      size: "invisible", 
-      callback: () => {},
-      "expired-callback": () => {
-        setError(isRTL ? "انتهت صلاحية التحقق، يرجى المحاولة مرة أخرى." : "Recaptcha expired. Please try again.");
-        window.recaptchaVerifier?.clear();
-      }
-    });
-  };
 
   // Step 1: Send OTP
   const handleSendOTP = async () => {
@@ -79,7 +82,7 @@ export default function CompleteGoogleSignup() {
     setLoading(true);
 
     try {
-      initRecaptcha();
+      // Uses the existing rendered normal reCAPTCHA
       const confirmation = await signInWithPhoneNumber(auth, finalPhone, window.recaptchaVerifier);
       setConfirmationResult(confirmation);
       setStep(2);
@@ -88,7 +91,10 @@ export default function CompleteGoogleSignup() {
     } catch (err) {
       console.error(err);
       setError(isRTL ? "فشل إرسال الرمز، يرجى المحاولة لاحقاً." : "Failed to send OTP. Please try again.");
-      if (window.recaptchaVerifier) window.recaptchaVerifier.clear();
+      if (window.recaptchaVerifier) {
+        window.recaptchaVerifier.clear();
+        window.recaptchaVerifier = null;
+      }
     } finally {
       setLoading(false);
     }
@@ -173,54 +179,54 @@ export default function CompleteGoogleSignup() {
           </div>
         </div>
 
-        {/* Recaptcha Container (Invisible) */}
-        <div ref={recaptchaRef}></div>
-
         {/* Step 1: Input Phone */}
-        {step === 1 && (
-          <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4">
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
-                {isRTL ? "رقم الجوال" : "Mobile Number"}
-              </label>
-              <div className="relative" dir="ltr">
-                <div className="absolute left-3 top-1/2 -translate-y-1/2 flex items-center gap-2 border-r pr-2 border-gray-300">
-                  <span className="text-lg">🇸🇦</span>
-                  <span className="text-sm font-bold text-gray-600">+966</span>
-                </div>
-                <input
-                  type="tel"
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value.replace(/\D/g, ""))}
-                  placeholder="5xxxxxxxx"
-                  className={`w-full pl-24 pr-4 py-3.5 border ${error ? 'border-red-500' : 'border-gray-300'} rounded-xl focus:ring-2 focus:ring-[#2D3247] focus:border-[#2D3247] outline-none transition font-mono text-lg`}
-                />
+        <div className={`space-y-6 ${step === 1 ? 'block animate-in fade-in slide-in-from-bottom-4' : 'hidden'}`}>
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
+              {isRTL ? "رقم الجوال" : "Mobile Number"}
+            </label>
+            <div className="relative" dir="ltr">
+              <div className="absolute left-3 top-1/2 -translate-y-1/2 flex items-center gap-2 border-r pr-2 border-gray-300">
+                <span className="text-lg">🇸🇦</span>
+                <span className="text-sm font-bold text-gray-600">+966</span>
               </div>
-              <p className="text-[11px] text-gray-400 mt-2 mx-1">
-                {isRTL 
-                  ? "مطلوب لخدمات الدفع (تابي/تمارا) والتوصيل." 
-                  : "Required for payments (Tabby/Tamara) and delivery."}
-              </p>
+              <input
+                type="tel"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value.replace(/\D/g, ""))}
+                placeholder="5xxxxxxxx"
+                className={`w-full pl-24 pr-4 py-3.5 border ${error ? 'border-red-500' : 'border-gray-300'} rounded-xl focus:ring-2 focus:ring-[#2D3247] focus:border-[#2D3247] outline-none transition font-mono text-lg`}
+              />
             </div>
-
-            {/* UI Error Message Display */}
-            {error && (
-              <div className="p-3 bg-red-50 border border-red-100 rounded-lg text-center">
-                <p className="text-red-600 text-sm font-medium">{error}</p>
-              </div>
-            )}
-
-            <button
-              onClick={handleSendOTP}
-              disabled={loading || phone.length < 9}
-              className="w-full bg-[#2D3247] text-white py-3.5 rounded-xl font-semibold hover:bg-[#1e2231] transition disabled:opacity-50 flex justify-center items-center gap-2"
-            >
-              {loading && <Loader2 className="animate-spin" size={20} />}
-              {isRTL ? "إرسال رمز التحقق" : "Send Verification Code"}
-              {!loading && (isRTL ? <ArrowRight className="rotate-180" size={18} /> : <ArrowRight size={18} />)}
-            </button>
+            <p className="text-[11px] text-gray-400 mt-2 mx-1">
+              {isRTL 
+                ? "مطلوب لخدمات الدفع (تابي/تمارا) والتوصيل." 
+                : "Required for payments (Tabby/Tamara) and delivery."}
+            </p>
           </div>
-        )}
+
+          {/* VISIBLE RECAPTCHA CONTAINER */}
+          <div className="flex justify-center w-full my-4">
+            <div ref={recaptchaRef}></div>
+          </div>
+
+          {/* UI Error Message Display */}
+          {error && step === 1 && (
+            <div className="p-3 bg-red-50 border border-red-100 rounded-lg text-center">
+              <p className="text-red-600 text-sm font-medium">{error}</p>
+            </div>
+          )}
+
+          <button
+            onClick={handleSendOTP}
+            disabled={loading || phone.length < 9}
+            className="w-full bg-[#2D3247] text-white py-3.5 rounded-xl font-semibold hover:bg-[#1e2231] transition disabled:opacity-50 flex justify-center items-center gap-2"
+          >
+            {loading && <Loader2 className="animate-spin" size={20} />}
+            {isRTL ? "إرسال رمز التحقق" : "Send Verification Code"}
+            {!loading && (isRTL ? <ArrowRight className="rotate-180" size={18} /> : <ArrowRight size={18} />)}
+          </button>
+        </div>
 
         {/* Step 2: Verify OTP */}
         {step === 2 && (
@@ -240,7 +246,7 @@ export default function CompleteGoogleSignup() {
             </div>
 
             {/* UI Error Message Display */}
-            {error && (
+            {error && step === 2 && (
               <div className="p-3 bg-red-50 border border-red-100 rounded-lg text-center">
                 <p className="text-red-600 text-sm font-medium">{error}</p>
               </div>
