@@ -5,7 +5,7 @@ import { useLocale } from "@/app/components/LocaleProvider";
 import { usePageContent } from "@/app/context/PageContentProvider";
 import { useRouter } from "next/navigation";
 import { PlayCircle } from "lucide-react";
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 
 export default function HowToGetStarted() {
   const { locale } = useLocale();
@@ -19,7 +19,6 @@ export default function HowToGetStarted() {
   const isRTL = locale === "ar";
 
   // 2. Define video source based on language
-  // Note: Files in the "public" folder are accessed from the root "/"
   const videoSrc = isRTL ? "/final-arabic.mp4" : "/final-english-ver.mp4";
 
   const stylesData = data?.styles || {};
@@ -37,6 +36,28 @@ export default function HowToGetStarted() {
     }
   };
 
+  // 3. Attempt Unmuted Autoplay
+  useEffect(() => {
+    if (videoRef.current) {
+      // Browsers often block unmuted autoplay. We attempt to play it here so we can catch the error.
+      const playPromise = videoRef.current.play();
+      
+      if (playPromise !== undefined) {
+        playPromise
+          .then(() => {
+            // Autoplay succeeded!
+            setIsPlaying(true);
+          })
+          .catch((error) => {
+            // Browser blocked the unmuted autoplay. 
+            // We fail gracefully by keeping isPlaying false, which shows your custom play button overlay.
+            console.warn("Browser blocked unmuted autoplay. User interaction required.");
+            setIsPlaying(false);
+          });
+      }
+    }
+  }, [videoSrc]); // Re-run if the user changes the language
+
   return (
     <section
       dir={isRTL ? "rtl" : "ltr"}
@@ -48,7 +69,7 @@ export default function HowToGetStarted() {
       </h2>
 
       {/* ===== Styles Grid ===== */}
-      <div className="max-w-3xl mx-auto">
+      <div className="max-w-3xl mx-auto w-full">
         <div className="relative max-w-4xl mx-auto rounded-2xl overflow-hidden shadow-md group">
           
           <video
@@ -56,8 +77,8 @@ export default function HowToGetStarted() {
             id="homeVideo"
             src={videoSrc}
             controls
+            playsInline // Prevents iOS from forcing full-screen immediately
             className="w-full h-[80vh] object-cover bg-black"
-            // Ensure state stays synced if user uses native browser controls
             onPlay={() => setIsPlaying(true)}
             onPause={() => setIsPlaying(false)}
           />
