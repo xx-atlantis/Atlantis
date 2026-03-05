@@ -177,20 +177,19 @@ export default function Header() {
         ======================= */}
         <div className="flex items-center gap-3 lg:gap-4">
           
-          {/* ♿ ADDED: aria-label for accessibility */}
-          {/* CART ICON */}
-          <Link 
-            href={`/${locale}/checkout`} 
-            className="relative p-2 text-gray-700 hover:text-[#2D3247] transition"
-            aria-label={isRTL ? "عربة التسوق" : "Shopping Cart"}
-          >
-            <ShoppingBag size={22} />
-            {cartCount > 0 && (
+          {/* CART ICON (Only shows if there are items in the cart) */}
+          {cartCount > 0 && (
+            <Link 
+              href={`/${locale}/checkout`} 
+              className="relative p-2 text-gray-700 hover:text-[#2D3247] transition animate-in fade-in zoom-in duration-300"
+              aria-label={isRTL ? "عربة التسوق" : "Shopping Cart"}
+            >
+              <ShoppingBag size={22} />
               <span className="absolute -top-1 -right-1 bg-red-600 text-white text-[10px] font-bold h-5 w-5 flex items-center justify-center rounded-full border-2 border-white">
                 {cartCount}
               </span>
-            )}
-          </Link>
+            </Link>
+          )}
 
           {/* LANGUAGE (Desktop) */}
           <Link
@@ -236,7 +235,6 @@ export default function Header() {
             {header.cta}
           </button>
 
-          {/* ♿ ADDED: aria-label for accessibility */}
           {/* MOBILE MENU TOGGLE */}
           <button
             className="lg:hidden p-2 rounded-md hover:bg-gray-100 text-gray-700"
