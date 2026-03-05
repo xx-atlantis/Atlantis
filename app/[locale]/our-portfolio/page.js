@@ -27,12 +27,11 @@ const ImageCard = ({ item, onClick, height }) => {
         className="object-cover transition-transform duration-500 group-hover:scale-105"
       />
 
-      {/* Gradient Overlay */}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-all duration-300" />
+      {/* Gradient Overlay - Slightly darkened at the bottom for better text contrast */}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-all duration-300" />
 
-      {/* Title */}
-      <div className="absolute inset-0 flex items-end md:items-center justify-center p-4">
-        {/* OPTIMIZED: text-base on mobile, text-xl on desktop. Adjusted font weight for better mobile readability */}
+      {/* Title - Removed md:items-center to keep text at the bottom. Added p-6 md:p-8 for better spacing. */}
+      <div className="absolute inset-0 flex items-end justify-center p-6 md:p-8">
         <p className="text-white text-base font-medium md:text-xl md:font-semibold text-center transform md:translate-y-4 md:opacity-0 md:group-hover:translate-y-0 md:group-hover:opacity-100 transition-all duration-300">
           {/* Truncated title shown ONLY on mobile (hidden on medium screens and up) */}
           <span className="md:hidden">{mobileTitle}</span>
