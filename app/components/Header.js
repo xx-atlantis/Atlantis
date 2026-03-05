@@ -179,8 +179,8 @@ export default function Header() {
           
           {/* CART ICON WITH SMOOTH VISIBILITY ANIMATION */}
           <div 
-            className={`transition-all duration-400 ease-[cubic-bezier(0.34,1.56,0.64,1)] flex items-center overflow-hidden origin-right ${
-              cartCount > 0 ? "max-w-[50px] opacity-100 scale-100" : "max-w-0 opacity-0 scale-50"
+            className={`transition-all duration-300 ease-in-out flex items-center justify-center ${
+              cartCount > 0 ? "w-10 opacity-100 scale-100 visible" : "w-0 opacity-0 scale-0 invisible pointer-events-none"
             }`}
           >
             <Link 
@@ -189,15 +189,13 @@ export default function Header() {
               aria-label={isRTL ? "عربة التسوق" : "Shopping Cart"}
             >
               <ShoppingBag size={22} />
-              {/* Only render the badge itself if count > 0 to prevent the badge trying to render a "0" during the fade-out */}
-              {cartCount > 0 && (
-                <span className="absolute -top-1 -right-1 bg-red-600 text-white text-[10px] font-bold h-5 w-5 flex items-center justify-center rounded-full border-2 border-white">
-                  {cartCount}
-                </span>
-              )}
+              {/* Removed the cartCount > 0 condition here so the badge smoothly scales down with the icon instead of vanishing instantly */}
+              <span className="absolute -top-1 -right-1 bg-red-600 text-white text-[10px] font-bold h-5 w-5 flex items-center justify-center rounded-full border-2 border-white">
+                {cartCount}
+              </span>
             </Link>
           </div>
-
+          
           {/* LANGUAGE (Desktop) */}
           <Link
             href={newPath}
