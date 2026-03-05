@@ -201,11 +201,6 @@ export default function SignupPage() {
   return (
     <section dir={isRTL ? "rtl" : "ltr"} className="min-h-screen flex flex-col lg:flex-row bg-gray-50">
 
-      {/* Recaptcha Container */}
-      <div className="flex justify-center">
-        <div ref={recaptchaContainerRef} id="recaptcha-container" className="my-2"></div>
-      </div>
-
       {/* Left Image */}
       <div className="relative hidden lg:flex w-1/2 bg-gray-200">
         <Image src="/hero.jpg" alt="Interior design" fill className="object-cover" priority />
@@ -322,6 +317,11 @@ export default function SignupPage() {
                   </div>
                 )}
               </div>
+            </div>
+
+            {/* MOVED: Recaptcha Container is now safely inside the form */}
+            <div className="flex justify-center w-full">
+              <div ref={recaptchaContainerRef} id="recaptcha-container" className="my-1"></div>
             </div>
 
             {/* OTP Input */}
