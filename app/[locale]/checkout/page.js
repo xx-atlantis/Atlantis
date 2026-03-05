@@ -728,32 +728,34 @@ isRTL ? "تطبيق" : "Apply"
 <div className="space-y-4">
 {/* PayTabs */}
 <div
-className={`border rounded-lg p-4 cursor-pointer transition-all ${selectedPayment === "paytabs"
-? "border-[#2D3247] bg-gray-50 ring-1 ring-[#2D3247]"
-: "border-gray-200 hover:border-gray-300"
-}`}
-onClick={() => setSelectedPayment("paytabs")}
+  className={`border rounded-lg p-4 cursor-pointer transition-all ${selectedPayment === "paytabs"
+    ? "border-[#2D3247] bg-gray-50 ring-1 ring-[#2D3247]"
+    : "border-gray-200 hover:border-gray-300"
+    }`}
+  onClick={() => setSelectedPayment("paytabs")}
 >
-<div className="flex items-center justify-between">
-<div className="flex items-center gap-3">
-<input
-type="radio"
-checked={selectedPayment === "paytabs"}
-onChange={() => setSelectedPayment("paytabs")}
-className="accent-[#2D3247] w-4 h-4"
-/>
-<span className="font-medium text-sm">
-{locale === "ar"
-? "بطاقة ائتمان / مدى"
-: "Credit / Debit / Mada"}
-</span>
-</div>
-<div className="flex gap-1.5">
-<img src="/icons/visa.png" alt="Visa" className="h-5 object-contain" />
-<img src="/icons/mastercard.png" alt="Mastercard" className="h-5 object-contain" />
-<img src="/icons/mada.png" alt="Mada" className="h-5 object-contain" />
-</div>
-</div>
+  <div className="flex items-center justify-between">
+    <div className="flex items-center gap-3">
+      <input
+        type="radio"
+        checked={selectedPayment === "paytabs"}
+        onChange={() => setSelectedPayment("paytabs")}
+        className="accent-[#2D3247] w-4 h-4"
+      />
+      <span className="font-medium text-sm">
+        {locale === "ar"
+          ? "بطاقة ائتمان / مدى / ابل باي"
+          : "Credit / Debit / Mada / Apple Pay"}
+      </span>
+    </div>
+    <div className="flex gap-1.5">
+      <img src="/icons/visa.png" alt="Visa" className="h-5 object-contain" />
+      <img src="/icons/mastercard.png" alt="Mastercard" className="h-5 object-contain" />
+      <img src="/icons/mada.png" alt="Mada" className="h-5 object-contain" />
+      {/* Added Apple Pay Icon */}
+      <img src="/icons/apple-pay.png" alt="Apple Pay" className="h-5 object-contain" />
+    </div>
+  </div>
 </div>
 
 {/* Tabby */}
