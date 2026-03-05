@@ -9,6 +9,12 @@ import { useRouter } from "next/navigation";
    Reusable Image Card with Hover Overlay
 ===================================================== */
 const ImageCard = ({ item, onClick, height }) => {
+  // Grab the first 3 words for mobile view and add ellipsis if needed
+  const titleWords = item.title ? item.title.split(" ") : [];
+  const mobileTitle = titleWords.length > 3 
+    ? titleWords.slice(0, 3).join(" ") + "..." 
+    : item.title;
+
   return (
     <div
       className={`relative group cursor-pointer rounded-xl overflow-hidden shadow-lg ${height}`}
@@ -28,7 +34,11 @@ const ImageCard = ({ item, onClick, height }) => {
       <div className="absolute inset-0 flex items-end md:items-center justify-center p-4">
         {/* OPTIMIZED: text-base on mobile, text-xl on desktop. Adjusted font weight for better mobile readability */}
         <p className="text-white text-base font-medium md:text-xl md:font-semibold text-center transform md:translate-y-4 md:opacity-0 md:group-hover:translate-y-0 md:group-hover:opacity-100 transition-all duration-300">
-          {item.title}
+          {/* Truncated title shown ONLY on mobile (hidden on medium screens and up) */}
+          <span className="md:hidden">{mobileTitle}</span>
+          
+          {/* Full title shown ONLY on desktop (hidden on mobile, inline on medium screens and up) */}
+          <span className="hidden md:inline">{item.title}</span>
         </p>
       </div>
     </div>
