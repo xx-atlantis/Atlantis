@@ -4,7 +4,8 @@ import { useLocale } from "@/app/components/LocaleProvider";
 import { usePageContent } from "@/app/context/PageContentProvider";
 import { useCart } from "@/app/context/CartContext";
 import { useState, useMemo, useEffect } from "react";
-import { CheckCircle2, CreditCard, Wallet, Sparkles, Landmark, Tag, X, SaudiRiyal } from "lucide-react";
+// Added Trash2 to the imports
+import { CheckCircle2, CreditCard, Wallet, Sparkles, Landmark, Tag, X, SaudiRiyal, Trash2 } from "lucide-react";
 import Script from "next/script";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -68,7 +69,8 @@ const storedCart = localStorage.getItem("cart");
 if (storedCart) { setCart(JSON.parse(storedCart)); }
 }, []);
 
-const { cartItems } = useCart();
+// DESTRUCTURED removeFromCart from useCart
+const { cartItems, removeFromCart } = useCart();
 const safeCartItems = Array.isArray(cartItems) ? cartItems : [];
 
 const depositPercentage = useMemo(() => {
@@ -586,7 +588,7 @@ return (
 
 <div className="space-y-2">
 <div className="flex justify-between text-sm text-gray-500">
-<span>{isRTL ? "الضريبة (15%)" : "VAT (15%)"}</span>
+<span>{isRTL ? "مشمول الضريبة (15%)" : "Includes VAT (15%)"}</span>
 <span>{vat.toFixed(2)} <SaudiRiyalIcon size={16} className="inline-block " /></span>
 </div>
 {/* Coupon Discount */}
@@ -613,18 +615,35 @@ return (
 <>
 <div className="space-y-4 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
 {safeCartItems.map((item) => (
-<div key={item.id} className="flex justify-between items-center text-sm">
-<div className="flex items-center gap-3">
-<img src={item.coverImage} className="w-10 h-10 rounded border object-cover" alt={item.name} />
-<div>
-<p className="font-medium text-gray-800">{item.name}</p>
-<p className="text-[10px] text-gray-400">× {item.quantity}</p>
-</div>
-</div>
-<span className="font-semibold text-gray-700 flex items-end gap-1">
-{(item.price * item.quantity).toFixed(2)} <span className="text-[10px]"><SaudiRiyalIcon size={16} className="inline-block " /></span>
-</span>
-</div>
+  // ITEM DISPLAY BLOCK WITH REMOVE BUTTON ADDED HERE
+  <div key={item.id} className="flex justify-between items-center text-sm py-2 border-b border-gray-50 last:border-0 group">
+    <div className="flex items-center gap-3">
+      <img src={item.coverImage} className="w-10 h-10 rounded border object-cover" alt={item.name} />
+      <div>
+        <p className="font-medium text-gray-800 line-clamp-1">{item.name}</p>
+        <p className="text-[10px] text-gray-400">× {item.quantity}</p>
+      </div>
+    </div>
+    <div className="flex flex-col items-end gap-1">
+      <span className="font-semibold text-gray-700 flex items-end gap-1">
+        {(item.price * item.quantity).toFixed(2)} <span className="text-[10px]"><SaudiRiyalIcon size={16} className="inline-block " /></span>
+      </span>
+      <button 
+        onClick={() => {
+          if (removeFromCart) {
+            removeFromCart(item.id);
+          } else {
+            console.error("removeFromCart function is not provided by useCart context.");
+          }
+        }}
+        className="text-[10px] text-red-500 hover:text-red-700 flex items-center gap-1 transition-colors"
+        aria-label="Remove item"
+      >
+        <Trash2 size={12} />
+        {isRTL ? "إزالة" : "Remove"}
+      </button>
+    </div>
+  </div>
 ))}
 </div>
 
@@ -637,7 +656,7 @@ return (
 </div>
 
 <div className="flex justify-between text-sm text-gray-500">
-<span>{isRTL ? "الضريبة (15%)" : "VAT (15%)"}</span>
+<span>{isRTL ? "مشمول الضريبة (15%)" : "Includes VAT (15%)"}</span>
 <span>{vat.toFixed(2)} <SaudiRiyalIcon size={16} className="inline-block " /></span>
 </div>
 
