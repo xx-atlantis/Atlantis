@@ -55,18 +55,6 @@ export default function GoogleButton() {
         
         router.push(redirectUrl); 
         router.refresh();
-      }
-
-        // 4. UPDATE REACT CONTEXT
-        saveCustomer(json.customer); 
-        toast.success(isRTL ? "تم تسجيل الدخول بنجاح" : "Login successful");
-        
-        // 5. GET DYNAMIC REDIRECT OR FALLBACK TO HOMEPAGE
-        const redirectUrl = searchParams.get("redirect") || `/${locale}`;
-        
-        // 6. SOFT REDIRECT & REFRESH NAVBAR
-        router.push(redirectUrl); 
-        router.refresh();
 
       } else if (json.action === "REQUIRE_PHONE") {
         const redirectParam = searchParams.get("redirect");
