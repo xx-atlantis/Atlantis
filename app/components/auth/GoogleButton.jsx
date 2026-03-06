@@ -5,13 +5,15 @@ import { auth } from "@/lib/firebase";
 import toast from "react-hot-toast";
 import { useLocale } from "@/app/components/LocaleProvider";
 import { useCustomerAuth } from "@/app/context/CustomerAuthProvider";
-import { useRouter } from "next/navigation"; // <-- IMPORT ROUTER
+import { useRouter, useSearchParams } from "next/navigation"; // <-- IMPORT useSearchParams
 
 export default function GoogleButton() {
   const { locale } = useLocale();
   const isRTL = locale === "ar";
   const { saveCustomer } = useCustomerAuth();
-  const router = useRouter(); // <-- INITIALIZE ROUTER
+  
+  const router = useRouter();
+  const searchParams = useSearchParams(); // <-- INITIALIZE useSearchParams
 
   const handleGoogleLogin = async () => {
     try {
@@ -42,16 +44,26 @@ export default function GoogleButton() {
         saveCustomer(json.customer); 
         toast.success(isRTL ? "تم تسجيل الدخول بنجاح" : "Login successful");
         
-        // 3. SOFT REDIRECT & REFRESH NAVBAR
-        router.push(`/${locale}`);
+        // 3. GET DYNAMIC REDIRECT OR FALLBACK TO HOMEPAGE
+        const redirectUrl = searchParams.get("redirect") || `/${locale}`;
+        
+        // 4. SOFT REDIRECT & REFRESH NAVBAR
+        router.push(redirectUrl); // <-- USE DYNAMIC REDIRECT
         router.refresh();
 
       } else if (json.action === "REQUIRE_PHONE") {
+        const redirectParam = searchParams.get("redirect");
         const params = new URLSearchParams({
           email: user.email,
           name: user.displayName,
           token: json.tempToken
         });
+
+        // Preserve redirect param for the complete-profile step so they don't get lost
+        if (redirectParam) {
+          params.append("redirect", redirectParam);
+        }
+
         router.push(`/${locale}/complete-profile?${params.toString()}`);
       }
 
