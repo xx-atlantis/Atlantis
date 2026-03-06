@@ -11,7 +11,7 @@ import { useSearchParams } from "next/navigation";
 import { RecaptchaVerifier, signInWithPhoneNumber } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import { Eye, EyeOff } from "lucide-react";
-import GoogleButton from "@/app/components/auth/GoogleButton"; // Import the Google Button
+import GoogleButton from "@/app/components/auth/GoogleButton"; 
 
 export default function LoginPage() {
   const { locale } = useLocale();
@@ -84,9 +84,27 @@ export default function LoginPage() {
       const json = await res.json();
       if (!json.success) throw new Error(json.error);
 
+      // ==========================================
+      // THE FIX: TOKEN EXTRACTION & COOKIE STORAGE
+      // ==========================================
+      const actualToken = json.token || json.customer?.token; 
+      
+      // 1. Save customer to local storage
+      localStorage.setItem("customer", JSON.stringify(json.customer));
+      
+      // 2. Set token and cookie if they exist
+      if (actualToken) {
+          localStorage.setItem("customer_token", actualToken);
+          document.cookie = `customer_token=${actualToken}; path=/; max-age=2592000; SameSite=Lax`;
+      } else {
+          console.warn("No token received from the backend API!");
+      }
+
+      // 3. Update React Context
       saveCustomer(json.customer);
       toast.success(loginData?.success || "Login successful!");
 
+      // 4. Redirect
       setTimeout(() => {
         if (redirect) {
           window.location.href = decodeURIComponent(redirect);
