@@ -36,19 +36,26 @@ export default function GoogleButton() {
       }
 
       if (json.action === "LOGIN_SUCCESS") {
-        // 1. Grab the token from the root of the JSON response (or fallback to customer.token)
         const actualToken = json.token || json.customer?.token; 
         
-        // 2. GUARANTEE LOCAL STORAGE IS SET IMMEDIATELY
         localStorage.setItem("customer", JSON.stringify(json.customer));
         
-        // 3. ONLY save the token if it actually exists
         if (actualToken) {
+            // Keep local storage as is, but FIX THE COOKIE NAME HERE:
             localStorage.setItem("customer_token", actualToken);
-            document.cookie = `customer_token=${actualToken}; path=/; max-age=2592000; SameSite=Lax`;
+            document.cookie = `customerToken=${actualToken}; path=/; max-age=2592000; SameSite=Lax`; 
         } else {
             console.warn("No token received from the backend API!");
         }
+
+        saveCustomer(json.customer); 
+        toast.success(isRTL ? "تم تسجيل الدخول بنجاح" : "Login successful");
+        
+        const redirectUrl = searchParams.get("redirect") || `/${locale}`;
+        
+        router.push(redirectUrl); 
+        router.refresh();
+      }
 
         // 4. UPDATE REACT CONTEXT
         saveCustomer(json.customer); 
