@@ -5,7 +5,7 @@ import { auth } from "@/lib/firebase";
 import toast from "react-hot-toast";
 import { useLocale } from "@/app/components/LocaleProvider";
 import { useCustomerAuth } from "@/app/context/CustomerAuthProvider";
-import { useRouter, useSearchParams } from "next/navigation"; // <-- IMPORT useSearchParams
+import { useRouter, useSearchParams } from "next/navigation"; 
 
 export default function GoogleButton() {
   const { locale } = useLocale();
@@ -13,7 +13,7 @@ export default function GoogleButton() {
   const { saveCustomer } = useCustomerAuth();
   
   const router = useRouter();
-  const searchParams = useSearchParams(); // <-- INITIALIZE useSearchParams
+  const searchParams = useSearchParams(); 
 
   const handleGoogleLogin = async () => {
     try {
@@ -36,22 +36,28 @@ export default function GoogleButton() {
       }
 
       if (json.action === "LOGIN_SUCCESS") {
-        // 1. GUARANTEE LOCAL STORAGE IS SET IMMEDIATELY (For Client-Side React)
+        // 1. Grab the token from the root of the JSON response (or fallback to customer.token)
+        const actualToken = json.token || json.customer?.token; 
+        
+        // 2. GUARANTEE LOCAL STORAGE IS SET IMMEDIATELY
         localStorage.setItem("customer", JSON.stringify(json.customer));
-        localStorage.setItem("customer_token", json.customer.token);
+        
+        // 3. ONLY save the token if it actually exists
+        if (actualToken) {
+            localStorage.setItem("customer_token", actualToken);
+            document.cookie = `customer_token=${actualToken}; path=/; max-age=2592000; SameSite=Lax`;
+        } else {
+            console.warn("No token received from the backend API!");
+        }
 
-        // 2. SET COOKIE IMMEDIATELY (For Next.js Server/Middleware to detect login)
-        // Note: Change 'customer_token' if your middleware expects a different cookie name
-        document.cookie = `customer_token=${json.customer.token}; path=/; max-age=2592000; SameSite=Lax`;
-
-        // 3. UPDATE REACT CONTEXT
+        // 4. UPDATE REACT CONTEXT
         saveCustomer(json.customer); 
         toast.success(isRTL ? "تم تسجيل الدخول بنجاح" : "Login successful");
         
-        // 4. GET DYNAMIC REDIRECT OR FALLBACK TO HOMEPAGE
+        // 5. GET DYNAMIC REDIRECT OR FALLBACK TO HOMEPAGE
         const redirectUrl = searchParams.get("redirect") || `/${locale}`;
         
-        // 5. SOFT REDIRECT & REFRESH NAVBAR
+        // 6. SOFT REDIRECT & REFRESH NAVBAR
         router.push(redirectUrl); 
         router.refresh();
 
