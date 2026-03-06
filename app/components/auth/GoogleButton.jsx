@@ -36,19 +36,23 @@ export default function GoogleButton() {
       }
 
       if (json.action === "LOGIN_SUCCESS") {
-        // 1. GUARANTEE LOCAL STORAGE IS SET IMMEDIATELY
+        // 1. GUARANTEE LOCAL STORAGE IS SET IMMEDIATELY (For Client-Side React)
         localStorage.setItem("customer", JSON.stringify(json.customer));
         localStorage.setItem("customer_token", json.customer.token);
 
-        // 2. UPDATE REACT CONTEXT
+        // 2. SET COOKIE IMMEDIATELY (For Next.js Server/Middleware to detect login)
+        // Note: Change 'customer_token' if your middleware expects a different cookie name
+        document.cookie = `customer_token=${json.customer.token}; path=/; max-age=2592000; SameSite=Lax`;
+
+        // 3. UPDATE REACT CONTEXT
         saveCustomer(json.customer); 
         toast.success(isRTL ? "تم تسجيل الدخول بنجاح" : "Login successful");
         
-        // 3. GET DYNAMIC REDIRECT OR FALLBACK TO HOMEPAGE
+        // 4. GET DYNAMIC REDIRECT OR FALLBACK TO HOMEPAGE
         const redirectUrl = searchParams.get("redirect") || `/${locale}`;
         
-        // 4. SOFT REDIRECT & REFRESH NAVBAR
-        router.push(redirectUrl); // <-- USE DYNAMIC REDIRECT
+        // 5. SOFT REDIRECT & REFRESH NAVBAR
+        router.push(redirectUrl); 
         router.refresh();
 
       } else if (json.action === "REQUIRE_PHONE") {
