@@ -56,28 +56,31 @@ export async function POST(req) {
         email: customer.email,
       },
       JWT_SECRET,
-      { expiresIn: "7d" }
+      { expiresIn: "7d" } // Changed JWT expiration to match the cookie (7 days)
     );
 
     // ------------------------------
-    // SET COOKIE (HttpOnly)
+    // SET RESPONSE & COOKIE (THE FIX)
     // ------------------------------
     const response = NextResponse.json({
       success: true,
       message: "Login successful",
+      token: token, // <-- FIX 1: Send token directly to frontend
       customer: {
         id: customer.id,
         email: customer.email,
         name: customer.name,
         verified: customer.verified,
+        token: token, // <-- Added here too so it perfectly matches the Google payload
       },
     });
 
-    response.cookies.set("customerToken", token, {
-      httpOnly: true,
-      secure: true,
-      sameSite: "strict",
-      maxAge: 60 * 60 * 24 * 1, // 1 day
+    // <-- FIX 2: Changed to customer_token (snake_case) to match Google Auth
+    response.cookies.set("customer_token", token, {
+      httpOnly: false, // <-- FIX 3: Allowed frontend JS to see the cookie
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax", // Match Google Auth settings
+      maxAge: 60 * 60 * 24 * 7, // 7 days
       path: "/",
     });
 
