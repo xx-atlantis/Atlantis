@@ -95,7 +95,7 @@ export default function LoginPage() {
       // 2. Set token and cookie if they exist
       if (actualToken) {
           localStorage.setItem("customer_token", actualToken);
-          document.cookie = `customer_token=${actualToken}; path=/; max-age=2592000; SameSite=Lax`;
+          document.cookie = `customerToken=${actualToken}; path=/; max-age=2592000; SameSite=Lax`;
       } else {
           console.warn("No token received from the backend API!");
       }
