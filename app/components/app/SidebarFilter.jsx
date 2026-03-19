@@ -62,17 +62,17 @@ export const SidebarFilters = ({
   };
 
   const FilterSection = ({ title, id, children }) => (
-    <div className="py-4">
+    <div className="py-5">
       <button
-        className="flex w-full items-center justify-between text-sm font-semibold text-gray-900 hover:text-[#2D3247]"
+        className="flex w-full items-center justify-between text-base font-semibold text-gray-900 hover:text-[#2D3247] transition-colors"
         onClick={() => toggleSection(id)}
       >
         <span>{title}</span>
-        {expanded[id] ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+        {expanded[id] ? <ChevronUp size={18} className="text-gray-500" /> : <ChevronDown size={18} className="text-gray-500" />}
       </button>
 
       {expanded[id] && (
-        <div className="mt-4 animate-in fade-in slide-in-from-top-2 duration-200">
+        <div className="mt-5 animate-in fade-in slide-in-from-top-1 duration-200">
           {children}
         </div>
       )}
@@ -80,34 +80,35 @@ export const SidebarFilters = ({
   );
 
   const body = (
-    <div className="space-y-1" dir={isArabic ? "rtl" : "ltr"}>
+    <div className="flex flex-col h-full" dir={isArabic ? "rtl" : "ltr"}>
+      
       {/* MOBILE HEADER */}
-      <div className="flex items-center justify-between pb-4 lg:hidden">
-        <span className="font-bold text-lg">{content?.title}</span>
-        <Button variant="ghost" size="icon" onClick={closeMobile}>
-          <X size={20} />
+      <div className="flex items-center justify-between pb-4 pt-2 lg:hidden">
+        <span className="font-bold text-xl text-gray-900">{content?.title || (isArabic ? "التصنيفات" : "Filters")}</span>
+        <Button variant="ghost" size="icon" onClick={closeMobile} className="-me-2 text-gray-500 hover:text-gray-900 hover:bg-gray-100">
+          <X size={24} />
         </Button>
       </div>
 
       {/* CATEGORY */}
-      <FilterSection title={content?.categories} id="category">
-        <div className="space-y-2">
+      <FilterSection title={content?.categories || (isArabic ? "الفئة" : "Category")} id="category">
+        <div className="flex flex-col gap-3.5">
           {CATEGORIES.map((cat) => {
             const isSelected = filters.category.includes(cat);
             return (
               <label
                 key={cat}
-                className="flex items-center space-x-2 cursor-pointer group"
+                className="flex items-center gap-3 cursor-pointer group"
               >
                 <div
                   className={cn(
-                    "h-4 w-4 rounded border flex items-center justify-center transition-colors",
+                    "h-5 w-5 rounded border flex items-center justify-center transition-colors shadow-sm",
                     isSelected
                       ? "bg-[#2D3247] border-[#2D3247]"
                       : "border-gray-300 bg-white group-hover:border-gray-400"
                   )}
                 >
-                  {isSelected && <Check size={10} className="text-white" />}
+                  {isSelected && <Check size={14} className="text-white" />}
                 </div>
 
                 <input
@@ -118,8 +119,8 @@ export const SidebarFilters = ({
 
                 <span
                   className={cn(
-                    "text-sm",
-                    isSelected ? "font-medium" : "text-gray-600"
+                    "text-sm transition-colors",
+                    isSelected ? "font-medium text-gray-900" : "text-gray-600 group-hover:text-gray-900"
                   )}
                 >
                   {cat}
@@ -133,10 +134,10 @@ export const SidebarFilters = ({
       <Separator />
 
       {/* PRICE RANGE */}
-      <FilterSection title={content?.priceRange} id="price">
-        <div className="flex items-center gap-2">
-          <div className="grid gap-1.5">
-            <span className="text-xs text-gray-500">
+      <FilterSection title={content?.priceRange || (isArabic ? "نطاق السعر" : "Price Range")} id="price">
+        <div className="flex items-end gap-3">
+          <div className="flex-1 grid gap-1.5">
+            <span className="text-xs font-medium text-gray-500">
               {content?.min || (isArabic ? "الحد الأدنى" : "Min")}
             </span>
             <Input
@@ -148,14 +149,15 @@ export const SidebarFilters = ({
                   minPrice: Number(e.target.value),
                 }))
               }
-              className="h-8 w-20"
+              className="h-10 text-center shadow-sm"
             />
           </div>
 
-          <div className="h-[1px] w-4 bg-gray-300 mt-5"></div>
+          {/* Centered Dash */}
+          <div className="mb-5 h-[2px] w-4 shrink-0 bg-gray-300 rounded-full"></div>
 
-          <div className="grid gap-1.5">
-            <span className="text-xs text-gray-500">
+          <div className="flex-1 grid gap-1.5">
+            <span className="text-xs font-medium text-gray-500">
               {content?.max || (isArabic ? "الحد الأعلى" : "Max")}
             </span>
             <Input
@@ -167,7 +169,7 @@ export const SidebarFilters = ({
                   maxPrice: Number(e.target.value),
                 }))
               }
-              className="h-8 w-20"
+              className="h-10 text-center shadow-sm"
             />
           </div>
         </div>
@@ -176,24 +178,24 @@ export const SidebarFilters = ({
       <Separator />
 
       {/* MATERIAL */}
-      <FilterSection title={content?.material} id="material">
-        <div className="space-y-2">
+      <FilterSection title={content?.material || (isArabic ? "المواد" : "Material")} id="material">
+        <div className="flex flex-col gap-3.5">
           {MATERIALS.map((mat) => {
             const isSelected = filters.material.includes(mat);
             return (
               <label
                 key={mat}
-                className="flex items-center space-x-2 cursor-pointer group"
+                className="flex items-center gap-3 cursor-pointer group"
               >
                 <div
                   className={cn(
-                    "h-4 w-4 rounded border flex items-center justify-center transition-colors",
+                    "h-5 w-5 rounded border flex items-center justify-center transition-colors shadow-sm",
                     isSelected
                       ? "bg-[#2D3247] border-[#2D3247]"
                       : "border-gray-300 bg-white group-hover:border-gray-400"
                   )}
                 >
-                  {isSelected && <Check size={10} className="text-white" />}
+                  {isSelected && <Check size={14} className="text-white" />}
                 </div>
 
                 <input
@@ -204,8 +206,8 @@ export const SidebarFilters = ({
 
                 <span
                   className={cn(
-                    "text-sm",
-                    isSelected ? "font-medium" : "text-gray-600"
+                    "text-sm transition-colors",
+                    isSelected ? "font-medium text-gray-900" : "text-gray-600 group-hover:text-gray-900"
                   )}
                 >
                   {mat}
@@ -219,8 +221,8 @@ export const SidebarFilters = ({
       <Separator />
 
       {/* COLORS */}
-      <FilterSection title={content?.color} id="color">
-        <div className="flex flex-wrap gap-2">
+      <FilterSection title={content?.color || (isArabic ? "اللون" : "Color")} id="color">
+        <div className="flex flex-wrap gap-3">
           {COLORS.map((color, idx) => {
             const isSelected = filters.color.includes(color);
             const isWhite = EN_COLORS[idx].toLowerCase() === "white";
@@ -230,7 +232,7 @@ export const SidebarFilters = ({
                 key={color}
                 onClick={() => handleArrayToggle("color", color)}
                 className={cn(
-                  "h-8 w-8 rounded-full border border-gray-200 flex items-center justify-center shadow-sm transition-all hover:scale-105",
+                  "h-8 w-8 rounded-full border border-gray-200 flex items-center justify-center shadow-sm transition-all hover:scale-110",
                   isSelected && "ring-2 ring-offset-2 ring-[#2D3247]"
                 )}
                 style={{ backgroundColor: EN_COLORS[idx].toLowerCase() }}
@@ -238,7 +240,7 @@ export const SidebarFilters = ({
               >
                 {isSelected && (
                   <Check
-                    size={12}
+                    size={14}
                     className={isWhite ? "text-black" : "text-white"}
                   />
                 )}
@@ -248,12 +250,12 @@ export const SidebarFilters = ({
         </div>
       </FilterSection>
 
-      <Separator className="my-4" />
+      <Separator className="my-5" />
 
-      {/* INSTOCK */}
-      <div className="flex items-center justify-between py-2">
-        <span className="text-sm font-medium text-gray-900">
-          {content?.inStock}
+      {/* IN STOCK (Updated for RTL support) */}
+      <div className="flex items-center justify-between pb-8">
+        <span className="text-sm font-semibold text-gray-900">
+          {content?.inStock || (isArabic ? "متوفر في المخزون فقط" : "In Stock Only")}
         </span>
 
         <button
@@ -261,14 +263,14 @@ export const SidebarFilters = ({
             setFilters((prev) => ({ ...prev, inStock: !prev.inStock }))
           }
           className={cn(
-            "w-9 h-5 rounded-full relative transition-colors",
+            "w-11 h-6 rounded-full relative transition-colors focus:outline-none shadow-inner",
             filters.inStock ? "bg-[#2D3247]" : "bg-gray-200"
           )}
         >
           <span
             className={cn(
-              "absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform",
-              filters.inStock ? "translate-x-4" : "translate-x-0"
+              "absolute top-1 start-1 w-4 h-4 rounded-full bg-white shadow-sm transition-transform",
+              filters.inStock ? "translate-x-5 rtl:-translate-x-5" : "translate-x-0"
             )}
           />
         </button>
@@ -279,11 +281,11 @@ export const SidebarFilters = ({
   return (
     <>
       {/* Desktop */}
-      <div className="hidden lg:block w-64 flex-shrink-0 pr-8">{body}</div>
+      <div className="hidden lg:block w-64 flex-shrink-0 pe-8">{body}</div>
 
-      {/* Mobile */}
+      {/* Mobile (shadcn Sheet automatically gives a nice overlay and slide-in) */}
       <Sheet open={isMobileOpen} onOpenChange={closeMobile}>
-        <SheetContent side="left" className="w-80 overflow-y-auto">
+        <SheetContent side={isArabic ? "right" : "left"} className="w-[85vw] sm:w-[350px] overflow-y-auto p-6">
           {body}
         </SheetContent>
       </Sheet>
