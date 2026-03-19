@@ -1,7 +1,6 @@
 "use client";
 import React, { useState } from "react";
-import { ChevronDown, ChevronUp, Check, X } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { ChevronDown, ChevronUp, Check } from "lucide-react"; // Removed 'X' import as it's no longer needed
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
@@ -82,12 +81,11 @@ export const SidebarFilters = ({
   const body = (
     <div className="flex flex-col h-full" dir={isArabic ? "rtl" : "ltr"}>
       
-      {/* MOBILE HEADER */}
-      <div className="flex items-center justify-between pb-4 pt-2 lg:hidden">
-        <span className="font-bold text-xl text-gray-900">{content?.title || (isArabic ? "التصنيفات" : "Filters")}</span>
-        <Button variant="ghost" size="icon" onClick={closeMobile} className="-me-2 text-gray-500 hover:text-gray-900 hover:bg-gray-100">
-          <X size={24} />
-        </Button>
+      {/* MOBILE HEADER - Duplicate X button removed! */}
+      <div className="pb-4 pt-2 lg:hidden">
+        <span className="font-bold text-xl text-gray-900">
+          {content?.title || (isArabic ? "التصنيفات" : "Filters")}
+        </span>
       </div>
 
       {/* CATEGORY */}
@@ -252,7 +250,7 @@ export const SidebarFilters = ({
 
       <Separator className="my-5" />
 
-      {/* IN STOCK (Updated for RTL support) */}
+      {/* IN STOCK */}
       <div className="flex items-center justify-between pb-8">
         <span className="text-sm font-semibold text-gray-900">
           {content?.inStock || (isArabic ? "متوفر في المخزون فقط" : "In Stock Only")}
@@ -283,7 +281,7 @@ export const SidebarFilters = ({
       {/* Desktop */}
       <div className="hidden lg:block w-64 flex-shrink-0 pe-8">{body}</div>
 
-      {/* Mobile (shadcn Sheet automatically gives a nice overlay and slide-in) */}
+      {/* Mobile */}
       <Sheet open={isMobileOpen} onOpenChange={closeMobile}>
         <SheetContent side={isArabic ? "right" : "left"} className="w-[85vw] sm:w-[350px] overflow-y-auto p-6">
           {body}
