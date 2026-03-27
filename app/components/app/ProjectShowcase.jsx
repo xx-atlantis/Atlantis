@@ -71,7 +71,7 @@ export default function ProjectsShowcase() {
       className="py-10 md:py-24 bg-white text-center relative"
     >
       {/* ===== Titles ===== */}
-      <p className="text-sm text-[#5E7E7D] font-semibold uppercase mb-2">
+      <p className="text-sm text-[#4A6E6D] font-semibold uppercase mb-2">
         {projectsData?.smallTitle || ""}
       </p>
 
@@ -90,8 +90,8 @@ export default function ProjectsShowcase() {
             onClick={() => setActiveTab(idx)}
             className={`px-4 sm:px-5 py-2 rounded-full border text-sm sm:text-base transition ${
               idx === activeTab
-                ? "bg-[#5E7E7D] text-white border-[#5E7E7D]"
-                : "border-gray-300 text-gray-700 hover:border-[#5E7E7D]"
+                ? "bg-[#2D3247] text-white border-[#2D3247]"
+                : "border-gray-300 text-gray-700 hover:border-[#2D3247]"
             }`}
           >
             {p.title}
@@ -157,9 +157,9 @@ export default function ProjectsShowcase() {
               )}
 
               <div>
-                <h4 className="font-semibold text-gray-900 text-sm sm:text-base">
+                <p className="font-semibold text-gray-900 text-sm sm:text-base">
                   {activeProject.review.name}
-                </h4>
+                </p>
                 <p className="text-gray-500 text-xs sm:text-sm">
                   {activeProject.review.location}
                 </p>
@@ -179,17 +179,20 @@ export default function ProjectsShowcase() {
       </div>
 
       {/* ===== Pagination Dots ===== */}
-      <div className="flex justify-center gap-2 mt-6 sm:mt-8">
-        {projects.map((_, idx) => (
+      <div className="flex justify-center gap-1 mt-6 sm:mt-8">
+        {projects.map((project, idx) => (
           <button
             key={idx}
             onClick={() => setActiveTab(idx)}
-            className={`w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full transition ${
+            aria-label={`Show project: ${project.title}`}
+            className="p-2 flex items-center justify-center"
+          >
+            <span className={`block w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full transition ${
               idx === activeTab
                 ? "bg-[#5E7E7D] scale-110"
                 : "bg-gray-300 hover:bg-gray-400"
-            }`}
-          />
+            }`} />
+          </button>
         ))}
       </div>
     </section>

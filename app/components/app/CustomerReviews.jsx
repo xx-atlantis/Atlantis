@@ -73,7 +73,7 @@ export default function CustomerReviews() {
     >
       <div className="max-w-4xl mx-auto px-6 text-center">
         {/* Section Header */}
-        <h2 className="text-sm font-bold text-[#5E7E7D] uppercase tracking-wider mb-2">
+        <h2 className="text-sm font-bold text-[#4A6E6D] uppercase tracking-wider mb-2">
           {isRTL ? "آراء العملاء" : "Testimonials"}
         </h2>
         <h3 className="text-3xl md:text-4xl font-bold text-[#2D3247] mb-12">
@@ -148,18 +148,20 @@ export default function CustomerReviews() {
         </div>
 
         {/* Dots Indicators */}
-        <div className="flex justify-center gap-2 mt-8">
+        <div className="flex justify-center gap-1 mt-8">
           {reviewsData.map((_, idx) => (
             <button
               key={idx}
               onClick={() => setCurrentIndex(idx)}
-              className={`h-2.5 rounded-full transition-all duration-300 ${
-                idx === currentIndex 
-                  ? "w-8 bg-[#2D3247]" 
-                  : "w-2.5 bg-gray-300 hover:bg-gray-400"
-              }`}
               aria-label={`Go to review ${idx + 1}`}
-            />
+              className="p-2 rounded-full flex items-center justify-center"
+            >
+              <span className={`block h-2.5 rounded-full transition-all duration-300 ${
+                idx === currentIndex
+                  ? "w-8 bg-[#2D3247]"
+                  : "w-2.5 bg-gray-300 hover:bg-gray-400"
+              }`} />
+            </button>
           ))}
         </div>
       </div>

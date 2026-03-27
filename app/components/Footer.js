@@ -115,7 +115,7 @@ export default function Footer() {
               placeholder={footer?.subscribe?.placeholder}
               className="px-4 py-2 rounded-lg border border-gray-300 text-sm focus:outline-none focus:border-[#5E7E7D] w-full"
             />
-            <button className="bg-[#5E7E7D] text-white px-4 py-2 rounded-lg text-sm hover:bg-[#2D3247] transition w-full">
+            <button className="bg-[#4A6E6D] text-white px-4 py-2 rounded-lg text-sm hover:bg-[#2D3247] transition w-full">
               {footer?.subscribe?.button}
             </button>
           </form>

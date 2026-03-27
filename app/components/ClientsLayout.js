@@ -44,8 +44,8 @@ export default function ClientLayout({ children }) {
   return (
     <PageContentProvider page={page} locale={locale}>
       {!hideLayout && <Header />}
-      
-      {children}
+
+      <main>{children}</main>
       
       {/* WhatsApp Icon logic: Hidden on restricted routes, same as Header/Footer */}
       {!hideLayout && (

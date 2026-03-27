@@ -27,7 +27,7 @@ export default function OurStyles() {
       <div className="container mx-auto px-6">
         {/* ===== Heading ===== */}
         <div className="text-center mb-12 md:mb-16">
-          <p className="text-[10px] tracking-[0.4em] text-[#5E7E7D] font-black uppercase mb-3">
+          <p className="text-[10px] tracking-[0.4em] text-[#4A6E6D] font-black uppercase mb-3">
             {stylesData?.smallTitle || ""}
           </p>
           <h2 className="text-3xl md:text-5xl font-bold text-gray-900 tracking-tight leading-tight">

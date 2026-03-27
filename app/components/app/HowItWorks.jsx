@@ -25,7 +25,7 @@ export default function HowItWorks() {
     >
       {/* ===== Section Title ===== */}
       <div className="text-center mb-12 sm:mb-16">
-        <p className="text-xs sm:text-sm text-[#5E7E7D] font-semibold tracking-wide uppercase mb-2">
+        <p className="text-xs sm:text-sm text-[#4A6E6D] font-semibold tracking-wide uppercase mb-2">
           {how.smallTitle || ""}
         </p>
         <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 leading-snug">

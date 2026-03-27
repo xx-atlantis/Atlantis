@@ -77,7 +77,7 @@ export default function PricingPlans({ ctaText, ctaLink }) {
         
         {/* ===== Header ===== */}
         <div className="text-center max-w-3xl mx-auto mb-12">
-          <p className="text-sm font-bold text-[#5E7E7D] uppercase tracking-wider mb-3">
+          <p className="text-sm font-bold text-[#4A6E6D] uppercase tracking-wider mb-3">
             {plansData?.smallTitle || ""}
           </p>
           <h2 className="text-3xl md:text-5xl font-bold text-gray-900 leading-tight">
@@ -122,12 +122,12 @@ export default function PricingPlans({ ctaText, ctaLink }) {
                       {plan.price} <SaudiRiyalIcon className="inline-block" />
                     </span>
                     {/* DYNAMIC UNIT LABEL HERE */}
-                    <span className={`text-sm font-medium opacity-80 ${isMiddle ? "text-gray-300" : "text-gray-500"}`}>
+                    <span className={`text-sm font-medium ${isMiddle ? "text-gray-300" : "text-gray-600"}`}>
                       {getUnitLabel(plan.title)}
                     </span>
                   </div>
                   {plan.oldPrice && (
-                    <span className={`text-sm line-through ${isMiddle ? "text-gray-500" : "text-gray-300"}`}>
+                    <span className={`text-sm line-through ${isMiddle ? "text-gray-300" : "text-gray-500"}`}>
                       {plan.oldPrice}
                     </span>
                   )}
@@ -147,7 +147,7 @@ export default function PricingPlans({ ctaText, ctaLink }) {
                   <ArrowRight size={16} />
                 </button>
 
-                <p className={`text-[10px] mt-3 font-medium ${isMiddle ? "text-gray-400" : "text-emerald-600"}`}>
+                <p className={`text-[10px] mt-3 font-medium ${isMiddle ? "text-gray-300" : "text-emerald-700"}`}>
                   {plan.tax}
                 </p>
               </div>
