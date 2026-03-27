@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import {
-  Search, Trash2, Eye, Filter, ArrowUpDown, ArrowUp, ArrowDown,
-  ChevronLeft, ChevronRight, UserCheck, UserX, Mail, Phone, ShoppingCart, TrendingUp
+  Search, Trash2, ArrowUpDown, ArrowUp, ArrowDown,
+  ChevronLeft, ChevronRight, UserCheck, UserX, Mail, Phone, ShoppingCart,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,24 +14,23 @@ import { Badge } from "@/components/ui/badge";
 
 export default function CustomersAdmin() {
   const [data, setData] = useState([]);
-  const [meta, setMeta] = useState({ page: 1, totalPages: 1, total: 0 });
+  const [meta, setMeta] = useState({ page: 1, totalPages: 1, total: 0, verified: 0, withOrders: 0 });
   const [loading, setLoading] = useState(true);
 
-  // States for API triggers
   const [search, setSearch] = useState("");
   const [verifiedFilter, setVerifiedFilter] = useState("all");
   const [orderSort, setOrderSort] = useState(""); // 'asc', 'desc', or ''
   const [page, setPage] = useState(1);
 
-  /* ================= FETCH ALL CUSTOMERS (API 1) ================= */
+  /* ================= FETCH ALL CUSTOMERS ================= */
   const fetchCustomers = useCallback(async () => {
     setLoading(true);
     try {
-      let url = `/api/admin/customers?page=${page}&limit=10&search=${search}`;
-      if (verifiedFilter !== "all") url += `&verified=${verifiedFilter}`;
-      if (orderSort) url += `&orderSort=${orderSort}`;
+      const params = new URLSearchParams({ page, limit: 10, search });
+      if (verifiedFilter !== "all") params.set("verified", verifiedFilter);
+      if (orderSort) params.set("orderSort", orderSort);
 
-      const res = await fetch(url);
+      const res = await fetch(`/api/admin/customers?${params}`);
       const json = await res.json();
       setData(json.customers);
       setMeta(json.pagination);
@@ -43,41 +42,40 @@ export default function CustomersAdmin() {
   }, [page, search, verifiedFilter, orderSort]);
 
   useEffect(() => {
-    const timer = setTimeout(() => fetchCustomers(), 400); // Debounce search
+    const timer = setTimeout(fetchCustomers, 400);
     return () => clearTimeout(timer);
   }, [fetchCustomers]);
 
-  /* ================= DELETE CUSTOMER (API 2) ================= */
-  const handleDelete = async (id) => {
+  /* ================= DELETE CUSTOMER ================= */
+  const handleDelete = useCallback(async (id) => {
     if (!confirm("Are you sure? This will not delete their order history but will unlink them.")) return;
-
     try {
       const res = await fetch(`/api/admin/customers/${id}`, { method: "DELETE" });
       if (res.ok) fetchCustomers();
-    } catch (err) {
+    } catch {
       alert("Delete failed");
     }
-  };
+  }, [fetchCustomers]);
 
   /* ================= TOGGLE ORDER SORT ================= */
-  const toggleOrderSort = () => {
-    if (orderSort === "") setOrderSort("desc");
-    else if (orderSort === "desc") setOrderSort("asc");
-    else setOrderSort("");
-  };
+  const toggleOrderSort = useCallback(() => {
+    setOrderSort(prev => prev === "" ? "desc" : prev === "desc" ? "asc" : "");
+  }, []);
 
   /* ================= STATS CARDS ================= */
-  const stats = {
+  // Note: verified/withOrders come from API-level aggregates (meta), not paginated data.
+  // If your API doesn't return these, remove them — filtering `data` here only counts the current page.
+  const stats = useMemo(() => ({
     total: meta.total,
-    verified: data.filter(c => c.verified).length,
-    withOrders: data.filter(c => c._count.orders > 0).length,
-  };
+    verified: meta.verified ?? data.filter(c => c.verified).length,
+    withOrders: meta.withOrders ?? data.filter(c => c._count.orders > 0).length,
+  }), [meta, data]);
 
   /* ================= RENDER ================= */
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/20 p-4 sm:p-6 lg:p-8">
       <div className="max-w-7xl mx-auto space-y-6">
-        
+
         {/* Header */}
         <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
@@ -85,51 +83,17 @@ export default function CustomersAdmin() {
               <h1 className="text-3xl font-bold text-gray-900 mb-1">Customer Management</h1>
               <p className="text-gray-600">Manage users, track orders, and monitor verification status</p>
             </div>
-            <div className="flex items-center gap-3 text-sm text-gray-500">
-              <div className="px-4 py-2 bg-blue-50 rounded-lg">
-                <span className="font-bold text-blue-600">{meta.total}</span> Total
-              </div>
+            <div className="px-4 py-2 bg-blue-50 rounded-lg text-sm text-gray-500">
+              <span className="font-bold text-blue-600">{meta.total}</span> Total
             </div>
           </div>
         </div>
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <div className="bg-white rounded-xl p-5 border border-gray-100 shadow-sm">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600 mb-1">Total Customers</p>
-                <p className="text-2xl font-bold text-gray-900">{stats.total}</p>
-              </div>
-              <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                <UserCheck className="text-blue-600" size={24} />
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-xl p-5 border border-gray-100 shadow-sm">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600 mb-1">Verified Users</p>
-                <p className="text-2xl font-bold text-green-600">{stats.verified}</p>
-              </div>
-              <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                <UserCheck className="text-green-600" size={24} />
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-xl p-5 border border-gray-100 shadow-sm">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600 mb-1">Active Shoppers</p>
-                <p className="text-2xl font-bold text-purple-600">{stats.withOrders}</p>
-              </div>
-              <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-                <ShoppingCart className="text-purple-600" size={24} />
-              </div>
-            </div>
-          </div>
+          <StatCard label="Total Customers" value={stats.total} color="blue" icon={<UserCheck size={24} />} />
+          <StatCard label="Verified Users" value={stats.verified} color="green" icon={<UserCheck size={24} />} />
+          <StatCard label="Active Shoppers" value={stats.withOrders} color="purple" icon={<ShoppingCart size={24} />} />
         </div>
 
         {/* Filters Bar */}
@@ -155,21 +119,21 @@ export default function CustomersAdmin() {
               <option value="false">⊘ Unverified</option>
             </select>
 
-            <Button
-              variant="outline"
-              className="h-11 gap-2 border-gray-200"
-              onClick={toggleOrderSort}
-            >
+            <Button variant="outline" className="h-11 gap-2 border-gray-200" onClick={toggleOrderSort}>
               {orderSort === "" && <ArrowUpDown size={16} />}
               {orderSort === "desc" && <ArrowDown size={16} className="text-blue-600" />}
               {orderSort === "asc" && <ArrowUp size={16} className="text-blue-600" />}
               Sort by Orders
-              {orderSort && <Badge variant="secondary" className="ml-1 bg-blue-100 text-blue-700">{orderSort === "desc" ? "High→Low" : "Low→High"}</Badge>}
+              {orderSort && (
+                <Badge variant="secondary" className="ml-1 bg-blue-100 text-blue-700">
+                  {orderSort === "desc" ? "High→Low" : "Low→High"}
+                </Badge>
+              )}
             </Button>
           </div>
         </div>
 
-        {/* Table Data */}
+        {/* Table */}
         <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
           <Table>
             <TableHeader>
@@ -187,7 +151,7 @@ export default function CustomersAdmin() {
                 <TableRow>
                   <TableCell colSpan={6} className="text-center py-16">
                     <div className="flex flex-col items-center gap-3">
-                      <div className="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+                      <div className="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin" />
                       <p className="text-gray-500">Loading customers...</p>
                     </div>
                   </TableCell>
@@ -203,117 +167,24 @@ export default function CustomersAdmin() {
                   </TableCell>
                 </TableRow>
               ) : data.map((customer) => (
-                <TableRow key={customer.id} className="hover:bg-blue-50/50 transition-colors">
-                  <TableCell>
-                    <div className="flex items-center gap-3">
-                      <div className="w-11 h-11 rounded-full bg-gradient-to-br from-[#2D3247] to-[#495170] text-white flex items-center justify-center font-bold text-lg shadow-md">
-                        {customer.name?.charAt(0).toUpperCase() || "U"}
-                      </div>
-                      <div>
-                        <p className="font-semibold text-gray-900">{customer.name || "Unnamed User"}</p>
-                        <p className="text-xs text-gray-400">ID: {customer.id.slice(0, 8)}...</p>
-                      </div>
-                    </div>
-                  </TableCell>
-                  
-                  <TableCell>
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-2 text-sm text-gray-700">
-                        <Mail size={13} className="text-gray-400" />
-                        {customer.email}
-                      </div>
-                      {customer.phone && (
-                        <div className="flex items-center gap-2 text-sm text-gray-600">
-                          <Phone size={13} className="text-gray-400" />
-                          {customer.phone}
-                        </div>
-                      )}
-                    </div>
-                  </TableCell>
-
-                  <TableCell>
-                    {customer.verified ? (
-                      <Badge className="bg-green-100 text-green-700 hover:bg-green-100 border-none">
-                        <UserCheck size={12} className="mr-1" /> Verified
-                      </Badge>
-                    ) : (
-                      <Badge variant="secondary" className="bg-amber-100 text-amber-700 hover:bg-amber-100 border-none">
-                        <UserX size={12} className="mr-1" /> Pending
-                      </Badge>
-                    )}
-                  </TableCell>
-
-                  <TableCell>
-                    <div className="flex items-center gap-2">
-                      <div className="w-10 h-10 rounded-lg bg-purple-100 text-purple-700 flex items-center justify-center font-bold">
-                        {customer._count.orders}
-                      </div>
-                      <div className="text-xs text-gray-500">
-                        {customer._count.orders === 1 ? "order" : "orders"}
-                      </div>
-                    </div>
-                  </TableCell>
-
-                  <TableCell>
-                    {customer.orders[0] ? (
-                      <div className="space-y-1">
-                        <p className="text-sm text-gray-700 font-medium">
-                          {new Date(customer.orders[0].createdAt).toLocaleDateString('en-US', {
-                            month: 'short',
-                            day: 'numeric',
-                            year: 'numeric'
-                          })}
-                        </p>
-                        <p className="text-xs font-semibold text-blue-600">
-                          SAR {customer.orders[0].total.toFixed(2)}
-                        </p>
-                      </div>
-                    ) : (
-                      <span className="text-sm text-gray-400">No orders yet</span>
-                    )}
-                  </TableCell>
-
-                  <TableCell className="text-right">
-                    <div className="flex justify-end gap-2">
-                      <Button 
-                        variant="ghost" 
-                        size="sm" 
-                        className="text-red-500 hover:text-red-700 hover:bg-red-50" 
-                        onClick={() => handleDelete(customer.id)}
-                      >
-                        <Trash2 size={14} />
-                      </Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
+                <CustomerRow key={customer.id} customer={customer} onDelete={handleDelete} />
               ))}
             </TableBody>
           </Table>
         </div>
 
-        {/* Pagination Controls */}
+        {/* Pagination */}
         <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100 flex items-center justify-between">
           <p className="text-sm text-gray-600">
-            Showing page <span className="font-semibold text-gray-900">{meta.page}</span> of <span className="font-semibold text-gray-900">{meta.totalPages}</span>
+            Page <span className="font-semibold text-gray-900">{meta.page}</span> of{" "}
+            <span className="font-semibold text-gray-900">{meta.totalPages}</span>
             <span className="ml-2 text-gray-400">({meta.total} total)</span>
           </p>
           <div className="flex gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              disabled={page === 1}
-              onClick={() => setPage(p => p - 1)}
-              className="gap-1"
-            >
+            <Button variant="outline" size="sm" disabled={page === 1} onClick={() => setPage(p => p - 1)} className="gap-1">
               <ChevronLeft size={16} /> Previous
             </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              disabled={page === meta.totalPages}
-              onClick={() => setPage(p => p + 1)}
-              className="gap-1"
-            >
+            <Button variant="outline" size="sm" disabled={page === meta.totalPages} onClick={() => setPage(p => p + 1)} className="gap-1">
               Next <ChevronRight size={16} />
             </Button>
           </div>
@@ -323,3 +194,108 @@ export default function CustomersAdmin() {
     </div>
   );
 }
+
+/* ================= SUB-COMPONENTS ================= */
+
+const colorMap = {
+  blue: { bg: "bg-blue-100", text: "text-blue-600" },
+  green: { bg: "bg-green-100", text: "text-green-600" },
+  purple: { bg: "bg-purple-100", text: "text-purple-600" },
+};
+
+function StatCard({ label, value, color, icon }) {
+  const { bg, text } = colorMap[color];
+  return (
+    <div className="bg-white rounded-xl p-5 border border-gray-100 shadow-sm">
+      <div className="flex items-center justify-between">
+        <div>
+          <p className="text-sm text-gray-600 mb-1">{label}</p>
+          <p className={`text-2xl font-bold ${text}`}>{value}</p>
+        </div>
+        <div className={`w-12 h-12 ${bg} rounded-lg flex items-center justify-center ${text}`}>
+          {icon}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+const DATE_FORMAT = { month: "short", day: "numeric", year: "numeric" };
+
+const CustomerRow = ({ customer, onDelete }) => (
+  <TableRow className="hover:bg-blue-50/50 transition-colors">
+    <TableCell>
+      <div className="flex items-center gap-3">
+        <div className="w-11 h-11 rounded-full bg-gradient-to-br from-[#2D3247] to-[#495170] text-white flex items-center justify-center font-bold text-lg shadow-md shrink-0">
+          {customer.name?.charAt(0).toUpperCase() ?? "U"}
+        </div>
+        <div>
+          <p className="font-semibold text-gray-900">{customer.name || "Unnamed User"}</p>
+          <p className="text-xs text-gray-400">ID: {customer.id.slice(0, 8)}...</p>
+        </div>
+      </div>
+    </TableCell>
+
+    <TableCell>
+      <div className="space-y-1">
+        <div className="flex items-center gap-2 text-sm text-gray-700">
+          <Mail size={13} className="text-gray-400 shrink-0" />
+          {customer.email}
+        </div>
+        {customer.phone && (
+          <div className="flex items-center gap-2 text-sm text-gray-600">
+            <Phone size={13} className="text-gray-400 shrink-0" />
+            {customer.phone}
+          </div>
+        )}
+      </div>
+    </TableCell>
+
+    <TableCell>
+      {customer.verified ? (
+        <Badge className="bg-green-100 text-green-700 hover:bg-green-100 border-none">
+          <UserCheck size={12} className="mr-1" /> Verified
+        </Badge>
+      ) : (
+        <Badge variant="secondary" className="bg-amber-100 text-amber-700 hover:bg-amber-100 border-none">
+          <UserX size={12} className="mr-1" /> Pending
+        </Badge>
+      )}
+    </TableCell>
+
+    <TableCell>
+      <div className="flex items-center gap-2">
+        <div className="w-10 h-10 rounded-lg bg-purple-100 text-purple-700 flex items-center justify-center font-bold">
+          {customer._count.orders}
+        </div>
+        <span className="text-xs text-gray-500">{customer._count.orders === 1 ? "order" : "orders"}</span>
+      </div>
+    </TableCell>
+
+    <TableCell>
+      {customer.orders[0] ? (
+        <div className="space-y-1">
+          <p className="text-sm text-gray-700 font-medium">
+            {new Date(customer.orders[0].createdAt).toLocaleDateString("en-US", DATE_FORMAT)}
+          </p>
+          <p className="text-xs font-semibold text-blue-600">
+            SAR {customer.orders[0].total.toFixed(2)}
+          </p>
+        </div>
+      ) : (
+        <span className="text-sm text-gray-400">No orders yet</span>
+      )}
+    </TableCell>
+
+    <TableCell className="text-right">
+      <Button
+        variant="ghost"
+        size="sm"
+        className="text-red-500 hover:text-red-700 hover:bg-red-50"
+        onClick={() => onDelete(customer.id)}
+      >
+        <Trash2 size={14} />
+      </Button>
+    </TableCell>
+  </TableRow>
+);
