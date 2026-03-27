@@ -14,7 +14,7 @@ export async function POST(request) {
       cart_description: "Order #" + orderId,
       cart_currency: "SAR",
       cart_amount: amount,
-      callback: `${process.env.NEXT_PUBLIC_BASE_URL}/api/payment/callback`,
+      callback: `${process.env.NEXT_PUBLIC_BASE_URL}/api/paytabs/callback`,
       return: `${process.env.NEXT_PUBLIC_BASE_URL}/payment/success`, // Page to show after success
       "customer_details": {
         "name": userName,
@@ -28,7 +28,7 @@ export async function POST(request) {
     };
 
     // 2. Send request to PayTabs KSA Endpoint
-    const response = await fetch('https://secure.paytabs.sa/payment/request', {
+    const response = await fetch(`${process.env.PAYTABS_ENDPOINT}/payment/request`, {
       method: 'POST',
       headers: {
         'authorization': process.env.PAYTABS_SERVER_KEY,

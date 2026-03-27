@@ -46,8 +46,8 @@ export const ProductDetails = ({ product, onBack, loading }) => {
             installmentsCount: 4,
             lang: locale === "ar" ? "ar" : "en",
             source: 'product', // Let Tabby know this is on the product page
-            publicKey: 'YOUR_TABBY_PUBLIC_KEY', // <-- IMPORTANT: Replace with your actual Public Key
-            merchantCode: 'ACI'
+            publicKey: process.env.NEXT_PUBLIC_TABBY_PUBLIC_KEY,
+            merchantCode: process.env.NEXT_PUBLIC_TABBY_MERCHANT_CODE || 'ACI'
           });
         } catch (err) {
           console.error("Tabby Promo Error (Product):", err);

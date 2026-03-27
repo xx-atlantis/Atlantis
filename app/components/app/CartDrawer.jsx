@@ -106,8 +106,8 @@ export const CartDrawer = () => {
             installmentsCount: 4,
             lang: locale === "ar" ? "ar" : "en",
             source: 'cart', 
-            publicKey: 'pk_test_d155d668-4c1c-4fc3-8f32-ddd6e7d5485b', // <-- IMPORTANT: Replace with your actual Public Key
-            merchantCode: 'atlantis' // Matches your merchant configuration
+            publicKey: process.env.NEXT_PUBLIC_TABBY_PUBLIC_KEY,
+            merchantCode: process.env.NEXT_PUBLIC_TABBY_MERCHANT_CODE || 'ACI'
           });
         }, 300);
         return () => clearTimeout(timer);
