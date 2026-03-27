@@ -1,6 +1,7 @@
 "use client";
 
 import { createContext, useContext, useEffect, useState } from "react";
+import LoadingScreen from "../components/Loading";
 
 const PageContentContext = createContext(null);
 
@@ -26,9 +27,15 @@ export function PageContentProvider({ page, locale, children }) {
     load();
   }, [page, locale]);
 
-  // Always render children immediately — never block with a full-page loader.
-  // The hero is server-rendered and must be visible on first paint.
-  // Consumers use `loading` / optional-chaining to handle their own empty states.
+  if (loading) return <LoadingScreen />;
+
+  if (error)
+    return (
+      <div className="text-center text-red-600 py-20 font-semibold">
+        {error}
+      </div>
+    );
+
   return (
     <PageContentContext.Provider value={{ data, loading, error }}>
       {children}
