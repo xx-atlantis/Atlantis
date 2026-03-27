@@ -34,27 +34,30 @@ export default function ProjectsShowcase() {
   const beforeLabel = isRTL ? "قبل" : "Before";
   const afterLabel = isRTL ? "بعد" : "After";
 
-  // Keep slider & review same height on desktop
+  // Keep slider & review same height on desktop.
+  // Uses ResizeObserver to avoid forced reflow (reading offsetHeight after style changes).
   useEffect(() => {
-    const resizeHandler = () => {
-      if (window.innerWidth < 768) {
-        setCardHeight("auto");
-        return;
-      }
+    if (window.innerWidth < 768) {
+      setCardHeight("auto");
+      return;
+    }
 
-      if (sliderRef.current && reviewRef.current) {
-        setCardHeight(
-          `${Math.max(
-            sliderRef.current.offsetHeight,
-            reviewRef.current.offsetHeight
-          )}px`
-        );
-      }
-    };
+    let sliderH = 0;
+    let reviewH = 0;
 
-    resizeHandler();
-    window.addEventListener("resize", resizeHandler);
-    return () => window.removeEventListener("resize", resizeHandler);
+    const observer = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        const h = entry.contentRect.height;
+        if (entry.target === sliderRef.current) sliderH = h;
+        if (entry.target === reviewRef.current) reviewH = h;
+      }
+      setCardHeight(`${Math.max(sliderH, reviewH)}px`);
+    });
+
+    if (sliderRef.current) observer.observe(sliderRef.current);
+    if (reviewRef.current) observer.observe(reviewRef.current);
+
+    return () => observer.disconnect();
   }, [activeTab]);
 
   if (!activeProject) return null;
@@ -120,6 +123,7 @@ export default function ProjectsShowcase() {
                 alt={beforeLabel}
                 width={728}
                 height={546}
+                sizes="(max-width: 768px) 100vw, 48vw"
                 className="w-full h-full object-cover"
               />
             }
@@ -129,6 +133,7 @@ export default function ProjectsShowcase() {
                 alt={afterLabel}
                 width={728}
                 height={546}
+                sizes="(max-width: 768px) 100vw, 48vw"
                 className="w-full h-full object-cover"
               />
             }

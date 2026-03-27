@@ -1,7 +1,6 @@
 "use client";
 
 import { createContext, useContext, useEffect, useState } from "react";
-import LoadingScreen from "../components/Loading";
 
 const PageContentContext = createContext(null);
 
@@ -15,35 +14,23 @@ export function PageContentProvider({ page, locale, children }) {
       try {
         setLoading(true);
         setError(null);
-
         const res = await fetch(`/api/content?page=${page}&locale=${locale}`);
         if (!res.ok) throw new Error("Failed to fetch page content");
-
-        const result = await res.json();
-        setData(result);
+        setData(await res.json());
       } catch (err) {
         setError(err.message);
       } finally {
         setLoading(false);
       }
     }
-
     load();
   }, [page, locale]);
 
-  // 🔥 GLOBAL LOADER HANDLING
-  if (loading) return <LoadingScreen />;
-
-  // 🔥 GLOBAL ERROR HANDLING
-  if (error)
-    return (
-      <div className="text-center text-red-600 py-20 font-semibold">
-        {error}
-      </div>
-    );
-
+  // Always render children immediately — never block with a full-page loader.
+  // The hero is server-rendered and must be visible on first paint.
+  // Consumers use `loading` / optional-chaining to handle their own empty states.
   return (
-    <PageContentContext.Provider value={{ data }}>
+    <PageContentContext.Provider value={{ data, loading, error }}>
       {children}
     </PageContentContext.Provider>
   );

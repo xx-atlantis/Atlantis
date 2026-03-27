@@ -2,7 +2,7 @@ import { Tajawal } from 'next/font/google';
 import { Toaster } from "react-hot-toast";
 import "./globals.css";
 import { AdminAuthProvider } from "./context/AdminAuthContext";
-import { GoogleAnalytics } from '@next/third-parties/google';
+import Script from 'next/script';
 
 // 1. Import our new telemetry script
 import { sendServerTelemetry } from '@/lib/telemetry'; // Adjust the path if you put it elsewhere!
@@ -38,7 +38,6 @@ export default function RootLayout({ children }) {
     return (
         <html lang="en">
             <head>
-                <link rel="preconnect" href="https://res.cloudinary.com" />
                 <link rel="dns-prefetch" href="https://res.cloudinary.com" />
             </head>
             <body className={tajawal.className}>
@@ -47,7 +46,18 @@ export default function RootLayout({ children }) {
                 </AdminAuthProvider>
                 
                 <Toaster position="bottom-right" reverseOrder={false} />
-                <GoogleAnalytics gaId="G-BX1G329QJ0" />
+
+                {/* Load GA only after the page is fully idle — avoids blocking main thread */}
+                <Script
+                  src="https://www.googletagmanager.com/gtag/js?id=G-BX1G329QJ0"
+                  strategy="lazyOnload"
+                />
+                <Script id="ga-init" strategy="lazyOnload">{`
+                  window.dataLayer = window.dataLayer || [];
+                  function gtag(){dataLayer.push(arguments);}
+                  gtag('js', new Date());
+                  gtag('config', 'G-BX1G329QJ0');
+                `}</Script>
             </body>
         </html>
     );
