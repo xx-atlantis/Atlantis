@@ -1,34 +1,16 @@
 "use client";
 
-import Image from "next/image";
 import { useLocale } from "@/app/components/LocaleProvider";
-import { usePageContent } from "@/app/context/PageContentProvider";
-import { useRouter } from "next/navigation";
 import { PlayCircle } from "lucide-react";
 import { useRef, useState } from "react";
 
 export default function HowToGetStarted() {
   const { locale } = useLocale();
-  const { data } = usePageContent();
-  const router = useRouter();
-  
-  // 1. Setup Ref and State
   const videoRef = useRef(null);
   const [isPlaying, setIsPlaying] = useState(false);
 
   const isRTL = locale === "ar";
-
-  // 2. Define video source based on language
-  // Note: Files in the "public" folder are accessed from the root "/"
   const videoSrc = isRTL ? "/final-arabic.mp4" : "/final-english-ver.mp4";
-
-  const stylesData = data?.styles || {};
-  const styles = stylesData?.list || [];
-  const mainTitle = stylesData?.mainTitle || {};
-
-  const handleCta = () => {
-    router.push(`/${locale}/portfolio`);
-  };
 
   const handlePlayClick = () => {
     if (videoRef.current) {
@@ -56,8 +38,8 @@ export default function HowToGetStarted() {
             id="homeVideo"
             src={videoSrc}
             controls
+            preload="none"
             className="w-full h-[80vh] object-cover bg-black"
-            // Ensure state stays synced if user uses native browser controls
             onPlay={() => setIsPlaying(true)}
             onPause={() => setIsPlaying(false)}
           />

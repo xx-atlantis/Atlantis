@@ -1,8 +1,5 @@
 import { NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
-
-const prisma = new PrismaClient();
-
+import { prisma } from "@/lib/prisma";
 /* ============================================================
    GET — Fetch one page (all translations: en + ar)
    Example: /api/admin/content?page=home

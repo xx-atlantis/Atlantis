@@ -14,7 +14,6 @@ export function AdminAuthProvider({ children }) {
 	const [loading, setLoading] = useState(true);
 
 	function setAdminSession(adminData) {
-		console.log("✅ Admin session restored:", adminData);
 		setAdmin(adminData);
 		setRoles(adminData.roles || []);
 		setPermissions(adminData.permissions || []);

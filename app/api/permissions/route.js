@@ -1,9 +1,8 @@
 import { NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "@/lib/prisma";
 import { authenticateAdmin } from "@/lib/adminAuth";
 import { hasPermission } from "@/lib/permissions";
 
-const prisma = new PrismaClient();
 
 /**
 	* GET /api/permissions
