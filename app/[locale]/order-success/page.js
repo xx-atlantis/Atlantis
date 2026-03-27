@@ -14,9 +14,17 @@ function OrderSuccessContent() {
   const method = searchParams.get("method"); // Used if Bank Transfer
   const isRTL = locale === "ar";
 
-  // Clear cart on success
+  // Clear cart and verify Tabby payment if payment_id is present
   useEffect(() => {
     localStorage.removeItem("cart");
+
+    if (paymentId && orderId) {
+      fetch("/api/tabby/verify-payment", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ paymentId, orderId }),
+      }).catch(() => {}); // Fire and forget — webhook is the fallback
+    }
   }, []);
 
   return (

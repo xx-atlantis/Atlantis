@@ -54,6 +54,7 @@ export default function OrderView() {
   const canDelete = permissions.includes("order.delete");
 
   const [editing, setEditing] = useState(false);
+  const [saving, setSaving] = useState(false);
   const [data, setData] = useState(null); // UI state
   const [rawOrder, setRawOrder] = useState(null); // original API order
   const [loading, setLoading] = useState(true);
@@ -116,34 +117,21 @@ export default function OrderView() {
     };
   };
 
-  // Fetch order from API
+  // Fetch single order from API
   useEffect(() => {
     const fetchOrder = async () => {
       try {
         setLoading(true);
-
-        const res = await fetch("/api/order", {
-          method: "GET",
-        });
+        const res = await fetch(`/api/order/${id}`);
         const json = await res.json();
-        console.log("Order API response:", json);
 
-        const ordersArray = Array.isArray(json)
-          ? json
-          : Array.isArray(json.orders)
-          ? json.orders
-          : [];
-
-        const found = ordersArray.find((o) => o.id === id);
-
-        if (!found) {
-          console.warn("Order not found for id:", id);
+        if (!json.success || !json.order) {
           setNotFound(true);
           return;
         }
 
-        setRawOrder(found);
-        setData(mapApiOrderToUi(found));
+        setRawOrder(json.order);
+        setData(mapApiOrderToUi(json.order));
       } catch (err) {
         console.error("Error fetching order:", err);
         setNotFound(true);
@@ -284,13 +272,34 @@ export default function OrderView() {
               </Button>
             ) : (
               <Button
-                onClick={() => {
-                  // TODO: call update API here later if needed
-                  setEditing(false);
-                  console.log("Updated order data (local only):", data);
+                disabled={saving}
+                onClick={async () => {
+                  setSaving(true);
+                  try {
+                    const res = await fetch(`/api/order/${id}`, {
+                      method: "PATCH",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({
+                        orderStatus: data.orderStatus.toUpperCase(),
+                        paymentStatus: data.paymentStatus.toUpperCase(),
+                        paymentMethod: data.paymentMethod !== "-" ? data.paymentMethod : undefined,
+                        address: data.billing.address,
+                      }),
+                    });
+                    const json = await res.json();
+                    if (json.success) {
+                      setRawOrder(json.order);
+                      setData(mapApiOrderToUi(json.order));
+                      setEditing(false);
+                    }
+                  } catch (err) {
+                    console.error("Save failed:", err);
+                  } finally {
+                    setSaving(false);
+                  }
                 }}
               >
-                <Save className="w-4 h-4 mr-2" /> Save
+                <Save className="w-4 h-4 mr-2" /> {saving ? "Saving…" : "Save"}
               </Button>
             )}
           </div>
