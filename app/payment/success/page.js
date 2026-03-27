@@ -8,11 +8,11 @@ export default async function PaymentSuccessPage({ searchParams }) {
   
   // 1. DETECT PROVIDER & IDS
   // Tabby sends: payment_id
-  // PayTabs sends: tranRef
-  // Tamara sends: orderId and paymentStatus
-  const paymentId = params.payment_id || params.tranRef || params.orderId;
-  const dbOrderId = params.orderId; // We appended this in our return URLs (?orderId=...)
-  
+  // PayTabs sends: tranRef + respStatus
+  // Tamara sends: paymentStatus (we pass our orderId as ?ref=)
+  const paymentId = params.payment_id || params.tranRef;
+  const dbOrderId = params.ref || params.orderId; // ref = Tamara, orderId = PayTabs/Tabby
+
   let isSuccess = false;
   let message = "Verifying payment...";
   let provider = "UNKNOWN";
@@ -20,9 +20,9 @@ export default async function PaymentSuccessPage({ searchParams }) {
   // Identify Provider
   if (params.payment_id) provider = "TABBY";
   else if (params.tranRef) provider = "PAYTABS";
-  else if (params.paymentStatus) provider = "TAMARA";
+  else if (params.ref || params.paymentStatus) provider = "TAMARA";
 
-  if (!paymentId || !dbOrderId) {
+  if (!dbOrderId) {
     return <ErrorState message="Missing payment information." />;
   }
 
@@ -52,8 +52,21 @@ export default async function PaymentSuccessPage({ searchParams }) {
       
     } else if (provider === "TAMARA") {
       // --- TAMARA VERIFICATION ---
-      // Tamara redirects with paymentStatus=approved
-      if (params.paymentStatus === "approved") {
+      // Tamara's orderId (their ID) comes from the redirect params
+      const tamaraOrderId = params.orderId;
+      if (tamaraOrderId && process.env.TAMARA_API_TOKEN) {
+        const verifyRes = await fetch(`${process.env.TAMARA_API_URL}/orders/${tamaraOrderId}`, {
+          headers: {
+            "Authorization": `Bearer ${process.env.TAMARA_API_TOKEN}`,
+            "Content-Type": "application/json",
+          },
+        });
+        const tamaraData = await verifyRes.json();
+        if (["approved", "authorised", "fully_captured"].includes(tamaraData.status)) {
+          verified = true;
+        }
+      } else if (params.paymentStatus === "approved") {
+        // Fallback: trust redirect param if API token not configured
         verified = true;
       }
     }
@@ -70,7 +83,7 @@ export default async function PaymentSuccessPage({ searchParams }) {
           data: {
             paymentStatus: "PAID",
             paymentMethod: provider,
-            paymentId: paymentId, 
+            paymentId: paymentId || params.orderId || null,
             orderStatus: "PROCESSING"
           }
         });

@@ -25,9 +25,9 @@ export async function POST(request) {
       country_code: "SA",
       description: `Order ${orderId}`,
       merchant_url: {
-        success: `${process.env.NEXT_PUBLIC_BASE_URL}/payment/success`,
-        failure: `${process.env.NEXT_PUBLIC_BASE_URL}/payment/failure`,
-        cancel: `${process.env.NEXT_PUBLIC_BASE_URL}/payment/cancel`,
+        success: `${process.env.NEXT_PUBLIC_BASE_URL}/payment/success?ref=${orderId}`,
+        failure: `${process.env.NEXT_PUBLIC_BASE_URL}/payment/failure?ref=${orderId}`,
+        cancel: `${process.env.NEXT_PUBLIC_BASE_URL}/payment/cancel?ref=${orderId}`,
         notification: `${process.env.NEXT_PUBLIC_BASE_URL}/api/tamara/webhook`
       },
       items: items.map(item => ({
