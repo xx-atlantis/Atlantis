@@ -38,10 +38,11 @@ export async function POST(req) {
         // 1. Update Database
         const updatedOrder = await prisma.order.update({
           where: { id: orderId },
-          data: { 
-            paymentStatus: "PAID", 
+          data: {
+            paymentStatus: "PAID",
             paymentMethod: "TAMARA",
-            paymentId: tamaraOrderId // Store Tamara's transaction ID
+            paymentId: tamaraOrderId,
+            orderStatus: "PROCESSING",
           }
         });
 

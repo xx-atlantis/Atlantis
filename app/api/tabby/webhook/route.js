@@ -36,16 +36,17 @@ export async function POST(req) {
          });
 
          if (captureRes.ok) {
-            // 3. Update DB to 'paid' only after successful capture
-            // We capture the returned order to use in our email variables
+            // 3. Update DB to 'PAID' only after successful capture
             const updatedOrder = await prisma.order.update({
                where: { id: orderId },
-               data: { paymentStatus: 'paid', tabbyPaymentId: paymentId }
+               data: {
+                 paymentStatus: 'PAID',
+                 paymentMethod: 'TABBY',
+                 paymentId: paymentId,
+                 orderStatus: 'PROCESSING',
+               }
             });
 
-            // ==========================================
-            // 🔥 4. TRIGGER EMAIL NOTIFICATIONS HERE 🔥
-            // ==========================================
             const emailVariables = {
               customerName: updatedOrder.customerName || 'Valued Customer',
               customerEmail: updatedOrder.customerEmail || 'Not Provided',
@@ -59,18 +60,17 @@ export async function POST(req) {
               totalAmount: parseFloat(updatedOrder.total || 0).toFixed(2),
             };
 
-            // Notify Customer
             if (updatedOrder.customerEmail) {
               await triggerEmailNotification('NEW_ORDER_CUSTOMER', updatedOrder.customerEmail, emailVariables);
             }
-
-            // Notify Admin
             await triggerEmailNotification('NEW_ORDER_ADMIN', 'admin@atlantis.sa', emailVariables);
 
             return NextResponse.json({ success: true, message: "Captured and Emails Sent" });
+         } else {
+            console.error(`Tabby capture failed for order ${orderId}`);
          }
       }
-    } 
+    }
 
     return NextResponse.json({ success: true });
 

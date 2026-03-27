@@ -47,7 +47,7 @@ export async function POST(req) {
     };
 
     // 4. Send to PayTabs (Saudi Endpoint)
-    const response = await fetch("https://secure.paytabs.sa/payment/request", {
+    const response = await fetch(`${process.env.PAYTABS_ENDPOINT}/payment/request`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
