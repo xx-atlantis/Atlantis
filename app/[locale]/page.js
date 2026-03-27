@@ -1,7 +1,6 @@
-"use client";
-
+// Server Component — no "use client"
+import { getPageContent } from "@/lib/getPageContent";
 import { PageContentProvider } from "@/app/context/PageContentProvider";
-import { useParams } from "next/navigation";
 
 import HeroSection from "../components/app/Hero";
 import HowItWorks from "../components/app/HowItWorks";
@@ -12,19 +11,34 @@ import WhyBestChoice from "../components/app/WhyBestChoice";
 import HowToGetStarted from "../components/app/HowToGetStarted";
 import CustomerReviews from "../components/app/CustomerReviews";
 
-export default function LandingPage() {
-  const { locale } = useParams(); // get dynamic locale
+export default async function LandingPage({ params }) {
+  const { locale } = await params;
+
+  // Fetch hero data directly from DB on the server.
+  // The image URL is embedded in the initial HTML — no client-side waterfall.
+  let heroData = null;
+  try {
+    const content = await getPageContent("home", locale);
+    heroData = content?.hero ?? null;
+  } catch {
+    // Hero falls back to client-side data if DB query fails
+  }
 
   return (
-    <PageContentProvider page="home" locale={locale}>
-      <HeroSection />
-      <HowItWorks />  
-      <HowToGetStarted/>
-      <WhyBestChoice />
-      <ProjectsShowcase />
-      <PricingPlans />
-      <CustomerReviews />
-      <OurStyles />
-    </PageContentProvider>
+    <>
+      {/* Hero renders immediately — image URL is already known from server */}
+      <HeroSection heroData={heroData} />
+
+      {/* Remaining below-fold sections load via client-side provider */}
+      <PageContentProvider page="home" locale={locale}>
+        <HowItWorks />
+        <HowToGetStarted />
+        <WhyBestChoice />
+        <ProjectsShowcase />
+        <PricingPlans />
+        <CustomerReviews />
+        <OurStyles />
+      </PageContentProvider>
+    </>
   );
 }

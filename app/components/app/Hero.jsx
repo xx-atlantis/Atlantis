@@ -3,14 +3,14 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useLocale } from "@/app/components/LocaleProvider";
-import { usePageContent } from "@/app/context/PageContentProvider";
 
-export default function HeroSection() {
+// heroData is passed from the Server Component parent.
+// It's available on first render — no API wait, no loading screen.
+export default function HeroSection({ heroData }) {
   const { locale } = useLocale();
-  const { data } = usePageContent();
 
   const isRTL = locale === "ar";
-  const hero = data?.hero || {};
+  const hero = heroData || {};
 
   return (
     <section

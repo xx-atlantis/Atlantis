@@ -31,8 +31,6 @@ export function PageContentProvider({ page, locale, children }) {
     load();
   }, [page, locale]);
 
-  console.log("PageContentProvider Data:", data);
-
   // 🔥 GLOBAL LOADER HANDLING
   if (loading) return <LoadingScreen />;
 
