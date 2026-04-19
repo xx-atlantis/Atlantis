@@ -16,7 +16,7 @@ export default function AdminStartProjectPage() {
 
   useEffect(() => {
     if (step1Data?.startproject?.en?.kinds?.length > 0 && !activeKind) {
-      setActiveKind(step1Data.startproject.en.kinds[0].name); 
+      setActiveKind(step1Data.startproject.en.kinds[0].name.toLowerCase());
     }
   }, [step1Data, activeKind]);
 
@@ -82,9 +82,9 @@ export default function AdminStartProjectPage() {
           {step1Data?.startproject?.en?.kinds?.map((kind) => (
             <button
               key={kind.name}
-              onClick={() => setActiveKind(kind.name)}
+              onClick={() => setActiveKind(kind.name.toLowerCase())}
               className={`px-5 py-2 rounded-xl text-xs font-black transition-all ${
-                activeKind === kind.name
+                activeKind === kind.name.toLowerCase()
                   ? "bg-black text-white"
                   : "text-gray-400 hover:text-gray-600 hover:bg-gray-50"
               }`}

@@ -15,9 +15,9 @@ export default function ClientLayout({ children }) {
   // Determine page slug
   let page;
   if (parts[2] === "start-a-project") {
-    page = parts[3] || "start-a-project";
+    page = (parts[3] || "start-a-project").toLowerCase();
   } else {
-    page = parts[2] || "home";
+    page = (parts[2] || "home").toLowerCase();
   }
 
   const cleanPath = "/" + (parts[2] || "");
