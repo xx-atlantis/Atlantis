@@ -82,6 +82,13 @@ export async function PATCH(req) {
       );
     }
 
+    if (content == null) {
+      return NextResponse.json(
+        { success: false, error: "Content cannot be null — save aborted to protect existing data" },
+        { status: 400 }
+      );
+    }
+
     // Find the correct section
     const found = await prisma.pageSection.findFirst({
       where: {

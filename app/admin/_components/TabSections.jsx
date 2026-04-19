@@ -94,9 +94,11 @@ export default function TabSections({
                {tab === "en" ? "English" : "العربية"}
             </span>
           </div>
-          <Button 
+          <Button
             onClick={handleSave}
-            className="bg-black text-white hover:bg-gray-800 px-8 py-5 rounded-lg flex gap-2"
+            disabled={localData?.[tab] == null}
+            title={localData?.[tab] == null ? "No content to save for this locale" : undefined}
+            className="bg-black text-white hover:bg-gray-800 px-8 py-5 rounded-lg flex gap-2 disabled:opacity-40 disabled:cursor-not-allowed"
           >
             <Save size={18} /> Save {tab.toUpperCase()} Changes
           </Button>

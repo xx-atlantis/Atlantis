@@ -141,5 +141,10 @@ export default function DataRenderer({ value, path, onChange, canCreate, canUpda
     );
   }
 
-  return <div className="text-xs text-gray-400 italic">Unsupported data type</div>;
+  // null / undefined — explicit warning so admins don't accidentally save over it
+  return (
+    <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">
+      No content for this locale yet. Switch to English first, copy the structure, then translate here.
+    </div>
+  );
 }
