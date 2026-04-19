@@ -27,7 +27,7 @@ export default function AdminStartProjectPage() {
         try {
           const res = await fetch(`/api/admin/content?page=${activeKind}`);
           const json = await res.json();
-          if (json.success) setCurrentFlowData(json.data);
+          if (json.success) setCurrentFlowData(json.data ?? {});
         } catch (err) {
           toast.error(`Error loading ${activeKind} flow`);
         } finally {

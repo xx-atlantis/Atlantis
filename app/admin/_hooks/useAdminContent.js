@@ -19,15 +19,12 @@ export default function useAdminContent(page) {
         const json = await res.json();
 
         if (!json.success) {
-          console.error("Admin CMS Error:", json.error);
-          setData(null);
+          setData({});
           setLoading(false);
           return;
         }
 
-        // API returns:
-        // { success:true, page:"home", data:{ hero:{en,ar}, ... } }
-        setData(json.data);
+        setData(json.data ?? {});
       } catch (err) {
         console.error("Admin content fetch failed:", err);
         setData(null);

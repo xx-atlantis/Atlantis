@@ -33,10 +33,7 @@ export async function GET(req) {
     });
 
     if (!page) {
-      return NextResponse.json(
-        { success: false, error: "Page not found" },
-        { status: 404 }
-      );
+      return NextResponse.json({ success: true, page: pageSlug, data: {} });
     }
 
     // -------- Format into a clean object --------

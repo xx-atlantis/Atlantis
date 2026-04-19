@@ -38,6 +38,7 @@ export function AdminAuthProvider({ children }) {
 
 				if (!res.ok) {
 					clearAdminSession();
+					window.location.href = "/auth/login";
 					return;
 				}
 
