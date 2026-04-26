@@ -38,10 +38,9 @@ export default function SignupPage() {
 
   // Ref to track Recaptcha container
   const recaptchaContainerRef = useRef(null);
+  const [firebaseIdToken, setFirebaseIdToken] = useState(null);
 
-  if (!t) return null;
-
-  // Cleanup Recaptcha on Unmount
+  // Cleanup Recaptcha on Unmount — must be before any early return
   useEffect(() => {
     return () => {
       if (window.recaptchaVerifier) {
@@ -50,6 +49,8 @@ export default function SignupPage() {
       }
     };
   }, []);
+
+  if (!t) return null;
 
   const setupRecaptcha = () => {
     if (window.recaptchaVerifier) return;
@@ -126,7 +127,9 @@ export default function SignupPage() {
 
     try {
       setOtpLoading(true);
-      await confirmationResult.confirm(otp);
+      const result = await confirmationResult.confirm(otp);
+      const idToken = await result.user.getIdToken();
+      setFirebaseIdToken(idToken);
 
       setIsPhoneVerified(true);
       setOtpSent(false);
@@ -178,6 +181,7 @@ export default function SignupPage() {
           email,
           password,
           phone: finalSavedPhone,
+          idToken: firebaseIdToken,
         }),
       });
       const json = await res.json();
@@ -365,7 +369,7 @@ export default function SignupPage() {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
                 >
                   {showPassword ? <Eye size={16} /> : <EyeOff size={16} />}
                 </button>
@@ -386,7 +390,7 @@ export default function SignupPage() {
                 <button
                   type="button"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
                 >
                   {showConfirmPassword ? <Eye size={16} /> : <EyeOff size={16} />}
                 </button>
