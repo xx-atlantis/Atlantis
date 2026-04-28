@@ -13,12 +13,6 @@ const nextConfig = {
     minimumCacheTTL: 60 * 60 * 24 * 30, // 30 days
   },
 
-  api: {
-    bodyParser: {
-      sizeLimit: "100mb", // support large videos + images
-    },
-  },
-
 experimental: {
     serverActions: {
       bodySizeLimit: "100mb", // Keeps your large file upload support

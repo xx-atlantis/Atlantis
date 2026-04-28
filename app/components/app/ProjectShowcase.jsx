@@ -8,13 +8,6 @@ import { usePageContent } from "@/app/context/PageContentProvider";
 import { ReactCompareSlider } from "react-compare-slider";
 import { Star } from "lucide-react";
 
-// Fallback map in case JSON data is missing the avatar field
-const FALLBACK_AVATARS = {
-  "Ashwaq Bander": "/avatars/ashwaq-bander.png",
-  "Nouf Al-Johaini": "/avatars/nouf-al-johaini.webp",
-  "Amal Alahmari": "/avatars/amal-alahmari.webp",
-  "Osama Bukhari": "/avatars/osama-bukhari.webp",
-};
 
 export default function ProjectsShowcase() {
   const { locale } = useLocale();
@@ -62,13 +55,8 @@ export default function ProjectsShowcase() {
 
   if (!activeProject) return null;
 
-  // Determine the avatar: try the JSON data first, then fallback by index
-  const FALLBACK_LIST = Object.values(FALLBACK_AVATARS);
-  const avatarSrc =
-    activeProject.review.avatar ||
-    FALLBACK_AVATARS[activeProject.review.name] ||
-    FALLBACK_LIST[activeTab % FALLBACK_LIST.length] ||
-    null;
+  // Only use avatar if explicitly set in CMS data; otherwise show placeholder
+  const avatarSrc = activeProject.review.avatar || null;
 
   return (
     <section
