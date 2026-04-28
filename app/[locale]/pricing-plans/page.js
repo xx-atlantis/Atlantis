@@ -7,14 +7,13 @@ import React from "react";
 const Pricing = () => {
   const { locale } = useLocale();
 
+  const isRTL = locale === "ar";
+
   return (
     <div>
-      {/* Pass the custom CTA text and the link.
-        We include ${locale} to ensure the user stays in their current language.
-      */}
-      <PricingPlans 
-        ctaText="Start Your Project" 
-        ctaLink={`/${locale}/start-a-project`} 
+      <PricingPlans
+        ctaText={isRTL ? "ابدأ مشروعك الآن" : "Start Your Project Now"}
+        ctaLink={`/${locale}/start-a-project`}
       />
     </div>
   );

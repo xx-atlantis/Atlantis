@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useLocale } from "@/app/components/LocaleProvider";
 import { ChevronLeft, ChevronRight, X, ZoomIn, Calendar, ArrowRight } from "lucide-react";
+import Breadcrumb from "@/app/components/Breadcrumb";
 
 export default function PortfolioDetails() {
   const { locale } = useLocale();
@@ -66,7 +67,17 @@ export default function PortfolioDetails() {
     <>
       <section dir={isRTL ? "rtl" : "ltr"} className="w-full min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50/30">
         <article className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-          
+          <div className="mb-6">
+            <Breadcrumb
+              isRTL={isRTL}
+              items={[
+                { label: isRTL ? "الرئيسية" : "Home", href: `/${locale}` },
+                { label: isRTL ? "أعمالنا" : "Portfolio", href: `/${locale}/our-portfolio` },
+                { label: project.title },
+              ]}
+            />
+          </div>
+
           {/* Header Section */}
           <header className="mb-12 text-center">
             <div className="inline-flex items-center gap-2 bg-blue-50 text-blue-600 px-4 py-2 rounded-full text-sm font-medium mb-6">

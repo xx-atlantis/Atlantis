@@ -215,6 +215,16 @@ model ProductTranslation {
 	@@unique([locale, productId])
 }
 
+model ProductReview {
+	id        String   @id @default(auto()) @map("_id") @db.ObjectId
+	productId String   @db.ObjectId
+	name      String
+	rating    Int      @default(5)
+	comment   String
+	approved  Boolean  @default(true)
+	createdAt DateTime @default(now())
+}
+
 model Customer {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId
   name      String?

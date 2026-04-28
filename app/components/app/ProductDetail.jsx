@@ -8,6 +8,10 @@ import {
     ShieldCheck,
     Truck,
     SaudiRiyal,
+    Star,
+    Send,
+    Loader2,
+    ChevronRight,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -17,6 +21,7 @@ import { cn } from "../../../lib/utils";
 import { ProductSkeleton } from "../ProductSkeleton";
 import { useLocale } from "@/app/components/LocaleProvider";
 import { useCart } from "@/app/context/CartContext";
+import Breadcrumb from "@/app/components/Breadcrumb";
 
 export const ProductDetails = ({ product, onBack, loading }) => {
     const { locale } = useLocale();
@@ -26,6 +31,59 @@ export const ProductDetails = ({ product, onBack, loading }) => {
 
     const [quantity, setQuantity] = useState(1);
     const [selectedImage, setSelectedImage] = useState(0);
+
+    // Reviews state
+    const [reviews, setReviews] = useState([]);
+    const [reviewsLoading, setReviewsLoading] = useState(false);
+    const [reviewName, setReviewName] = useState("");
+    const [reviewRating, setReviewRating] = useState(5);
+    const [reviewComment, setReviewComment] = useState("");
+    const [submitting, setSubmitting] = useState(false);
+    const [reviewDone, setReviewDone] = useState(false);
+
+    // Related products state
+    const [related, setRelated] = useState([]);
+
+    useEffect(() => {
+        if (!product?.id) return;
+        setReviewsLoading(true);
+        fetch(`/api/shop/product/${product.id}/reviews`)
+            .then((r) => r.json())
+            .then(({ data }) => setReviews(Array.isArray(data) ? data : []))
+            .catch(() => {})
+            .finally(() => setReviewsLoading(false));
+    }, [product?.id]);
+
+    useEffect(() => {
+        if (!product?.categoryId || !product?.id) return;
+        fetch(`/api/shop/product?locale=${locale}&categoryId=${product.categoryId}&limit=5`)
+            .then((r) => r.json())
+            .then(({ data }) => {
+                if (Array.isArray(data)) {
+                    setRelated(data.filter((p) => p.id !== product.id).slice(0, 4));
+                }
+            })
+            .catch(() => {});
+    }, [product?.categoryId, product?.id, locale]);
+
+    const submitReview = async () => {
+        if (!reviewName.trim() || !reviewComment.trim()) return;
+        setSubmitting(true);
+        try {
+            const res = await fetch(`/api/shop/product/${product.id}/reviews`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ name: reviewName, rating: reviewRating, comment: reviewComment }),
+            });
+            const json = await res.json();
+            if (json.success) {
+                setReviewDone(true);
+                setReviews((prev) => [{ name: reviewName, rating: reviewRating, comment: reviewComment, createdAt: new Date().toISOString() }, ...prev]);
+                setReviewName(""); setReviewComment(""); setReviewRating(5);
+            }
+        } catch {}
+        setSubmitting(false);
+    };
 
     // ==========================================
     // TABBY PROMO SNIPPET INITIALIZATION (Product Page)
@@ -63,24 +121,36 @@ export const ProductDetails = ({ product, onBack, loading }) => {
             ? product.variant
             : { label: "", value: "" };
 
-    const displayImages = product.images?.length > 0 ? product.images : [product.coverImage];
+    const displayImages = product.coverImage
+        ? [product.coverImage, ...(product.images || []).filter(img => img !== product.coverImage)]
+        : (product.images || []);
 
     return (
         <div
             className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8"
             dir={isRTL ? "rtl" : "ltr"}
         >
-            <Button
-                variant="ghost"
-                onClick={onBack}
-                className={cn("mb-6 hover:bg-transparent hover:text-[#2D3247]", {
-                    "pl-0": !isRTL,
-                    "pr-0": isRTL,
-                })}
-            >
-                <ArrowLeft className="h-4 w-4 mx-2" />
-                {locale === "ar" ? "رجوع" : "Back"}
-            </Button>
+            <div className="mb-6 space-y-3">
+                <Breadcrumb
+                    isRTL={isRTL}
+                    items={[
+                        { label: isRTL ? "الرئيسية" : "Home", href: `/${locale}` },
+                        { label: isRTL ? "المتجر" : "Shop", href: `/${locale}/shop` },
+                        { label: product.name },
+                    ]}
+                />
+                <Button
+                    variant="ghost"
+                    onClick={onBack}
+                    className={cn("hover:bg-transparent hover:text-[#2D3247] p-0", {
+                        "pl-0": !isRTL,
+                        "pr-0": isRTL,
+                    })}
+                >
+                    <ArrowLeft className="h-4 w-4 mx-2" />
+                    {locale === "ar" ? "رجوع" : "Back"}
+                </Button>
+            </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-16">
                 <div className="space-y-4">
@@ -242,6 +312,122 @@ export const ProductDetails = ({ product, onBack, loading }) => {
                     </div>
                 </div>
             </div>
+
+            {/* ===== Customer Reviews ===== */}
+            <div className="mb-16">
+                <h2 className="text-2xl font-bold text-gray-900 mb-6">
+                    {isRTL ? "تقييمات العملاء" : "Customer Reviews"}
+                    {reviews.length > 0 && (
+                        <span className="ml-2 text-base font-normal text-gray-500">({reviews.length})</span>
+                    )}
+                </h2>
+
+                {reviewsLoading ? (
+                    <div className="flex items-center gap-2 text-gray-400 py-4"><Loader2 size={18} className="animate-spin" />{isRTL ? "جارٍ التحميل…" : "Loading…"}</div>
+                ) : reviews.length === 0 ? (
+                    <p className="text-gray-400 py-4">{isRTL ? "لا توجد تقييمات بعد." : "No reviews yet. Be the first!"}</p>
+                ) : (
+                    <div className="space-y-4 mb-8">
+                        {reviews.map((r, i) => (
+                            <div key={i} className="bg-gray-50 rounded-xl p-4 border border-gray-100">
+                                <div className="flex items-center justify-between mb-1">
+                                    <span className="font-semibold text-gray-800">{r.name}</span>
+                                    <div className="flex text-yellow-400">
+                                        {[...Array(5)].map((_, s) => (
+                                            <Star key={s} size={14} fill={s < (r.rating || 5) ? "currentColor" : "none"} />
+                                        ))}
+                                    </div>
+                                </div>
+                                <p className="text-gray-600 text-sm">{r.comment}</p>
+                            </div>
+                        ))}
+                    </div>
+                )}
+
+                {/* Review form */}
+                <div className="bg-white border border-gray-200 rounded-2xl p-6 space-y-4">
+                    <h3 className="font-semibold text-gray-800">
+                        {isRTL ? "أضف تقييمك" : "Write a Review"}
+                    </h3>
+                    {reviewDone ? (
+                        <p className="text-emerald-600 font-medium">{isRTL ? "شكراً على تقييمك!" : "Thank you for your review!"}</p>
+                    ) : (
+                        <>
+                            <div>
+                                <label className="text-sm text-gray-500 mb-1 block">{isRTL ? "اسمك" : "Your Name"}</label>
+                                <input
+                                    value={reviewName}
+                                    onChange={(e) => setReviewName(e.target.value)}
+                                    className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[#2D3247]"
+                                    placeholder={isRTL ? "الاسم" : "Name"}
+                                    dir={isRTL ? "rtl" : "ltr"}
+                                />
+                            </div>
+                            <div>
+                                <label className="text-sm text-gray-500 mb-1 block">{isRTL ? "التقييم" : "Rating"}</label>
+                                <div className="flex gap-1">
+                                    {[1, 2, 3, 4, 5].map((s) => (
+                                        <button key={s} onClick={() => setReviewRating(s)} className="text-yellow-400">
+                                            <Star size={24} fill={s <= reviewRating ? "currentColor" : "none"} />
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                            <div>
+                                <label className="text-sm text-gray-500 mb-1 block">{isRTL ? "تعليقك" : "Your Comment"}</label>
+                                <textarea
+                                    rows={3}
+                                    value={reviewComment}
+                                    onChange={(e) => setReviewComment(e.target.value)}
+                                    className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[#2D3247] resize-none"
+                                    placeholder={isRTL ? "شاركنا تجربتك…" : "Share your experience…"}
+                                    dir={isRTL ? "rtl" : "ltr"}
+                                />
+                            </div>
+                            <button
+                                onClick={submitReview}
+                                disabled={submitting || !reviewName.trim() || !reviewComment.trim()}
+                                className="flex items-center gap-2 bg-[#2D3247] text-white px-5 py-2.5 rounded-lg text-sm font-semibold hover:bg-[#3c415a] disabled:opacity-50 transition"
+                            >
+                                {submitting ? <Loader2 size={14} className="animate-spin" /> : <Send size={14} />}
+                                {isRTL ? "إرسال" : "Submit Review"}
+                            </button>
+                        </>
+                    )}
+                </div>
+            </div>
+
+            {/* ===== Explore More Products ===== */}
+            {related.length > 0 && (
+                <div className="mb-8">
+                    <h2 className="text-2xl font-bold text-gray-900 mb-6">
+                        {isRTL ? "منتجات مشابهة" : "Explore More Products"}
+                    </h2>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        {related.map((p) => (
+                            <a
+                                key={p.id}
+                                href={`/${locale}/shop/${p.id}`}
+                                className="group bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden hover:shadow-md transition-shadow"
+                            >
+                                <div className="aspect-square overflow-hidden">
+                                    <img
+                                        src={p.coverImage}
+                                        alt={p.name}
+                                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                                    />
+                                </div>
+                                <div className="p-3">
+                                    <p className="text-sm font-medium text-gray-800 line-clamp-2">{p.name}</p>
+                                    <p className="text-sm font-bold text-[#2D3247] mt-1 flex items-center gap-0.5">
+                                        <SaudiRiyal size={14} />{p.price.toLocaleString()}
+                                    </p>
+                                </div>
+                            </a>
+                        ))}
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

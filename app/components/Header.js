@@ -221,12 +221,12 @@ export default function Header() {
                 </button>
                 <div className={`absolute ${isRTL ? "left-0" : "right-0"} mt-2 w-48 bg-white shadow-lg border border-gray-100 rounded-lg p-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50`}>
                   <div className="px-3 py-2 border-b border-gray-100 mb-1">
-                    <p className="text-xs text-gray-500">Signed in as</p>
+                    <p className="text-xs text-gray-500">{isRTL ? "مسجل الدخول كـ" : "Signed in as"}</p>
                     <p className="text-sm font-semibold truncate">{customer.name}</p>
                   </div>
-                  <Link href={`/${locale}/profile`} className="block px-3 py-2 hover:bg-gray-50 rounded text-sm text-gray-700">Profile</Link>
-                  <Link href={`/${locale}/orders`} className="block px-3 py-2 hover:bg-gray-50 rounded text-sm text-gray-700">My Orders</Link>
-                  <button onClick={handleLogout} className="w-full text-left px-3 py-2 text-red-600 hover:bg-red-50 rounded text-sm mt-1">Logout</button>
+                  <Link href={`/${locale}/profile`} className="block px-3 py-2 hover:bg-gray-50 rounded text-sm text-gray-700">{isRTL ? "الملف الشخصي" : "Profile"}</Link>
+                  <Link href={`/${locale}/orders`} className="block px-3 py-2 hover:bg-gray-50 rounded text-sm text-gray-700">{isRTL ? "طلباتي" : "My Orders"}</Link>
+                  <button onClick={handleLogout} className={`w-full ${isRTL ? "text-right" : "text-left"} px-3 py-2 text-red-600 hover:bg-red-50 rounded text-sm mt-1`}>{isRTL ? "تسجيل الخروج" : "Logout"}</button>
                 </div>
               </div>
             )}
@@ -237,7 +237,7 @@ export default function Header() {
             onClick={() => router.push(`/${locale}/start-a-project`)}
             className="hidden lg:block bg-[#2D3247] text-white px-5 py-2 rounded-lg text-sm font-medium hover:bg-[#1e2231] transition shadow-sm"
           >
-            {header.cta}
+            {header.cta || (isRTL ? "ابدأ مشروعك الآن" : "Start Your Project Now")}
           </button>
 
           {/* MOBILE MENU TOGGLE */}
@@ -314,12 +314,12 @@ export default function Header() {
                     </div>
                     <div>
                       <p className="font-bold text-gray-900">{customer.name}</p>
-                      <p className="text-xs text-gray-500">Welcome back</p>
+                      <p className="text-xs text-gray-500">{isRTL ? "مرحباً بعودتك" : "Welcome back"}</p>
                     </div>
                   </div>
-                  <Link href={`/${locale}/profile`} onClick={() => setMenuOpen(false)} className="block py-2 text-sm text-gray-600 hover:text-[#2D3247]">Profile</Link>
-                  <Link href={`/${locale}/orders`} onClick={() => setMenuOpen(false)} className="block py-2 text-sm text-gray-600 hover:text-[#2D3247]">My Orders</Link>
-                  <button onClick={() => { handleLogout(); setMenuOpen(false); }} className="block w-full text-left py-2 text-sm text-red-600 font-medium mt-1">Logout</button>
+                  <Link href={`/${locale}/profile`} onClick={() => setMenuOpen(false)} className="block py-2 text-sm text-gray-600 hover:text-[#2D3247]">{isRTL ? "الملف الشخصي" : "Profile"}</Link>
+                  <Link href={`/${locale}/orders`} onClick={() => setMenuOpen(false)} className="block py-2 text-sm text-gray-600 hover:text-[#2D3247]">{isRTL ? "طلباتي" : "My Orders"}</Link>
+                  <button onClick={() => { handleLogout(); setMenuOpen(false); }} className={`block w-full ${isRTL ? "text-right" : "text-left"} py-2 text-sm text-red-600 font-medium mt-1`}>{isRTL ? "تسجيل الخروج" : "Logout"}</button>
                 </div>
               )}
 
@@ -338,7 +338,7 @@ export default function Header() {
                 onClick={() => { setMenuOpen(false); router.push(`/${locale}/start-a-project`); }}
                 className="w-full bg-[#2D3247] text-white px-5 py-3 rounded-lg font-bold shadow-md hover:bg-[#1e2231] transition"
               >
-                {header.cta}
+                {header.cta || (isRTL ? "ابدأ مشروعك الآن" : "Start Your Project Now")}
               </button>
             </div>
           </div>

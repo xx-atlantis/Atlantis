@@ -9,6 +9,7 @@ import { usePageContent } from "@/app/context/PageContentProvider";
 import { useLocale } from "@/app/components/LocaleProvider";
 import { useRouter } from "next/navigation";
 import { useCart } from "@/app/context/CartContext";
+import Breadcrumb from "@/app/components/Breadcrumb";
 
 const Shop = () => {
   const { data } = usePageContent();
@@ -61,6 +62,17 @@ const Shop = () => {
     >
       <main className="grow">
         
+        {/* Breadcrumb */}
+        <div className="px-4 sm:px-8 md:px-16 pt-4">
+          <Breadcrumb
+            isRTL={isRTL}
+            items={[
+              { label: isRTL ? "الرئيسية" : "Home", href: `/${locale}` },
+              { label: isRTL ? "المتجر" : "Shop" },
+            ]}
+          />
+        </div>
+
         {/* ========================================= */}
         {/* START: STYLED HERO SECTION (RTL SUPPORT)  */}
         {/* ========================================= */}

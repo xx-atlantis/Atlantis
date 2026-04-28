@@ -3,8 +3,9 @@
 import { useState, useEffect, useCallback } from "react";
 import { ChevronLeft, ChevronRight, Quote, Star, MapPin } from "lucide-react";
 import { useLocale } from "@/app/components/LocaleProvider";
+import { usePageContent } from "@/app/context/PageContentProvider";
 
-const reviewsData = [
+const FALLBACK_REVIEWS = [
   {
     name: "Ashwaq Bander",
     location: "Riyadh, Saudi Arabia",
@@ -45,8 +46,13 @@ const reviewsData = [
 
 export default function CustomerReviews() {
   const { locale } = useLocale();
+  const { data } = usePageContent();
   const isRTL = locale === "ar";
   const [currentIndex, setCurrentIndex] = useState(0);
+
+  // Use CMS reviews if available, otherwise fall back to hardcoded
+  const cmsReviews = data?.reviews?.list || data?.reviews;
+  const reviewsData = Array.isArray(cmsReviews) && cmsReviews.length > 0 ? cmsReviews : FALLBACK_REVIEWS;
   const [isPaused, setIsPaused] = useState(false);
 
   // Auto-scroll logic
@@ -73,7 +79,7 @@ export default function CustomerReviews() {
     >
       <div className="max-w-4xl mx-auto px-6 text-center">
         {/* Section Header */}
-        <h2 className="text-sm font-bold text-[#4A6E6D] uppercase tracking-wider mb-2">
+        <h2 className="text-sm sm:text-base font-bold text-[#4A6E6D] uppercase tracking-wider mb-2">
           {isRTL ? "آراء العملاء" : "Testimonials"}
         </h2>
         <h3 className="text-3xl md:text-4xl font-bold text-[#2D3247] mb-12">

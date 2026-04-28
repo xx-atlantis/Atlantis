@@ -8,7 +8,6 @@ import OurStyles from "../components/app/OurStyles";
 import PricingPlans from "../components/app/PricingPlans";
 import ProjectsShowcase from "../components/app/ProjectShowcase";
 import WhyBestChoice from "../components/app/WhyBestChoice";
-import HowToGetStarted from "../components/app/HowToGetStarted";
 import CustomerReviews from "../components/app/CustomerReviews";
 
 export default async function LandingPage({ params }) {
@@ -32,9 +31,8 @@ export default async function LandingPage({ params }) {
       {/* Remaining below-fold sections load via client-side provider */}
       <PageContentProvider page="home" locale={locale}>
         <HowItWorks />
-        <HowToGetStarted />
-        <WhyBestChoice />
         <ProjectsShowcase />
+        <WhyBestChoice />
         <PricingPlans />
         <CustomerReviews />
         <OurStyles />

@@ -62,11 +62,13 @@ export default function ProjectsShowcase() {
 
   if (!activeProject) return null;
 
-  // Determine the avatar source:
-  // 1. Try the JSON data
-  // 2. If missing, try the FALLBACK_AVATARS map
+  // Determine the avatar: try the JSON data first, then fallback by index
+  const FALLBACK_LIST = Object.values(FALLBACK_AVATARS);
   const avatarSrc =
-    activeProject.review.avatar || FALLBACK_AVATARS[activeProject.review.name];
+    activeProject.review.avatar ||
+    FALLBACK_AVATARS[activeProject.review.name] ||
+    FALLBACK_LIST[activeTab % FALLBACK_LIST.length] ||
+    null;
 
   return (
     <section
@@ -74,7 +76,7 @@ export default function ProjectsShowcase() {
       className="py-10 md:py-24 bg-white text-center relative"
     >
       {/* ===== Titles ===== */}
-      <p className="text-sm text-[#4A6E6D] font-semibold uppercase mb-2">
+      <p className="text-sm sm:text-base text-[#4A6E6D] font-semibold uppercase mb-2">
         {projectsData?.smallTitle || ""}
       </p>
 
@@ -113,8 +115,8 @@ export default function ProjectsShowcase() {
         <div
           ref={sliderRef}
           className="flex-1 w-full rounded-2xl overflow-hidden shadow-lg"
+          style={{ maxHeight: "420px" }}
         >
-          {/* 3. OPTIMIZED SLIDER IMAGES */}
           <ReactCompareSlider
             position={50}
             itemOne={
@@ -122,9 +124,10 @@ export default function ProjectsShowcase() {
                 src={activeProject.before}
                 alt={beforeLabel}
                 width={728}
-                height={546}
+                height={420}
                 sizes="(max-width: 768px) 100vw, 48vw"
-                className="w-full h-full object-cover"
+                className="w-full object-cover"
+                style={{ height: "420px" }}
               />
             }
             itemTwo={
@@ -132,19 +135,20 @@ export default function ProjectsShowcase() {
                 src={activeProject.after}
                 alt={afterLabel}
                 width={728}
-                height={546}
+                height={420}
                 sizes="(max-width: 768px) 100vw, 48vw"
-                className="w-full h-full object-cover"
+                className="w-full object-cover"
+                style={{ height: "420px" }}
               />
             }
-            style={{ width: "100%", height: "100%" }}
+            style={{ width: "100%", height: "420px" }}
           />
         </div>
 
         {/* ===== Review Card ===== */}
         <div
           ref={reviewRef}
-          className="flex-1 bg-white rounded-2xl border border-gray-200 shadow-sm p-8 max-w-md text-left flex flex-col justify-between"
+          className={`flex-1 bg-white rounded-2xl border border-gray-200 shadow-sm p-8 max-w-md flex flex-col justify-between ${isRTL ? "text-right" : "text-left"}`}
         >
           <div>
             <div className="flex items-center gap-3 mb-4">

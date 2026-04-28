@@ -4,6 +4,7 @@ import { useLocale } from "@/app/components/LocaleProvider";
 import { usePageContent } from "@/app/context/PageContentProvider";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import Breadcrumb from "@/app/components/Breadcrumb";
 
 /* =====================================================
    Reusable Image Card with Hover Overlay
@@ -51,110 +52,37 @@ const PortfolioGrid = () => {
 
   const isRTL = locale === "ar";
 
-  if (loading) return <div>Loading...</div>;
-  if (error) return <div>Error loading content</div>;
+  if (loading) return <div className="min-h-[60vh] flex items-center justify-center text-gray-500">{isRTL ? "جارٍ التحميل..." : "Loading..."}</div>;
+  if (error) return <div className="min-h-[60vh] flex items-center justify-center text-red-500">{isRTL ? "حدث خطأ أثناء تحميل المحتوى" : "Error loading content"}</div>;
 
   const portfolioData = data?.ourPortfolio;
   if (!portfolioData || !portfolioData.items?.length) {
-    return <div>No portfolio data available</div>;
+    return <div className="min-h-[60vh] flex items-center justify-center text-gray-500">{isRTL ? "لا توجد مشاريع متاحة" : "No portfolio data available"}</div>;
   }
-
-  /* =====================================================
-     Utilities
-  ===================================================== */
-  const chunkItems = (items, size = 5) => {
-    const chunks = [];
-    for (let i = 0; i < items.length; i += size) {
-      chunks.push(items.slice(i, i + size));
-    }
-    return chunks;
-  };
 
   const handleClick = (item) => {
     const slugOrId = item.id || item.slug;
     router.push(`/${locale}/our-portfolio/${slugOrId}`);
   };
 
-  const sections = chunkItems(portfolioData.items);
-
   /* =====================================================
-     Row Renderer (1 → 5 images)
-  ===================================================== */
-  const renderRow = (items, reverse) => {
-    const count = items.length;
-
-    // 🔹 1 IMAGE
-    if (count === 1) {
-      return (
-        <ImageCard
-          item={items[0]}
-          height="h-[300px] md:h-[420px]" // OPTIMIZED: responsive height
-          onClick={() => handleClick(items[0])}
-        />
-      );
-    }
-
-    // 🔹 2 IMAGES
-    if (count === 2) {
-      return (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6"> {/* OPTIMIZED: responsive gap */}
-          {items.map((item) => (
-            <ImageCard
-              key={item.id}
-              item={item}
-              height="h-[250px] md:h-[320px]" // OPTIMIZED: responsive height
-              onClick={() => handleClick(item)}
-            />
-          ))}
-        </div>
-      );
-    }
-
-    // 🔹 3–5 IMAGES
-    return (
-      <div
-        className={`flex flex-col md:flex-row gap-4 md:gap-6 ${ // OPTIMIZED: responsive gap
-          reverse ? "md:flex-row-reverse" : ""
-        }`}
-      >
-        {/* Big Image */}
-        <div className="w-full md:w-1/2">
-          <ImageCard
-            item={items[0]}
-            height="h-[300px] md:h-[420px]" // OPTIMIZED: responsive height
-            onClick={() => handleClick(items[0])}
-          />
-        </div>
-
-        {/* Small Images */}
-        <div
-          className={`w-full md:w-1/2 grid gap-4 md:gap-6 ${ // OPTIMIZED: responsive gap
-            count === 3 ? "grid-cols-1" : "grid-cols-2"
-          }`}
-        >
-          {items.slice(1).map((item) => (
-            <ImageCard
-              key={item.id}
-              item={item}
-              height="h-[180px] md:h-[200px]" // OPTIMIZED: responsive height
-              onClick={() => handleClick(item)}
-            />
-          ))}
-        </div>
-      </div>
-    );
-  };
-
-  /* =====================================================
-     Render
+     Render — uniform grid, all images same height in rows
   ===================================================== */
   return (
     <section
       dir={isRTL ? "rtl" : "ltr"}
       className="px-4 md:px-16 py-10 lg:py-20"
     >
+      <div className="mb-6">
+        <Breadcrumb
+          isRTL={isRTL}
+          items={[
+            { label: isRTL ? "الرئيسية" : "Home", href: `/${locale}` },
+            { label: isRTL ? "أعمالنا" : "Portfolio" },
+          ]}
+        />
+      </div>
       <div className="container mx-auto text-center">
-        {/* OPTIMIZED: Main titles scaled down on mobile */}
         <h2 className="text-2xl md:text-4xl font-bold text-gray-900">
           {portfolioData.mainTitle}
         </h2>
@@ -163,11 +91,16 @@ const PortfolioGrid = () => {
         </p>
       </div>
 
-      {sections.map((section, index) => (
-        <div key={index} className="mt-10 md:mt-14"> {/* OPTIMIZED: responsive top margin */}
-          {renderRow(section, index % 2 === 1)}
-        </div>
-      ))}
+      <div className="mt-10 md:mt-14 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+        {portfolioData.items.map((item) => (
+          <ImageCard
+            key={item.id || item.slug}
+            item={item}
+            height="h-[220px] md:h-[280px]"
+            onClick={() => handleClick(item)}
+          />
+        ))}
+      </div>
     </section>
   );
 };

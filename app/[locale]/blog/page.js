@@ -6,6 +6,7 @@ import { useLocale } from "@/app/components/LocaleProvider";
 import { usePageContent } from "@/app/context/PageContentProvider"; // ⬅ import CMS context
 import BlogSection from "@/app/components/app/BlogSection";
 import LoadingScreen from "@/app/components/Loading";
+import Breadcrumb from "@/app/components/Breadcrumb";
 
 export default function BlogPage() {
   const { locale } = useLocale();
@@ -24,6 +25,15 @@ export default function BlogPage() {
 
   return (
     <div>
+      <div className="px-4 sm:px-8 md:px-16 pt-4">
+        <Breadcrumb
+          isRTL={isRTL}
+          items={[
+            { label: isRTL ? "الرئيسية" : "Home", href: `/${locale}` },
+            { label: isRTL ? "المدونة" : "Blog" },
+          ]}
+        />
+      </div>
       <section
         dir={isRTL ? "rtl" : "ltr"}
         className="relative min-h-[75vh] md:min-h-[90vh] overflow-hidden mx-4 sm:mx-8 md:mx-16 my-6 sm:my-10 md:my-12 rounded-lg flex items-center justify-center"

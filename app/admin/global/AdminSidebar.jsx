@@ -14,6 +14,8 @@ const PAGE_PERMISSIONS = {
     "/admin/orders": "order.read",
     "/admin/add-shop-product": "product.read",
     "/admin/customers": "customers.read",
+    "/admin/promo-banner": "content.read",
+    "/admin/shop-banner": "product.read",
     "/admin/coupon-code": "coupon.read",
     "/admin/blog": "blog.read",
     "/admin/blog-management": "blog.read",
@@ -93,6 +95,21 @@ const AdminSidebar = ({ collapsed, setCollapsed, setMenuOpen }) => {
                 languages: { en: { title: "Customers" }, ar: { title: "العملاء" } },
             },
             {
+                id: 30,
+                slug: "/admin/reviews",
+                languages: { en: { title: "Customer Reviews" }, ar: { title: "تقييمات العملاء" } },
+            },
+            {
+                id: 32,
+                slug: "/admin/promo-banner",
+                languages: { en: { title: "Promo Banner" }, ar: { title: "البانر الترويجي" } },
+            },
+            {
+                id: 31,
+                slug: "/admin/shop-banner",
+                languages: { en: { title: "Shop Banner" }, ar: { title: "بانر المتجر" } },
+            },
+            {
                 id:12,
                 slug: "/admin/coupon-code",
                 languages: { en: { title: "Coupon Code" }, ar: { title: "رمز الكوبون" } },
@@ -111,6 +128,11 @@ const AdminSidebar = ({ collapsed, setCollapsed, setMenuOpen }) => {
                 id: 13,
                 slug: "/admin/emails",
                 languages: { en: { title: "Email Notifications" }, ar: { title: "إشعارات البريد الإلكتروني" } },
+            },
+            {
+                id: 33,
+                slug: "/admin/campaign",
+                languages: { en: { title: "Email Campaign" }, ar: { title: "حملة البريد الإلكتروني" } },
             },
         ],
         []

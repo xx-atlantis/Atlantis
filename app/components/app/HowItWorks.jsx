@@ -25,7 +25,7 @@ export default function HowItWorks() {
     >
       {/* ===== Section Title ===== */}
       <div className="text-center mb-12 sm:mb-16">
-        <p className="text-xs sm:text-sm text-[#4A6E6D] font-semibold tracking-wide uppercase mb-2">
+        <p className="text-sm sm:text-base text-[#4A6E6D] font-semibold tracking-wide uppercase mb-2">
           {how.smallTitle || ""}
         </p>
         <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 leading-snug">
@@ -36,13 +36,11 @@ export default function HowItWorks() {
       {/* ===== Steps ===== */}
       <div className="relative w-full max-w-7xl mx-auto  py-6 sm:py-10">
         <div className="hidden md:flex">
-          <div className="absolute left-110 top-12">
-            <img src="/vector-1.png" alt="" />
+          <div className={isRTL ? "absolute right-110 top-12" : "absolute left-110 top-12"}>
+            <img src="/vector-1.png" alt="" style={isRTL ? { transform: "scaleX(-1)" } : {}} />
           </div>
-
-          {/* ===== Vector 2 (between step 2 & 3) ===== */}
-          <div className="absolute right-108 bottom-25">
-            <img src="/vector-2.png" alt="" />
+          <div className={isRTL ? "absolute left-108 bottom-25" : "absolute right-108 bottom-25"}>
+            <img src="/vector-2.png" alt="" style={isRTL ? { transform: "scaleX(-1)" } : {}} />
           </div>
         </div>
         <div className="flex flex-col gap-4 md:gap-0 p-4 md:p-0 items-baseline md:items-center">
@@ -87,7 +85,7 @@ export default function HowItWorks() {
                     )}
                   </h3>
 
-                  <p className="text-gray-800 text-left text-sm md:text-base leading-relaxed">
+                  <p className="text-gray-800 text-sm md:text-base leading-relaxed">
                     {step.desc}
                   </p>
                 </div>

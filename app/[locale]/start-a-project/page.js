@@ -4,6 +4,7 @@ import React, { useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { useLocale } from "@/app/components/LocaleProvider";
 import { usePageContent } from "@/app/context/PageContentProvider";
+import Breadcrumb from "@/app/components/Breadcrumb";
 
 export default function StartProjectTypePage() {
   const router = useRouter();
@@ -52,6 +53,15 @@ export default function StartProjectTypePage() {
       className="min-h-[80vh] flex flex-col justify-center px-4 py-12 sm:px-6 lg:px-8 bg-gray-50/50"
     >
       <div className="max-w-6xl mx-auto w-full">
+        <div className="mb-6">
+          <Breadcrumb
+            isRTL={isRTL}
+            items={[
+              { label: isRTL ? "الرئيسية" : "Home", href: `/${locale}` },
+              { label: isRTL ? "ابدأ مشروعك" : "Start a Project" },
+            ]}
+          />
+        </div>
         {/* HEADER SECTION */}
         <div className="text-center mb-12">
           <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4 tracking-tight">

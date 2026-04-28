@@ -5,6 +5,7 @@ import Header from "@/app/components/Header";
 import Footer from "@/app/components/Footer";
 import { PageContentProvider } from "@/app/context/PageContentProvider";
 import WhatsAppFloatingIcon from "./WhatsApp";
+import PromoBanner from "./PromoBanner";
 
 export default function ClientLayout({ children }) {
   const pathname = usePathname();
@@ -43,6 +44,7 @@ export default function ClientLayout({ children }) {
 
   return (
     <PageContentProvider page={page} locale={locale}>
+      {!hideLayout && <PromoBanner />}
       {!hideLayout && <Header />}
 
       <main>{children}</main>

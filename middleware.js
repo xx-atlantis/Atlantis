@@ -65,6 +65,20 @@ const ROUTE_PERMISSIONS = {
 export async function middleware(request) {
   const { pathname, origin } = request.nextUrl;
 
+  // =========================================================
+  // LOCALE REDIRECT — default language is Arabic
+  // =========================================================
+  const hasLocale = /^\/(en|ar)(\/|$)/.test(pathname);
+  const isAdminOrAuth = pathname.startsWith('/admin') || pathname.startsWith('/auth') || pathname.startsWith('/403') || pathname.startsWith('/maintenance') || pathname.startsWith('/payment');
+  const isStatic2 = pathname.match(/\.(png|jpg|jpeg|gif|svg|ico|css|js|woff|woff2|ttf|map)$/);
+
+  if (!hasLocale && !isAdminOrAuth && !isStatic2 && pathname !== '/') {
+    return NextResponse.redirect(new URL(`/ar${pathname}`, request.url));
+  }
+  if (pathname === '/') {
+    return NextResponse.redirect(new URL('/ar', request.url));
+  }
+
   // 🌟 FIX: We create a single MASTER response object at the very beginning.
   let response = NextResponse.next();
 
