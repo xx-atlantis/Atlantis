@@ -8,13 +8,14 @@ function makeTransporter() {
     port: process.env.SMTP_PORT,
     secure: process.env.SMTP_PORT === "465",
     auth: {
-      type: "LOGIN",
       user: process.env.SMTP_USER,
       pass: process.env.SMTP_PASS,
     },
-    tls: {
-      rejectUnauthorized: false,
-    },
+    authMethod: "PLAIN",
+    tls: { rejectUnauthorized: false },
+    connectionTimeout: 30000,
+    greetingTimeout: 30000,
+    socketTimeout: 60000,
   });
 }
 
