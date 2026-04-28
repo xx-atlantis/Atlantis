@@ -145,13 +145,11 @@ export default function ProjectsShowcase() {
         >
           <div>
             <div className="flex items-center gap-3 mb-4">
-              {/* 4. OPTIMIZED AVATAR IMAGE */}
               {avatarSrc ? (
-                <Image
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
                   src={avatarSrc}
                   alt={activeProject.review.name}
-                  width={48}
-                  height={48}
                   className="w-12 h-12 rounded-full object-cover border border-gray-100"
                 />
               ) : null}

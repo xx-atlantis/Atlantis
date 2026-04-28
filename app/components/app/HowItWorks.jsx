@@ -36,10 +36,12 @@ export default function HowItWorks() {
       {/* ===== Steps ===== */}
       <div className="relative w-full max-w-7xl mx-auto  py-6 sm:py-10">
         <div className="hidden md:flex">
-          <div className={isRTL ? "absolute right-110 top-12" : "absolute left-110 top-12"}>
+          <div className={isRTL ? "absolute right-110 top-12" : "absolute left-110 top-12"}
+               style={isRTL ? { transform: "scaleX(-1)" } : {}}>
             <img src="/vector-1.png" alt="" />
           </div>
-          <div className={isRTL ? "absolute left-108 bottom-25" : "absolute right-108 bottom-25"}>
+          <div className={isRTL ? "absolute left-108 bottom-25" : "absolute right-108 bottom-25"}
+               style={isRTL ? { transform: "scaleX(-1)" } : {}}>
             <img src="/vector-2.png" alt="" />
           </div>
         </div>
