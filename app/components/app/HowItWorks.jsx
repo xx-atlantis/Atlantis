@@ -37,10 +37,10 @@ export default function HowItWorks() {
       <div className="relative w-full max-w-7xl mx-auto  py-6 sm:py-10">
         <div className="hidden md:flex">
           <div className={isRTL ? "absolute right-110 top-12" : "absolute left-110 top-12"}>
-            <img src="/vector-1.png" alt="" style={isRTL ? { transform: "scaleX(-1)" } : {}} />
+            <img src="/vector-1.png" alt="" />
           </div>
           <div className={isRTL ? "absolute left-108 bottom-25" : "absolute right-108 bottom-25"}>
-            <img src="/vector-2.png" alt="" style={isRTL ? { transform: "scaleX(-1)" } : {}} />
+            <img src="/vector-2.png" alt="" />
           </div>
         </div>
         <div className="flex flex-col gap-4 md:gap-0 p-4 md:p-0 items-baseline md:items-center">

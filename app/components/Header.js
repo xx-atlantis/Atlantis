@@ -125,7 +125,9 @@ export default function Header() {
             height={40}
             className="object-contain shrink-0"
           />
-          <span className="hidden lg:flex font-bold text-lg text-[#2D3247]">Atlantis</span>
+          <span className="hidden lg:flex font-bold text-lg text-[#2D3247]">
+            {locale === "ar" ? "أتلانتس للتصميم والديكور" : "Atlantis"}
+          </span>
         </Link>
 
         {/* =======================

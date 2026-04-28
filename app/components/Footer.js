@@ -58,7 +58,9 @@ export default function Footer() {
               height={45} 
               className="w-[45px] h-auto object-contain" 
             />
-            <span className="font-bold text-lg tracking-tight">Atlantis</span>
+            <span className="font-bold text-lg tracking-tight">
+              {isRTL ? "أتلانتس للتصميم والديكور" : "Atlantis"}
+            </span>
           </div>
           <p className="text-sm leading-relaxed text-gray-600 mb-6 max-w-xs">{footer?.description}</p>
           <div className="flex justify-start gap-4">
@@ -144,7 +146,7 @@ export default function Footer() {
       {/* ====== Bottom Copyright & Legal ====== */}
       <div className="max-w-7xl mx-auto mt-6 pt-6 border-t border-gray-200 flex flex-col md:flex-row justify-between items-center gap-6 px-6 text-sm text-gray-500">
         <p className="text-center md:text-left">
-          © 2026 <span className="font-semibold text-[#2D3247]">Atlantis</span>. {footer?.copyright}
+          © 2026 <span className="font-semibold text-[#2D3247]">{isRTL ? "أتلانتس للتصميم والديكور" : "Atlantis"}</span>. {footer?.copyright}
         </p>
 
         <div className="flex flex-col md:flex-row items-center gap-4">

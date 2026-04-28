@@ -26,7 +26,7 @@ export default function HowToGetStarted() {
     >
       {/* ===== Heading ===== */}
       <h2 className="w-full md:w-xl text-2xl md:text-3xl text-center font-bold text-gray-900 mb-16">
-        How to Get Started With Atlantis
+        {isRTL ? "كيف تبدأ مع أتلانتس للتصميم والديكور" : "How to Get Started With Atlantis"}
       </h2>
 
       {/* ===== Styles Grid ===== */}

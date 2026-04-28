@@ -55,8 +55,13 @@ export default function ProjectsShowcase() {
 
   if (!activeProject) return null;
 
-  // Only use avatar if explicitly set in CMS data; otherwise show placeholder
-  const avatarSrc = activeProject.review.avatar || null;
+  const FALLBACK_AVATARS = [
+    "/avatars/ashwaq-bander.png",
+    "/avatars/nouf-al-johaini.webp",
+    "/avatars/amal-alahmari.webp",
+    "/avatars/osama-bukhari.webp",
+  ];
+  const avatarSrc = activeProject.review.avatar || FALLBACK_AVATARS[activeTab % FALLBACK_AVATARS.length];
 
   return (
     <section
@@ -149,11 +154,7 @@ export default function ProjectsShowcase() {
                   height={48}
                   className="w-12 h-12 rounded-full object-cover border border-gray-100"
                 />
-              ) : (
-                <div className="w-12 h-12 rounded-full bg-[#2D3247] text-white flex items-center justify-center text-lg font-bold select-none">
-                  {activeProject.review.name?.charAt(0)?.toUpperCase() || "?"}
-                </div>
-              )}
+              ) : null}
 
               <div>
                 <p className="font-semibold text-gray-900 text-sm sm:text-base">
