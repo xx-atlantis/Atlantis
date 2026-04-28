@@ -150,7 +150,9 @@ export default function ProjectsShowcase() {
                   className="w-12 h-12 rounded-full object-cover border border-gray-100"
                 />
               ) : (
-                <div className="w-12 h-12 rounded-full bg-gray-200" />
+                <div className="w-12 h-12 rounded-full bg-[#2D3247] text-white flex items-center justify-center text-lg font-bold select-none">
+                  {activeProject.review.name?.charAt(0)?.toUpperCase() || "?"}
+                </div>
               )}
 
               <div>

@@ -5,7 +5,7 @@ import { ChevronLeft, ChevronRight, Quote, Star, MapPin } from "lucide-react";
 import { useLocale } from "@/app/components/LocaleProvider";
 import { usePageContent } from "@/app/context/PageContentProvider";
 
-const FALLBACK_REVIEWS = [
+const FALLBACK_REVIEWS_EN = [
   {
     name: "Ashwaq Bander",
     location: "Riyadh, Saudi Arabia",
@@ -44,15 +44,55 @@ const FALLBACK_REVIEWS = [
   },
 ];
 
+const FALLBACK_REVIEWS_AR = [
+  {
+    name: "أشواق بندر",
+    location: "الرياض، المملكة العربية السعودية",
+    title: "أفضل تجربة تصميم في المملكة",
+    text: "أتلانتس هي أفضل شركة تصميم داخلي تعاملت معها في المملكة العربية السعودية. تصاميمهم مبتكرة وأسعارهم ممتازة وكان اختيارهم القرار الصحيح تماماً. كانت الأستاذة براء والمهندسة ريما والمهندس أحمد رائعين. أنا ممتنة جداً لهذه التجربة وأتمنى التعاون معهم مجدداً.",
+  },
+  {
+    name: "نوف الجهيني",
+    location: "جدة، المملكة العربية السعودية",
+    title: "إبداعية وسلسة وبأسعار مناسبة",
+    text: "أتلانتس فاقت توقعاتي. أفكارهم الإبداعية ونهجهم المناسب للميزانية جعل كل شيء سلساً من البداية. كانت المهندسة ريما والمهندس أحمد والمهندسة أمنية متعاونين جداً. أحببت النتيجة وأخطط بالتأكيد للعمل معهم مرة أخرى.",
+  },
+  {
+    name: "أمل الأحمري",
+    location: "الرياض، المملكة العربية السعودية",
+    title: "تجربة رائعة مع أتلانتس",
+    text: "كانت تجربتي مع أتلانتس رائعة. تصاميمهم راقية وبأسعار معقولة جداً. شكر خاص للمهندسة ريما والمهندس عبدالله والأستاذة نور على جهودهم. كان واضحاً احترافية الفريق واهتمامه بكل تفصيلة. أتطلع للعمل معهم في مشاريع مستقبلية.",
+  },
+  {
+    name: "فهد الخليفة",
+    location: "الرياض، المملكة العربية السعودية",
+    title: "تصاميم راقية تفوق التوقعات",
+    text: "من البداية إلى النهاية، كان العمل مع أتلانتس ممتازاً. تصاميمهم الداخلية أنيقة، وأسعارهم معقولة، وسار كل شيء بسلاسة. النتيجة النهائية فاقت توقعاتي.",
+  },
+  {
+    name: "خالد الأحمري",
+    location: "الرياض، المملكة العربية السعودية",
+    title: "أتلانتس – خياري الأول للتصميم",
+    text: "كانت تجربتي مع أتلانتس متميزة في كل جانب. كانوا ملتزمين بالمواعيد ومرنين مع الملاحظات وقدموا تصاميم عالية الجودة. أسعارهم من بين الأكثر تنافسية في السوق. أقدّر أيضاً نظامهم الشفاف للتسعير القائم على المتر المربع.",
+  },
+  {
+    name: "عبدالله خالد",
+    location: "جدة، المملكة العربية السعودية",
+    title: "تجربة ممتعة مع أتلانتس",
+    text: "أود أن أشكر الشركة على الخدمات المتميزة التي قدمتها. احترافيتهم والتزامهم كانا مثيرين للإعجاب. كانت تجربة رائعة وأنصح بشدة بالتعامل معهم.",
+  },
+];
+
 export default function CustomerReviews() {
   const { locale } = useLocale();
   const { data } = usePageContent();
   const isRTL = locale === "ar";
   const [currentIndex, setCurrentIndex] = useState(0);
 
-  // Use CMS reviews if available, otherwise fall back to hardcoded
-  const cmsReviews = data?.reviews?.list || data?.reviews;
-  const reviewsData = Array.isArray(cmsReviews) && cmsReviews.length > 0 ? cmsReviews : FALLBACK_REVIEWS;
+  const cmsReviews = data?.reviews?.list || (Array.isArray(data?.reviews) ? data.reviews : null);
+  const reviewsData = Array.isArray(cmsReviews) && cmsReviews.length > 0
+    ? cmsReviews
+    : (isRTL ? FALLBACK_REVIEWS_AR : FALLBACK_REVIEWS_EN);
   const [isPaused, setIsPaused] = useState(false);
 
   // Auto-scroll logic

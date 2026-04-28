@@ -17,13 +17,10 @@ export default function AdminReviewsPage() {
     const load = async () => {
       setLoading(true);
       try {
-        const [resEn, resAr] = await Promise.all([
-          fetch("/api/admin/content?page=home"),
-          fetch("/api/admin/content?page=home"),
-        ]);
-        const jsonEn = await resEn.json();
-        const rawEn = jsonEn.data?.reviews?.en;
-        const rawAr = jsonEn.data?.reviews?.ar;
+        const res = await fetch("/api/admin/reviews");
+        const json = await res.json();
+        const rawEn = json.data?.en;
+        const rawAr = json.data?.ar;
         setReviews({
           en: Array.isArray(rawEn?.list) ? rawEn.list : Array.isArray(rawEn) ? rawEn : [],
           ar: Array.isArray(rawAr?.list) ? rawAr.list : Array.isArray(rawAr) ? rawAr : [],
@@ -40,17 +37,11 @@ export default function AdminReviewsPage() {
   const save = async () => {
     setSaving(true);
     try {
-      // Save both locales
       for (const locale of ["en", "ar"]) {
-        const res = await fetch("/api/admin/content", {
+        const res = await fetch("/api/admin/reviews", {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            page: "home",
-            key: "reviews",
-            locale,
-            content: { list: reviews[locale] },
-          }),
+          body: JSON.stringify({ locale, list: reviews[locale] }),
         });
         const json = await res.json();
         if (!json.success) throw new Error(json.error || "Save failed");
