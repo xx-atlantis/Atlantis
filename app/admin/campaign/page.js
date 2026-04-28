@@ -68,10 +68,12 @@ export default function CampaignPage() {
         <button
           onClick={send}
           disabled={sending}
-          className="flex items-center gap-2 bg-[#2D3247] text-white px-6 py-2.5 rounded-xl font-semibold hover:bg-[#1e2231] disabled:opacity-60 transition"
+          className="flex items-center gap-2 bg-[#2D3247] text-white px-6 py-2.5 rounded-xl font-semibold hover:bg-[#1e2231] disabled:opacity-60 transition min-w-[160px] justify-center"
         >
-          {sending ? <Loader2 size={16} className="animate-spin" /> : <Send size={16} />}
-          {sending ? "Sending…" : "Send Campaign"}
+          {sending
+            ? <><Loader2 size={16} className="animate-spin" /><span>Sending…</span></>
+            : <><Send size={16} /><span>Send Campaign</span></>
+          }
         </button>
       </div>
 

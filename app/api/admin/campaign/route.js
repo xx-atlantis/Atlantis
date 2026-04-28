@@ -2,12 +2,17 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import nodemailer from "nodemailer";
 
-const transporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST,
-  port: Number(process.env.SMTP_PORT) || 587,
-  secure: process.env.SMTP_PORT === "465",
-  auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS },
-});
+function makeTransporter() {
+  return nodemailer.createTransport({
+    host: process.env.SMTP_HOST,
+    port: process.env.SMTP_PORT,
+    secure: process.env.SMTP_PORT === "465",
+    auth: {
+      user: process.env.SMTP_USER,
+      pass: process.env.SMTP_PASS,
+    },
+  });
+}
 
 function buildHtml({ subject, body, promoCode, ctaText, ctaUrl, primaryColor = "#2D3247" }) {
   const promoBlock = promoCode
@@ -66,20 +71,22 @@ function buildHtml({ subject, body, promoCode, ctaText, ctaUrl, primaryColor = "
 </html>`;
 }
 
-/* POST /api/admin/campaign — send a campaign */
+/* GET — return total customer count */
+export async function GET() {
+  try {
+    const count = await prisma.customer.count();
+    return NextResponse.json({ success: true, customerCount: count });
+  } catch (err) {
+    console.error("Campaign GET error:", err);
+    return NextResponse.json({ success: false, error: err.message }, { status: 500 });
+  }
+}
+
+/* POST — send campaign emails */
 export async function POST(req) {
   try {
     const body = await req.json();
-    const {
-      subject,
-      bodyText,
-      recipientMode, // "all" | "custom"
-      customEmails,  // comma-separated when mode=custom
-      promoCode,
-      ctaText,
-      ctaUrl,
-      primaryColor,
-    } = body;
+    const { subject, bodyText, recipientMode, customEmails, promoCode, ctaText, ctaUrl, primaryColor } = body;
 
     if (!subject?.trim() || !bodyText?.trim()) {
       return NextResponse.json(
@@ -91,10 +98,7 @@ export async function POST(req) {
     let emails = [];
 
     if (recipientMode === "all") {
-      const customers = await prisma.customer.findMany({
-        where: { email: { not: null } },
-        select: { email: true },
-      });
+      const customers = await prisma.customer.findMany({ select: { email: true } });
       emails = customers.map((c) => c.email).filter(Boolean);
     } else {
       emails = (customEmails || "")
@@ -111,6 +115,7 @@ export async function POST(req) {
     }
 
     const html = buildHtml({ subject, body: bodyText, promoCode, ctaText, ctaUrl, primaryColor });
+    const transporter = makeTransporter();
 
     let sent = 0;
     let failed = 0;
@@ -139,17 +144,7 @@ export async function POST(req) {
 
     return NextResponse.json({ success: true, sent, failed, total: emails.length, errors });
   } catch (err) {
-    console.error("Campaign error:", err);
-    return NextResponse.json({ success: false, error: err.message }, { status: 500 });
-  }
-}
-
-/* GET /api/admin/campaign — get customer count for recipient preview */
-export async function GET() {
-  try {
-    const count = await prisma.customer.count({ where: { email: { not: null } } });
-    return NextResponse.json({ success: true, customerCount: count });
-  } catch (err) {
+    console.error("Campaign POST error:", err);
     return NextResponse.json({ success: false, error: err.message }, { status: 500 });
   }
 }

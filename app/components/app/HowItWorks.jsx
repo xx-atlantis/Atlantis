@@ -52,7 +52,7 @@ export default function HowItWorks() {
                 : "md:mr-auto text-left";
             if (index === 1)
               alignmentClass = isRTL
-                ? "md:mr-auto text-left"
+                ? "md:mr-auto text-right"
                 : "md:ml-auto text-right";
 
             // 🔥 Custom spacing per step (OPTION 1)
