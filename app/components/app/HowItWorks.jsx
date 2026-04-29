@@ -35,16 +35,54 @@ export default function HowItWorks() {
 
       {/* ===== Steps ===== */}
       <div className="relative w-full max-w-7xl mx-auto  py-6 sm:py-10">
-        <div className="hidden md:flex">
-          <div className={isRTL ? "absolute right-110 top-12" : "absolute left-110 top-12"}
-               style={isRTL ? { transform: "scaleX(-1)" } : {}}>
-            <img src="/vector-1.png" alt="" />
-          </div>
-          <div className={isRTL ? "absolute left-108 bottom-25" : "absolute right-108 bottom-25"}
-               style={isRTL ? { transform: "scaleX(-1)" } : {}}>
-            <img src="/vector-2.png" alt="" />
-          </div>
-        </div>
+        {/* Connecting curves — SVG so they align correctly in both LTR and RTL */}
+        <svg
+          className="hidden md:block absolute inset-0 w-full h-full pointer-events-none"
+          viewBox="0 0 1280 480"
+          preserveAspectRatio="none"
+          fill="none"
+          aria-hidden="true"
+        >
+          {isRTL ? (
+            <>
+              {/* RTL: Badge 1 (far right) → Badge 2 (left) */}
+              <path
+                d="M1240,55 C980,55 420,145 180,165"
+                stroke="#D1D5DB"
+                strokeWidth="2.5"
+                strokeDasharray="12 8"
+                strokeLinecap="round"
+              />
+              {/* RTL: Badge 2 (left) → Badge 3 (center-right) */}
+              <path
+                d="M180,165 C340,185 680,340 820,370"
+                stroke="#D1D5DB"
+                strokeWidth="2.5"
+                strokeDasharray="12 8"
+                strokeLinecap="round"
+              />
+            </>
+          ) : (
+            <>
+              {/* LTR: Badge 1 (far left) → Badge 2 (right) */}
+              <path
+                d="M40,55 C300,55 860,145 1100,165"
+                stroke="#D1D5DB"
+                strokeWidth="2.5"
+                strokeDasharray="12 8"
+                strokeLinecap="round"
+              />
+              {/* LTR: Badge 2 (right) → Badge 3 (center) */}
+              <path
+                d="M1100,165 C940,185 600,340 460,370"
+                stroke="#D1D5DB"
+                strokeWidth="2.5"
+                strokeDasharray="12 8"
+                strokeLinecap="round"
+              />
+            </>
+          )}
+        </svg>
         <div className="flex flex-col gap-4 md:gap-0 p-4 md:p-0 items-baseline md:items-center">
           {steps.map((step, index) => {
             let alignmentClass = "text-center";
