@@ -108,7 +108,11 @@ export async function POST(req) {
     let failed = 0;
     const errors = [];
 
-    for (const email of emails) {
+    const BATCH_SIZE = 20;
+    const BATCH_DELAY_MS = 2000; // 2s pause between batches
+
+    for (let i = 0; i < emails.length; i++) {
+      const email = emails[i];
       try {
         await transporter.sendMail({
           from: process.env.SMTP_FROM,
@@ -126,6 +130,11 @@ export async function POST(req) {
         });
         failed++;
         errors.push(`${email}: ${err.message}`);
+      }
+
+      // Pause after every batch to avoid SMTP rate limiting
+      if ((i + 1) % BATCH_SIZE === 0 && i + 1 < emails.length) {
+        await new Promise((r) => setTimeout(r, BATCH_DELAY_MS));
       }
     }
 

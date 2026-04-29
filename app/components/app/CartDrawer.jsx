@@ -61,7 +61,7 @@ export const CartDrawer = () => {
       shipping: "الشحن",
       shippingCalc: "يُحسب عند الدفع",
       total: "الإجمالي",
-      checkout: "إتمام الشراء",
+      checkout: "الانتقال للدفع",
       variant: "الخيار",
       material: "الخامة",
       validating: "جاري التحقق من الجلسة...",

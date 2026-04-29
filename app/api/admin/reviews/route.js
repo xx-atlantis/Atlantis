@@ -14,11 +14,14 @@ async function ensureSection() {
     update: {},
   });
 
-  await prisma.pageSection.upsert({
-    where: { pageId_sectionId: { pageId: page.id, sectionId: section.id } },
-    create: { pageId: page.id, sectionId: section.id, order: 99 },
-    update: {},
+  const existingPS = await prisma.pageSection.findFirst({
+    where: { pageId: page.id, sectionId: section.id },
   });
+  if (!existingPS) {
+    await prisma.pageSection.create({
+      data: { pageId: page.id, sectionId: section.id, order: 99 },
+    });
+  }
 
   return section.id;
 }
