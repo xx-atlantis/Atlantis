@@ -796,7 +796,7 @@ export default function CheckoutPage() {
                         {locale === "ar" ? "ادفع لاحقًا عبر تابي" : "Pay later with Tabby"}
                       </span>
                     </div>
-                    <img src="/icons/tabby.webp" alt="Tabby" className="h-6 object-contain" />
+                    <img src="/tabby.png" alt="Tabby" className="h-6 object-contain" />
                   </div>
                   {selectedPayment === "tabby" && (
                     <div className="mt-4 pt-4 border-t border-[#3EEDBF]/30">
