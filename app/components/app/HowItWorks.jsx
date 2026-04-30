@@ -45,17 +45,17 @@ export default function HowItWorks() {
         >
           {isRTL ? (
             <>
-              {/* RTL: Badge 1 (far right x≈1232) → Badge 2 (x≈408, badge is right-side of left-anchored card) */}
+              {/* RTL: Badge 1 (far right) → Badge 2 (left) */}
               <path
-                d="M1232,55 C972,55 648,145 408,165"
+                d="M1240,55 C980,55 420,145 180,165"
                 stroke="#D1D5DB"
                 strokeWidth="2.5"
                 strokeDasharray="12 8"
                 strokeLinecap="round"
               />
-              {/* RTL: Badge 2 (x≈408) → Badge 3 (center x≈820) */}
+              {/* RTL: Badge 2 (left) → Badge 3 (center-right) */}
               <path
-                d="M408,165 C568,185 680,340 820,370"
+                d="M180,165 C340,185 680,340 820,370"
                 stroke="#D1D5DB"
                 strokeWidth="2.5"
                 strokeDasharray="12 8"
