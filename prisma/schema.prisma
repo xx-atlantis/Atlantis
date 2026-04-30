@@ -339,10 +339,11 @@ model EmailTemplate {
 }
 
 model EmailLog {
-  id          String   @id @default(cuid()) @map("_id")
+  id          String    @id @default(cuid()) @map("_id")
   recipient   String
-  template    String   // Which template was used
-  status      String   // e.g., "SENT", "FAILED"
+  template    String
+  status      String    // SENT | FAILED
   errorMsg    String?
-  sentAt      DateTime @default(now())
+  sentAt      DateTime  @default(now())
+  openedAt    DateTime? // set when tracking pixel is loaded
 }

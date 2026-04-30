@@ -1,8 +1,9 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { transporter } from "@/lib/mailer";
+import { randomUUID } from "crypto";
 
-function buildHtml({ subject, body, promoCode, ctaText, ctaUrl, primaryColor = "#2D3247" }) {
+function buildHtml({ subject, body, promoCode, ctaText, ctaUrl, primaryColor = "#2D3247", trackingUrl }) {
   const promoBlock = promoCode
     ? `<table width="100%" cellpadding="0" cellspacing="0" style="margin:24px 0;">
         <tr>
@@ -24,6 +25,10 @@ function buildHtml({ subject, body, promoCode, ctaText, ctaUrl, primaryColor = "
           </td>
         </tr>
       </table>`
+    : "";
+
+  const pixelTag = trackingUrl
+    ? `<img src="${trackingUrl}" width="1" height="1" style="display:none;border:0;" alt="" />`
     : "";
 
   return `<!DOCTYPE html>
@@ -49,6 +54,7 @@ function buildHtml({ subject, body, promoCode, ctaText, ctaUrl, primaryColor = "
           <tr>
             <td style="background-color:#f9fafb;padding:16px 32px;text-align:center;font-size:12px;color:#9ca3af;">
               You are receiving this email because you signed up with Atlantis.
+              ${pixelTag}
             </td>
           </tr>
         </table>
@@ -59,9 +65,33 @@ function buildHtml({ subject, body, promoCode, ctaText, ctaUrl, primaryColor = "
 </html>`;
 }
 
-/* GET — return total customer count */
-export async function GET() {
+/* GET — customer count OR campaign email logs */
+export async function GET(req) {
   try {
+    const { searchParams } = new URL(req.url);
+
+    if (searchParams.get("logs") === "1") {
+      const page   = Math.max(1, parseInt(searchParams.get("page")   || "1"));
+      const limit  = Math.min(200, parseInt(searchParams.get("limit") || "100"));
+      const skip   = (page - 1) * limit;
+      const status = searchParams.get("status"); // SENT | FAILED | OPENED | null
+
+      let where = { template: "CAMPAIGN" };
+      if (status === "SENT")   where = { ...where, status: "SENT", openedAt: null };
+      if (status === "FAILED") where = { ...where, status: "FAILED" };
+      if (status === "OPENED") where = { ...where, status: "SENT", openedAt: { not: null } };
+
+      const [logs, total, sentCount, failedCount, openedCount] = await Promise.all([
+        prisma.emailLog.findMany({ where, orderBy: { sentAt: "desc" }, skip, take: limit }),
+        prisma.emailLog.count({ where }),
+        prisma.emailLog.count({ where: { template: "CAMPAIGN", status: "SENT" } }),
+        prisma.emailLog.count({ where: { template: "CAMPAIGN", status: "FAILED" } }),
+        prisma.emailLog.count({ where: { template: "CAMPAIGN", status: "SENT", openedAt: { not: null } } }),
+      ]);
+
+      return NextResponse.json({ success: true, logs, total, sentCount, failedCount, openedCount, page, limit });
+    }
+
     const count = await prisma.customer.count();
     return NextResponse.json({ success: true, customerCount: count });
   } catch (err) {
@@ -70,21 +100,31 @@ export async function GET() {
   }
 }
 
-/* POST — send campaign emails */
+/* POST — stream sending progress via Server-Sent Events */
 export async function POST(req) {
+  const encoder = new TextEncoder();
+  const push = (controller, data) =>
+    controller.enqueue(encoder.encode(`data: ${JSON.stringify(data)}\n\n`));
+
+  const body = await req.json();
+  const {
+    subject, bodyText, recipientMode, customEmails,
+    promoCode, ctaText, ctaUrl, primaryColor,
+    batchSize    = 20,
+    batchDelayMs = 3000,
+  } = body;
+
+  if (!subject?.trim() || !bodyText?.trim()) {
+    return NextResponse.json({ success: false, error: "Subject and body are required" }, { status: 400 });
+  }
+
+  // Derive base URL for tracking pixel
+  const host     = req.headers.get("host") || "";
+  const protocol = host.startsWith("localhost") ? "http" : "https";
+  const baseUrl  = `${protocol}://${host}`;
+
+  let emails = [];
   try {
-    const body = await req.json();
-    const { subject, bodyText, recipientMode, customEmails, promoCode, ctaText, ctaUrl, primaryColor } = body;
-
-    if (!subject?.trim() || !bodyText?.trim()) {
-      return NextResponse.json(
-        { success: false, error: "Subject and body are required" },
-        { status: 400 }
-      );
-    }
-
-    let emails = [];
-
     if (recipientMode === "all") {
       const customers = await prisma.customer.findMany({ select: { email: true } });
       emails = customers.map((c) => c.email).filter(Boolean);
@@ -94,53 +134,66 @@ export async function POST(req) {
         .map((e) => e.trim())
         .filter((e) => e.includes("@"));
     }
-
-    if (emails.length === 0) {
-      return NextResponse.json(
-        { success: false, error: "No valid recipients found" },
-        { status: 400 }
-      );
-    }
-
-    const html = buildHtml({ subject, body: bodyText, promoCode, ctaText, ctaUrl, primaryColor });
-
-    let sent = 0;
-    let failed = 0;
-    const errors = [];
-
-    const BATCH_SIZE = 20;
-    const BATCH_DELAY_MS = 2000; // 2s pause between batches
-
-    for (let i = 0; i < emails.length; i++) {
-      const email = emails[i];
-      try {
-        await transporter.sendMail({
-          from: process.env.SMTP_FROM,
-          to: email,
-          subject,
-          html,
-        });
-        await prisma.emailLog.create({
-          data: { recipient: email, template: "CAMPAIGN", status: "SENT" },
-        });
-        sent++;
-      } catch (err) {
-        await prisma.emailLog.create({
-          data: { recipient: email, template: "CAMPAIGN", status: "FAILED", errorMsg: err.message },
-        });
-        failed++;
-        errors.push(`${email}: ${err.message}`);
-      }
-
-      // Pause after every batch to avoid SMTP rate limiting
-      if ((i + 1) % BATCH_SIZE === 0 && i + 1 < emails.length) {
-        await new Promise((r) => setTimeout(r, BATCH_DELAY_MS));
-      }
-    }
-
-    return NextResponse.json({ success: true, sent, failed, total: emails.length, errors });
   } catch (err) {
-    console.error("Campaign POST error:", err);
     return NextResponse.json({ success: false, error: err.message }, { status: 500 });
   }
+
+  if (emails.length === 0) {
+    return NextResponse.json({ success: false, error: "No valid recipients found" }, { status: 400 });
+  }
+
+  const safeBatch = Math.max(1, Math.min(50, batchSize));
+  const safeDelay = Math.max(1000, Math.min(30000, batchDelayMs));
+
+  const stream = new ReadableStream({
+    async start(controller) {
+      push(controller, { type: "start", total: emails.length });
+
+      let sent = 0;
+      let failed = 0;
+      const errors = [];
+
+      for (let i = 0; i < emails.length; i++) {
+        const email = emails[i];
+        const logId = randomUUID();
+        const trackingUrl = `${baseUrl}/api/admin/campaign/track?id=${logId}`;
+        const html = buildHtml({ subject, body: bodyText, promoCode, ctaText, ctaUrl, primaryColor, trackingUrl });
+
+        try {
+          await transporter.sendMail({ from: process.env.SMTP_FROM, to: email, subject, html });
+          await prisma.emailLog.create({
+            data: { id: logId, recipient: email, template: "CAMPAIGN", status: "SENT" },
+          });
+          sent++;
+          push(controller, { type: "progress", index: i, email, status: "SENT", sent, failed, remaining: emails.length - i - 1 });
+        } catch (err) {
+          await prisma.emailLog.create({
+            data: { id: logId, recipient: email, template: "CAMPAIGN", status: "FAILED", errorMsg: err.message },
+          });
+          failed++;
+          errors.push({ email, error: err.message });
+          push(controller, { type: "progress", index: i, email, status: "FAILED", sent, failed, remaining: emails.length - i - 1 });
+        }
+
+        const endOfBatch = (i + 1) % safeBatch === 0 && i + 1 < emails.length;
+        if (endOfBatch) {
+          push(controller, { type: "pause", delayMs: safeDelay });
+          await new Promise((r) => setTimeout(r, safeDelay));
+          push(controller, { type: "resume" });
+        }
+      }
+
+      push(controller, { type: "done", sent, failed, total: emails.length, errors });
+      controller.close();
+    },
+  });
+
+  return new Response(stream, {
+    headers: {
+      "Content-Type": "text/event-stream",
+      "Cache-Control": "no-cache",
+      "Connection": "keep-alive",
+      "X-Accel-Buffering": "no",
+    },
+  });
 }
