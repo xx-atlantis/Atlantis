@@ -10,7 +10,7 @@ async function ensureSection() {
 
   const section = await prisma.section.upsert({
     where: { key: "reviews" },
-    create: { key: "reviews", name: "Customer Reviews" },
+    create: { key: "reviews", name: "Customer Reviews", type: "LIST" },
     update: {},
   });
 

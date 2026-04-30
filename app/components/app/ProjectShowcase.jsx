@@ -151,6 +151,12 @@ export default function ProjectsShowcase() {
                   src={avatarSrc}
                   alt={activeProject.review.name}
                   className="w-12 h-12 rounded-full object-cover border border-gray-100"
+                  onError={(e) => {
+                    const fallback = FALLBACK_AVATARS[activeTab % FALLBACK_AVATARS.length];
+                    if (e.currentTarget.src !== window.location.origin + fallback) {
+                      e.currentTarget.src = fallback;
+                    }
+                  }}
                 />
               ) : null}
 
