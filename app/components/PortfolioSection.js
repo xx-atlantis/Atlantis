@@ -8,57 +8,57 @@ import { useLocale } from "@/app/components/LocaleProvider";
 const projects = [
   {
     id: 1,
-    title: "غرفة معيشة مودرن",
-    category: "Modern Living Room",
-    image: "/portfolio/1.jpg", // Replace with your real image paths
-    size: "large", // Takes 2x2 grid space
+    title: { en: "Modern Living Room", ar: "غرفة معيشة عصرية" },
+    category: { en: "Modern Living Room", ar: "غرفة المعيشة العصرية" },
+    image: "/portfolio/1.jpg",
+    size: "large",
     productsCount: 12,
   },
   {
     id: 2,
-    title: "غرفة نوم هادئة",
-    category: "Serene Bedroom",
+    title: { en: "Serene Bedroom", ar: "غرفة نوم هادئة" },
+    category: { en: "Serene Bedroom", ar: "غرفة النوم الهادئة" },
     image: "/portfolio/2.jpg",
-    size: "tall", // Takes 1x2 grid space
+    size: "tall",
     productsCount: 8,
   },
   {
     id: 3,
-    title: "مجلس عربي معاصر",
-    category: "Contemporary Majlis",
+    title: { en: "Contemporary Majlis", ar: "مجلس عربي معاصر" },
+    category: { en: "Contemporary Majlis", ar: "المجلس العربي المعاصر" },
     image: "/portfolio/3.jpg",
-    size: "normal", // 1x1
+    size: "normal",
     productsCount: 5,
   },
   {
     id: 4,
-    title: "ركن القهوة",
-    category: "Coffee Corner",
+    title: { en: "Coffee Corner", ar: "ركن القهوة" },
+    category: { en: "Coffee Corner", ar: "ركن القهوة" },
     image: "/portfolio/4.jpg",
     size: "normal",
     productsCount: 3,
   },
   {
     id: 5,
-    type: "promo", // This is the PROMO CARD (Blue box)
-    title: "هدية التصميم",
+    type: "promo",
+    title: { en: "Design Gift", ar: "هدية التصميم" },
     discount: "50% OFF",
     code: "GIVE2025",
-    desc: "امنح هدية التصميم الرائع هذا الموسم",
+    desc: { en: "Give the gift of great design this season", ar: "امنح هدية التصميم الرائع هذا الموسم" },
     size: "normal",
   },
   {
     id: 6,
-    title: "غرفة طعام فاخرة",
-    category: "Luxury Dining",
+    title: { en: "Luxury Dining", ar: "غرفة طعام فاخرة" },
+    category: { en: "Luxury Dining", ar: "غرفة الطعام الفاخرة" },
     image: "/portfolio/5.jpg",
-    size: "wide", // Takes 2x1 grid space
+    size: "wide",
     productsCount: 24,
   },
   {
     id: 7,
-    title: "مدخل الفيلا",
-    category: "Villa Entrance",
+    title: { en: "Villa Entrance", ar: "مدخل الفيلا" },
+    category: { en: "Villa Entrance", ar: "مدخل الفيلا" },
     image: "/portfolio/6.jpg",
     size: "normal",
     productsCount: 4,
@@ -132,6 +132,8 @@ function PortfolioCard({ item, isRTL }) {
 
   const spanClass = sizeClasses[item.size] || sizeClasses.normal;
 
+  const lang = isRTL ? "ar" : "en";
+
   // -------------------------
   // Render Promo Card (The Blue Box)
   // -------------------------
@@ -139,17 +141,17 @@ function PortfolioCard({ item, isRTL }) {
     return (
       <div className={`relative bg-[#2D3247] text-white p-6 flex flex-col justify-center items-center text-center rounded-sm overflow-hidden group ${spanClass}`}>
         <div className="absolute top-0 left-0 w-full h-1 bg-[#D4AF37]"></div> {/* Gold Top Border */}
-        
+
         <div className="mb-4">
             <span className="inline-block p-2 bg-white/10 rounded-full">
                 🎁
             </span>
         </div>
         <h3 className="text-sm uppercase tracking-widest text-[#D4AF37] font-semibold mb-1">
-            {item.title}
+            {item.title?.[lang] ?? item.title}
         </h3>
         <div className="text-4xl font-bold mb-2 font-serif">{item.discount}</div>
-        <div className="text-xs text-gray-300 mb-4">{item.desc}</div>
+        <div className="text-xs text-gray-300 mb-4">{item.desc?.[lang] ?? item.desc}</div>
         
         <div className="bg-white/10 px-4 py-2 rounded border border-white/20 text-sm tracking-wider font-mono">
            CODE: <span className="text-white font-bold">{item.code}</span>
@@ -166,7 +168,7 @@ function PortfolioCard({ item, isRTL }) {
       {/* Background Image */}
       <Image
         src={item.image}
-        alt={item.title}
+        alt={item.title?.[lang] ?? item.title}
         fill
         className="object-cover transition-transform duration-700 group-hover:scale-105"
         sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
@@ -188,10 +190,10 @@ function PortfolioCard({ item, isRTL }) {
         {/* Bottom Text */}
         <div className="transform translate-y-2 group-hover:translate-y-0 transition-transform duration-300">
           <h3 className="text-white text-lg font-bold leading-tight mb-0.5">
-            {item.title}
+            {item.title?.[lang] ?? item.title}
           </h3>
           <p className="text-gray-300 text-xs mb-3 font-light">
-            {item.category}
+            {item.category?.[lang] ?? item.category}
           </p>
           
           <div className="flex items-center justify-between border-t border-white/20 pt-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">

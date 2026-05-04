@@ -46,14 +46,14 @@ export default function Header() {
     },
     {
       title: isRTL ? "لوحة الإلهام" : "Mood Board",
-      link: "/virtual-tour", 
+      link: "/virtual-tour",
       sublinks: [
-        { title: "Boho Style", link: "/portfolio?tab=boho" },
-        { title: "Modern Style", link: "/portfolio?tab=modern" },
-        { title: "Industrial Style", link: "/portfolio?tab=industrial" },
-        { title: "Mid Century Style", link: "/portfolio?tab=midcentry" },
-        { title: "Neo Classic", link: "/portfolio?tab=classic" },
-        { title: "Zen Style", link: "/portfolio?tab=zen" },
+        { title: isRTL ? "الأسلوب البوهيمي" : "Boho Style",            link: "/portfolio?tab=boho" },
+        { title: isRTL ? "الأسلوب العصري"   : "Modern Style",          link: "/portfolio?tab=modern" },
+        { title: isRTL ? "الأسلوب الصناعي"  : "Industrial Style",      link: "/portfolio?tab=industrial" },
+        { title: isRTL ? "أسلوب منتصف القرن" : "Mid Century Style",    link: "/portfolio?tab=midcentry" },
+        { title: isRTL ? "النيو كلاسيك"      : "Neo Classic",          link: "/portfolio?tab=classic" },
+        { title: isRTL ? "أسلوب الزن"        : "Zen Style",            link: "/portfolio?tab=zen" },
       ],
     },
     {
