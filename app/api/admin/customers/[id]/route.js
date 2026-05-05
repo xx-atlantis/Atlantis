@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 // 1. GET Customer by ID
 export async function GET(req, { params }) {
   try {
-    const { id } = params;
+    const { id } = await params;
 
     const customer = await prisma.customer.findUnique({
       where: { id },
@@ -45,7 +45,7 @@ export async function GET(req, { params }) {
 // 2. DELETE Customer
 export async function DELETE(req, { params }) {
   try {
-    const { id } = params;
+    const { id } = await params;
 
     // Check if customer exists first
     const existing = await prisma.customer.findUnique({ where: { id } });

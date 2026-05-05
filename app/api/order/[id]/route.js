@@ -5,7 +5,7 @@ import { prisma } from "@/lib/prisma";
 ============================================================ */
 export async function GET(req, { params }) {
   try {
-    const id = params.id;
+    const { id } = await params;
 
     const order = await prisma.order.findUnique({
       where: { id },
@@ -34,7 +34,7 @@ export async function GET(req, { params }) {
 ============================================================ */
 export async function PATCH(req, { params }) {
   try {
-    const id = params.id;
+    const { id } = await params;
     const body = await req.json();
 
     const {
@@ -70,7 +70,7 @@ export async function PATCH(req, { params }) {
 ============================================================ */
 export async function DELETE(req, { params }) {
   try {
-    const id = params.id;
+    const { id } = await params;
 
     await prisma.order.delete({
       where: { id },

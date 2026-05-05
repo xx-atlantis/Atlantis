@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma";
 /* GET /api/shop/product/[id]/reviews — list approved reviews */
 export async function GET(req, { params }) {
   try {
-    const { id } = params;
+    const { id } = await params;
 
     const result = await prisma.$runCommandRaw({
       find: "ProductReview",
@@ -25,7 +25,7 @@ export async function GET(req, { params }) {
 /* POST /api/shop/product/[id]/reviews — submit a review */
 export async function POST(req, { params }) {
   try {
-    const { id } = params;
+    const { id } = await params;
     const body = await req.json();
     const { name, rating, comment } = body;
 
