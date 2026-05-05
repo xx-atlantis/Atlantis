@@ -239,7 +239,7 @@ export default function OrderSummary() {
                 disabled={verifying}
                 className="group w-full bg-[#2D3247] hover:bg-primary-theme text-white py-6 rounded-[1.5rem] font-bold text-lg transition-all duration-500 flex items-center justify-center gap-3 shadow-xl hover:shadow-primary-theme/20 active:scale-95 disabled:opacity-50"
               >
-                <span>{verifying ? (isRTL ? "جاري..." : "Verifying...") : (isRTL ? "الشروع في الخروج" : "Proceed to Checkout")}</span>
+                <span>{verifying ? (isRTL ? "جاري..." : "Verifying...") : (isRTL ? " إتمام الدفع " : "Proceed to Checkout")}</span>
                 <ArrowRight size={22} className={`transition-transform duration-300 group-hover:translate-x-1 ${isRTL ? "rotate-180" : ""}`}/>
               </button>
 
