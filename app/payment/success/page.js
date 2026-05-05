@@ -42,12 +42,45 @@ export default async function PaymentSuccessPage({ searchParams }) {
 
     } else if (provider === "PAYTABS") {
       // --- PAYTABS VERIFICATION ---
-      // For PayTabs, we often trust the callback, but here is a double check if needed.
-      // PayTabs 'tranRef' is the transaction ID.
-      // We assume if we got here with a valid tranRef, the callback has likely processed it,
-      // OR we can rely on the redirect params (PayTabs sends respStatus=A for success).
+      // 1. Trust redirect param if present
       if (params.respStatus === "A") {
         verified = true;
+      }
+
+      // 2. Check DB — callback may have already processed and marked PAID
+      if (!verified) {
+        const preCheck = await prisma.order.findUnique({
+          where: { id: dbOrderId },
+          select: { paymentStatus: true },
+        });
+        if (preCheck?.paymentStatus === "PAID") {
+          verified = true;
+        }
+      }
+
+      // 3. Query PayTabs API directly using tran_ref (handles race condition
+      //    where callback hasn't arrived yet but payment is confirmed)
+      if (!verified && paymentId && process.env.PAYTABS_SERVER_KEY && process.env.PAYTABS_PROFILE_ID) {
+        try {
+          const ptEndpoint = process.env.PAYTABS_ENDPOINT || "https://secure.paytabs.sa";
+          const queryRes = await fetch(`${ptEndpoint}/payment/query`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": process.env.PAYTABS_SERVER_KEY,
+            },
+            body: JSON.stringify({
+              profile_id: process.env.PAYTABS_PROFILE_ID,
+              tran_ref: paymentId,
+            }),
+          });
+          const ptData = await queryRes.json();
+          if (ptData?.payment_result?.response_status === "A") {
+            verified = true;
+          }
+        } catch (ptErr) {
+          console.warn("PayTabs query fallback failed:", ptErr.message);
+        }
       }
       
     } else if (provider === "TAMARA") {

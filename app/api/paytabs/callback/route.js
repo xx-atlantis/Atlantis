@@ -81,7 +81,8 @@ export async function POST(req) {
         }
 
         // Notify Admin
-        await triggerEmailNotification('NEW_ORDER_ADMIN', 'admin@atlantis.sa', emailVariables);
+        const adminEmail = process.env.ADMIN_EMAIL || 'admin@atlantis.sa';
+        await triggerEmailNotification('NEW_ORDER_ADMIN', adminEmail, emailVariables);
       }
     } else {
       console.warn(`⚠️ PayTabs Payment Failed for Order ${orderId}`);
