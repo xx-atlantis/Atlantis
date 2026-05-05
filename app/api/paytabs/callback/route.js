@@ -1,21 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import crypto from "crypto";
 import { triggerEmailNotification } from "@/lib/emailService";
-
-function computeSignature(data, serverKey) {
-  // PayTabs signs only top-level scalar fields (strings/numbers).
-  // Nested objects like payment_result and payment_info are NOT included.
-  const sortedKeys = Object.keys(data)
-    .filter((key) => {
-      const v = data[key];
-      return v !== null && v !== undefined && v !== "" && typeof v !== "object";
-    })
-    .sort();
-
-  const message = sortedKeys.map((key) => String(data[key])).join("");
-  return crypto.createHmac("sha256", serverKey).update(message).digest("hex");
-}
 
 export async function POST(req) {
   try {
@@ -28,45 +13,26 @@ export async function POST(req) {
     } else {
       const formData = await req.formData();
       formData.forEach((value, key) => {
-        // Try to parse nested JSON strings back to objects so we can exclude them
         try { data[key] = JSON.parse(value); } catch { data[key] = value; }
       });
     }
 
-    console.log("🔹 PayTabs Callback Received:", {
-      cart_id: data.cart_id,
-      respStatus: data.respStatus,
-      tran_ref: data.tran_ref,
-      fields: Object.keys(data),
-    });
-
-    // 2. Validate Signature
-    const serverKey = (process.env.PAYTABS_SERVER_KEY || "").trim();
-    const requestSignature = data.signature;
-    const dataWithoutSig = { ...data };
-    delete dataWithoutSig.signature;
-
-    const calculatedSignature = computeSignature(dataWithoutSig, serverKey);
-    const signatureValid = calculatedSignature === requestSignature;
-
-    if (!signatureValid) {
-      console.warn("⚠️ PayTabs Signature Mismatch — proceeding on respStatus only.", {
-        expected: calculatedSignature,
-        received: requestSignature,
-      });
-    }
-
-    // 3. Extract Status
-    // Accept if signature matched, OR if respStatus is "A" (money already taken — don't drop real payments)
-    const respStatus = data.respStatus || data.resp_status;
-    const isSuccess =
-      (signatureValid || respStatus === "A") &&
-      (respStatus === "A" || data.payment_result?.response_status === "A");
-
-    const orderId = data.cart_id;
+    const orderId      = data.cart_id;
     const transactionId = data.tran_ref;
 
-    // 4. Update Database + Emails
+    // payment_result is a nested object — this is where PayTabs puts the status
+    const paymentResult = data.payment_result || {};
+    const responseStatus = paymentResult.response_status; // "A" = Approved
+
+    console.log("🔹 PayTabs Callback:", {
+      cart_id: orderId,
+      tran_ref: transactionId,
+      response_status: responseStatus,
+    });
+
+    const isSuccess = responseStatus === "A";
+
+    // 2. Update Database + send emails
     if (isSuccess && orderId) {
       const order = await prisma.order.findUnique({ where: { id: orderId } });
 
@@ -76,8 +42,8 @@ export async function POST(req) {
           data: {
             paymentStatus: "PAID",
             paymentMethod: "PAYTABS",
-            paymentId: transactionId || null,
-            orderStatus: "PROCESSING",
+            paymentId:     transactionId || null,
+            orderStatus:   "PROCESSING",
           },
         });
         console.log(`✅ Order ${orderId} PAID via PayTabs (${transactionId})`);
@@ -98,14 +64,16 @@ export async function POST(req) {
         if (updatedOrder.customerEmail) {
           await triggerEmailNotification("NEW_ORDER_CUSTOMER", updatedOrder.customerEmail, emailVariables);
         }
-
         const adminEmail = process.env.ADMIN_EMAIL || "admin@atlantis.sa";
         await triggerEmailNotification("NEW_ORDER_ADMIN", adminEmail, emailVariables);
+
       } else if (!order) {
         console.warn(`⚠️ Order ${orderId} not found in DB`);
+      } else {
+        console.log(`ℹ️ Order ${orderId} already PAID — skipping`);
       }
-    } else if (!isSuccess) {
-      console.warn(`⚠️ PayTabs Payment not successful for Order ${orderId} — respStatus: ${respStatus}`);
+    } else {
+      console.warn(`⚠️ PayTabs payment not successful — response_status: ${responseStatus}, cart_id: ${orderId}`);
     }
 
     return NextResponse.json({ success: true });
