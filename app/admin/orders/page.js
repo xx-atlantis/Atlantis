@@ -136,6 +136,37 @@ export default function OrdersTable() {
         fetchOrders();
     }, []);
 
+    /* -------------------- Mark as Processed -------------------- */
+    const handleMarkProcessed = async (orderId) => {
+        if (!confirm("Mark this order as Processing?")) return;
+
+        setActionLoadingId(orderId);
+        try {
+            const res = await fetch(`/api/order/${orderId}`, {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ orderStatus: "PROCESSING" }),
+            });
+            const data = await res.json();
+
+            if (data.success) {
+                toast.success("Order marked as Processing!");
+                setOrders((prev) =>
+                    prev.map((o) =>
+                        o.id === orderId ? { ...o, orderStatus: "PROCESSING" } : o
+                    )
+                );
+            } else {
+                toast.error(data.error || "Failed to update order");
+            }
+        } catch (err) {
+            console.error(err);
+            toast.error("An error occurred");
+        } finally {
+            setActionLoadingId(null);
+        }
+    };
+
     /* -------------------- Bank Transfer Approval -------------------- */
     const handleApproveBankTransfer = async (orderId) => {
         if (!confirm("Are you sure you want to approve this bank transfer? This will immediately send confirmation emails to the customer and admin.")) {
@@ -309,6 +340,7 @@ export default function OrdersTable() {
                                             canDelete={canDelete}
                                             isActionLoading={actionLoadingId === order.id}
                                             onView={() => router.push(`/admin/orders/${order.id}`)}
+                                            onMarkProcessed={() => handleMarkProcessed(order.id)}
                                             onApproveBankTransfer={() => handleApproveBankTransfer(order.id)}
                                             onDelete={() => {}}
                                         />
@@ -363,7 +395,7 @@ export default function OrdersTable() {
 
 /* -------------------- Action Menu -------------------- */
 
-function ActionMenu({ order, onView, onApproveBankTransfer, onDelete, canUpdate, canDelete, isActionLoading }) {
+function ActionMenu({ order, onView, onMarkProcessed, onApproveBankTransfer, onDelete, canUpdate, canDelete, isActionLoading }) {
     const isPendingBankTransfer = 
         order.paymentMethod?.toLowerCase() === 'bank_transfer' && 
         order.paymentStatus?.toLowerCase() !== 'paid';
@@ -397,7 +429,7 @@ function ActionMenu({ order, onView, onApproveBankTransfer, onDelete, canUpdate,
                 )}
 
                 {canUpdate && (
-                    <DropdownMenuItem className="cursor-pointer py-2">
+                    <DropdownMenuItem onClick={onMarkProcessed} className="cursor-pointer py-2">
                         <Ellipsis className="w-4 h-4 mr-2 text-gray-500" /> Mark as Processed
                     </DropdownMenuItem>
                 )}
