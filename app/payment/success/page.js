@@ -7,10 +7,10 @@ export default async function PaymentSuccessPage({ searchParams }) {
   const params = await searchParams;
   
   // 1. DETECT PROVIDER & IDS
-  // Tabby sends: payment_id
-  // PayTabs sends: tranRef + respStatus
-  // Tamara sends: paymentStatus (we pass our orderId as ?ref=)
-  const paymentId = params.payment_id || params.tranRef;
+  // Tabby sends:   payment_id
+  // PayTabs sends: tran_ref (snake_case) + respStatus in redirect URL
+  // Tamara sends:  paymentStatus (we pass our orderId as ?ref=)
+  const paymentId = params.payment_id || params.tran_ref;
   const dbOrderId = params.ref || params.orderId; // ref = Tamara, orderId = PayTabs/Tabby
 
   let isSuccess = false;
@@ -19,8 +19,10 @@ export default async function PaymentSuccessPage({ searchParams }) {
 
   // Identify Provider
   if (params.payment_id) provider = "TABBY";
-  else if (params.tranRef) provider = "PAYTABS";
+  else if (params.tran_ref) provider = "PAYTABS";
   else if (params.ref || params.paymentStatus) provider = "TAMARA";
+  // Fallback: if orderId is present but no provider signal, still attempt DB check
+  else if (params.orderId) provider = "PAYTABS";
 
   if (!dbOrderId) {
     return <ErrorState message="Missing payment information." />;
@@ -42,8 +44,8 @@ export default async function PaymentSuccessPage({ searchParams }) {
 
     } else if (provider === "PAYTABS") {
       // --- PAYTABS VERIFICATION ---
-      // 1. Trust redirect param if present
-      if (params.respStatus === "A") {
+      // 1. Trust redirect param if present (PayTabs uses respStatus or resp_status)
+      if (params.respStatus === "A" || params.resp_status === "A") {
         verified = true;
       }
 
