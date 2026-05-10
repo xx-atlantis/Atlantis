@@ -10,6 +10,21 @@ import step3 from "@/public/icons/step3.png";
 
 const icons = [step1, step2, step3];
 
+/*
+  Layout (LTR):
+    Step 1 — top-left
+    Step 2 — top-right  (slightly lower)
+    Step 3 — bottom-left (much lower)
+
+  SVG viewBox 0 0 1280 520
+    Step 1 badge ≈ (70, 65)
+    Step 2 badge ≈ (1060, 185)
+    Step 3 badge ≈ (390, 415)
+
+  Curve 1: oval arc bowing UPWARD from step 1 → step 2
+  Curve 2: oval arc bowing DOWNWARD from step 2 → step 3
+*/
+
 export default function HowItWorks() {
   const { locale } = useLocale();
   const { data } = usePageContent();
@@ -23,109 +38,113 @@ export default function HowItWorks() {
       dir={isRTL ? "rtl" : "ltr"}
       className="py-10 sm:py-24 relative bg-white overflow-hidden"
     >
-      {/* ===== Section Title ===== */}
-      <div className="text-center mb-12 sm:mb-16">
-        <p className="text-sm sm:text-base text-[#4A6E6D] font-semibold tracking-wide uppercase mb-2">
+      {/* ── Section Title ── */}
+      <div className="text-center mb-12 sm:mb-16 px-4">
+        <p className="text-sm sm:text-base text-[#4A6E6D] font-semibold tracking-widest uppercase mb-3">
           {how.smallTitle || ""}
         </p>
-        <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 leading-snug">
+        <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 leading-snug max-w-2xl mx-auto">
           {how.mainTitle || ""}
         </h2>
       </div>
 
-      {/* ===== Steps ===== */}
-      <div className="relative w-full max-w-7xl mx-auto  py-6 sm:py-10">
-        {/* Connecting curves — SVG so they align correctly in both LTR and RTL */}
+      {/* ── Steps ── */}
+      <div className="relative w-full max-w-5xl mx-auto px-6 md:px-10">
+
+        {/* ── SVG dashed oval curves ── */}
         <svg
           className="hidden md:block absolute inset-0 w-full h-full pointer-events-none"
-          viewBox="0 0 1280 480"
+          viewBox="0 0 1000 520"
           preserveAspectRatio="none"
           fill="none"
           aria-hidden="true"
         >
           {isRTL ? (
             <>
-              {/* RTL: Badge 1 (far right) → Badge 2 (left) */}
+              {/* RTL Curve 1: step 1 (top-right) → step 2 (top-left), oval bows upward */}
               <path
-                d="M1240,55 C980,55 420,145 180,165"
-                stroke="#D1D5DB"
+                d="M 930,65 C 820,-55 180,-55 70,185"
+                stroke="#C5CDD6"
                 strokeWidth="2.5"
-                strokeDasharray="12 8"
+                strokeDasharray="14 9"
                 strokeLinecap="round"
               />
-              {/* RTL: Badge 2 (left) → Badge 3 (center-right) */}
+              {/* RTL Curve 2: step 2 (top-left) → step 3 (bottom-right), oval bows downward */}
               <path
-                d="M180,165 C340,185 680,340 820,370"
-                stroke="#D1D5DB"
+                d="M 70,185 C -60,340 860,500 640,415"
+                stroke="#C5CDD6"
                 strokeWidth="2.5"
-                strokeDasharray="12 8"
+                strokeDasharray="14 9"
                 strokeLinecap="round"
               />
             </>
           ) : (
             <>
-              {/* LTR: Badge 1 (far left) → Badge 2 (right) */}
+              {/* LTR Curve 1: step 1 (top-left) → step 2 (top-right), oval bows upward */}
               <path
-                d="M40,55 C300,55 860,145 1100,165"
-                stroke="#D1D5DB"
+                d="M 70,65 C 180,-55 820,-55 930,185"
+                stroke="#C5CDD6"
                 strokeWidth="2.5"
-                strokeDasharray="12 8"
+                strokeDasharray="14 9"
                 strokeLinecap="round"
               />
-              {/* LTR: Badge 2 (right) → Badge 3 (center) */}
+              {/* LTR Curve 2: step 2 (top-right) → step 3 (bottom-left), oval bows downward */}
               <path
-                d="M1100,165 C940,185 600,340 460,370"
-                stroke="#D1D5DB"
+                d="M 930,185 C 1060,340 140,500 360,415"
+                stroke="#C5CDD6"
                 strokeWidth="2.5"
-                strokeDasharray="12 8"
+                strokeDasharray="14 9"
                 strokeLinecap="round"
               />
             </>
           )}
         </svg>
-        <div className="flex flex-col gap-4 md:gap-0 p-4 md:p-0 items-baseline md:items-center">
-          {steps.map((step, index) => {
-            let alignmentClass = "text-center";
-            if (index === 0)
-              alignmentClass = isRTL
-                ? "md:ml-auto text-right"
-                : "md:mr-auto text-left";
-            if (index === 1)
-              alignmentClass = isRTL
-                ? "md:mr-auto text-right"
-                : "md:ml-auto text-right";
 
-            // 🔥 Custom spacing per step (OPTION 1)
-            let spacingClass = "";
-            if (index === 0) spacingClass = "md:mb-0";
-            if (index === 1) spacingClass = "md:mb-28";
-            if (index === 2) spacingClass = "md:mb-0";
+        {/* ── Step cards ── */}
+        <div className="flex flex-col gap-10 md:gap-0">
+          {steps.map((step, index) => {
+            // Desktop alignment: 1=left, 2=right, 3=left-center
+            const alignClass =
+              index === 1
+                ? isRTL ? "md:mr-auto" : "md:ml-auto"
+                : isRTL ? "md:ml-auto" : "md:mr-auto";
+
+            const textAlign =
+              index === 1
+                ? isRTL ? "text-right" : "text-right"
+                : "text-left";
+
+            // Vertical spacing to create stagger
+            const marginClass =
+              index === 0 ? "md:mb-8"
+              : index === 1 ? "md:mb-24"
+              : "";
 
             return (
               <div
                 key={index}
-                className={`flex flex-row items-start gap-4 md:gap-6 ${alignmentClass} ${spacingClass}`}
+                className={`flex flex-row items-start gap-4 md:gap-5 w-full md:w-auto md:max-w-xs ${alignClass} ${marginClass}`}
               >
-                <div className="flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 bg-[#5E7E7D] text-white rounded-full font-semibold shrink-0 text-sm sm:text-base z-10">
+                {/* Badge */}
+                <div className="flex-shrink-0 w-11 h-11 rounded-full bg-[#5E7E7D] text-white flex items-center justify-center font-bold text-base z-10 shadow-sm">
                   {index + 1}
                 </div>
 
                 {/* Content */}
-                <div className="max-w-sm">
-                  <h3 className="text-lg md:text-xl font-semibold text-black mb-2 flex items-center gap-2">
+                <div className={`${textAlign}`}>
+                  <h3 className="text-lg md:text-xl font-bold text-gray-900 mb-1.5 flex items-center gap-2 flex-wrap">
                     {step.title}
                     {icons[index] && (
                       <Image
                         src={icons[index]}
                         alt={`Step ${index + 1}`}
-                        width={20}
-                        height={20}
+                        width={22}
+                        height={22}
                         className="inline-block"
                       />
                     )}
                   </h3>
-
-                  <p className="text-gray-800 text-sm md:text-base leading-relaxed">
+                  <p className="text-gray-500 text-sm md:text-base leading-relaxed">
                     {step.desc}
                   </p>
                 </div>
