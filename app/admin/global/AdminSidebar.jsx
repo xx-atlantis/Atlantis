@@ -27,6 +27,7 @@ const PAGE_PERMISSIONS = {
     "/admin/roles": "role.read",
     "/admin": "content.read",
     "/admin/how-it-works": "content.read",
+    "/admin/before-after": "content.read",
     "/admin/contact-us": "content.read",
     "/admin/portfolio": "content.read",
     "/admin/plans-pricing": "content.read",
@@ -169,6 +170,7 @@ const AdminSidebar = ({ collapsed, setCollapsed, setMenuOpen }) => {
         () => [
             { id: 10, slug: "/admin", languages: { en: { title: "Home" }, ar: { title: "الرئيسية" } } },
             { id: 11, slug: "/admin/how-it-works", languages: { en: { title: "How it Works" }, ar: { title: "كيف يعمل" } } },
+            { id: 34, slug: "/admin/before-after", languages: { en: { title: "Before/After Reviews" }, ar: { title: "قبل/بعد المراجعات" } } },
             { id: 13, slug: "/admin/portfolio", languages: { en: { title: "Portfolio" }, ar: { title: "المحفظة" } } },
             { id: 14, slug: "/admin/plans-pricing", languages: { en: { title: "Plans & Pricing" }, ar: { title: "الأسعار" } } },
             { id: 15, slug: "/admin/service", languages: { en: { title: "Services" }, ar: { title: "الخدمات" } } },
