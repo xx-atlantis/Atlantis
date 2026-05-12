@@ -44,7 +44,7 @@ const Shop = () => {
   };
 
   return (
-    <div dir={isRTL ? "rtl" : "ltr"} className="min-h-screen bg-[#F8F6F2]">
+    <div dir={isRTL ? "rtl" : "ltr"} className="min-h-screen bg-white">
       <ShopPage
         products={products}
         loading={loading}

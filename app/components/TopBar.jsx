@@ -36,13 +36,13 @@ export default function TopBar() {
         <div className="relative" ref={ref}>
           <button
             onClick={() => setOpen(!open)}
-            className="flex items-center gap-1.5 hover:text-gray-900 transition-colors font-medium"
+            className="flex items-center gap-1.5 hover:text-gray-900 transition-colors font-medium leading-none"
           >
-            <span className="text-sm">{country.flag}</span>
-            <span className="hidden sm:inline">{isRTL ? country.nameAr : country.name}</span>
-            <span className="text-gray-400">·</span>
-            <span className="font-semibold">{country.currency}</span>
-            <ChevronDown size={11} className={`transition-transform duration-200 ${open ? "rotate-180" : ""}`} />
+            <span className="leading-none shrink-0">{country.flag}</span>
+            <span className="hidden sm:inline leading-none">{isRTL ? country.nameAr : country.name}</span>
+            <span className="text-gray-400 leading-none">·</span>
+            <span className="font-semibold leading-none">{country.currency}</span>
+            <ChevronDown size={11} className={`shrink-0 transition-transform duration-200 ${open ? "rotate-180" : ""}`} />
           </button>
 
           {open && (
@@ -75,10 +75,10 @@ export default function TopBar() {
         {/* ── Language switcher ── */}
         <Link
           href={newPath}
-          className="flex items-center gap-1 hover:text-gray-900 transition-colors font-medium border border-gray-300 rounded-md px-2.5 py-0.5 hover:border-gray-400"
+          className="flex items-center gap-1 hover:text-gray-900 transition-colors font-medium border border-gray-300 rounded-md px-2.5 py-1 hover:border-gray-400 leading-none"
         >
-          <Globe size={11} />
-          <span>{locale === "ar" ? "English" : "العربية"}</span>
+          <Globe size={11} className="shrink-0" />
+          <span className="leading-none">{locale === "ar" ? "English" : "العربية"}</span>
         </Link>
       </div>
     </div>

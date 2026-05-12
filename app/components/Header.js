@@ -129,7 +129,7 @@ export default function Header() {
             height={40}
             className="object-contain shrink-0"
           />
-          <span className="hidden lg:flex font-bold text-lg text-[#2D3247]">
+          <span className="hidden lg:inline-flex items-center font-bold text-lg text-[#2D3247] leading-none">
             {locale === "ar" ? "أتلانتس للتصميم والديكور" : "Atlantis"}
           </span>
         </Link>
@@ -143,17 +143,17 @@ export default function Header() {
               {item.sublinks ? (
                 // Dropdown Parent
                 <div
-                  className="flex items-center gap-1 cursor-pointer hover:text-[#2D3247] py-2 transition-colors"
+                  className="flex items-center gap-1 cursor-pointer hover:text-[#2D3247] py-2 transition-colors leading-none"
                   onClick={() => setActiveDropdown(activeDropdown === idx ? null : idx)}
                 >
-                  {item.title}
-                  <ChevronDown size={14} className={`transition-transform duration-200 ${activeDropdown === idx ? "rotate-180" : ""}`} />
+                  <span className="leading-none">{item.title}</span>
+                  <ChevronDown size={14} className={`shrink-0 transition-transform duration-200 ${activeDropdown === idx ? "rotate-180" : ""}`} />
                 </div>
               ) : (
                 // Standard Link
                 <Link
                   href={`/${locale}${item.link}`}
-                  className="block py-2 hover:text-[#2D3247] relative after:absolute after:bottom-1 after:left-0 after:w-0 after:h-[2px] after:bg-[#2D3247] hover:after:w-full after:transition-all after:duration-300"
+                  className="block py-2 hover:text-[#2D3247] leading-none relative after:absolute after:bottom-0 after:start-0 after:w-0 after:h-[2px] after:bg-[#2D3247] hover:after:w-full after:transition-all after:duration-300"
                 >
                   {item.title}
                 </Link>
@@ -161,7 +161,7 @@ export default function Header() {
 
               {/* Desktop Dropdown Menu */}
               {item.sublinks && activeDropdown === idx && (
-                <div className="absolute top-full left-0 mt-2 w-56 bg-white border border-gray-100 shadow-xl rounded-md z-50 animate-fadeIn overflow-hidden">
+                <div className="absolute top-full start-0 mt-2 w-56 bg-white border border-gray-100 shadow-xl rounded-md z-50 animate-fadeIn overflow-hidden">
                   {item.sublinks.map((sub, sIdx) => (
                     <Link
                       key={sIdx}
@@ -196,7 +196,7 @@ export default function Header() {
             >
               <ShoppingBag size={22} />
               {/* Removed the cartCount > 0 condition here so the badge smoothly scales down with the icon instead of vanishing instantly */}
-              <span className="absolute -top-1 -right-1 bg-red-600 text-white text-[10px] font-bold h-5 w-5 flex items-center justify-center rounded-full border-2 border-white">
+              <span className="absolute -top-1 -end-1 bg-red-600 text-white text-[10px] font-bold h-5 w-5 flex items-center justify-center rounded-full border-2 border-white leading-none">
                 {cartCount}
               </span>
             </Link>

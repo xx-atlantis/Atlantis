@@ -60,7 +60,7 @@ function FiltersSheet({ open, onClose, filters, setFilters, products, isRTL }) {
             )}
           </div>
 
-          <div className="flex-1 overflow-y-auto px-6 py-5 space-y-6 bg-[#F8F6F2]">
+          <div className="flex-1 overflow-y-auto px-6 py-5 space-y-6 bg-gray-50">
             {/* Price Range */}
             <div>
               <p className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-3">
@@ -223,7 +223,7 @@ export const ShopPage = ({ products, onProductClick, loading, error, content }) 
   if (loading) return <ShopSkeleton />;
 
   return (
-    <div dir={isRTL ? "rtl" : "ltr"} className="min-h-screen bg-[#F8F6F2]">
+    <div dir={isRTL ? "rtl" : "ltr"} className="min-h-screen bg-gray-50">
 
       {/* ── Hero ── */}
       <div
@@ -289,14 +289,14 @@ export const ShopPage = ({ products, onProductClick, loading, error, content }) 
             {/* "All" pill */}
             <button
               onClick={() => setActiveCategory("all")}
-              className={`flex-shrink-0 text-sm font-semibold px-5 py-2 rounded-full transition whitespace-nowrap ${
+              className={`flex-shrink-0 inline-flex items-center gap-1 text-sm font-semibold px-5 py-2 rounded-full transition whitespace-nowrap leading-none ${
                 activeCategory === "all"
                   ? "bg-[#2D3247] text-white shadow-sm"
                   : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
               }`}
             >
-              {isRTL ? "الكل" : "All"}
-              <span className="ms-1.5 text-[11px] opacity-60">({products.length})</span>
+              <span className="leading-none">{isRTL ? "الكل" : "All"}</span>
+              <span className="text-[11px] opacity-60 leading-none">({products.length})</span>
             </button>
 
             {/* Category pills */}
@@ -306,14 +306,14 @@ export const ShopPage = ({ products, onProductClick, loading, error, content }) 
                 <button
                   key={en}
                   onClick={() => setActiveCategory(en)}
-                  className={`flex-shrink-0 text-sm font-semibold px-5 py-2 rounded-full transition whitespace-nowrap ${
+                  className={`flex-shrink-0 inline-flex items-center gap-1 text-sm font-semibold px-5 py-2 rounded-full transition whitespace-nowrap leading-none ${
                     activeCategory === en
                       ? "bg-[#2D3247] text-white shadow-sm"
                       : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
                   }`}
                 >
-                  {label}
-                  <span className="ms-1.5 text-[11px] opacity-60">({count})</span>
+                  <span className="leading-none">{label}</span>
+                  <span className="text-[11px] opacity-60 leading-none">({count})</span>
                 </button>
               );
             })}
@@ -327,33 +327,33 @@ export const ShopPage = ({ products, onProductClick, loading, error, content }) 
             {/* Advanced filters button */}
             <button
               onClick={() => setFiltersOpen(true)}
-              className={`flex-shrink-0 flex items-center gap-2 text-sm font-semibold px-4 py-2 rounded-full border transition whitespace-nowrap ${
+              className={`flex-shrink-0 inline-flex items-center gap-2 text-sm font-semibold px-4 py-2 rounded-full border transition whitespace-nowrap leading-none ${
                 advancedActiveCount > 0
                   ? "bg-[#2D3247] text-white border-[#2D3247]"
                   : "text-gray-600 border-gray-200 hover:border-gray-400 hover:text-gray-900"
               }`}
             >
-              <SlidersHorizontal size={14} />
-              {isRTL ? "فلاتر" : "Filters"}
+              <SlidersHorizontal size={14} className="shrink-0" />
+              <span className="leading-none">{isRTL ? "فلاتر" : "Filters"}</span>
               {advancedActiveCount > 0 && (
-                <span className="bg-white text-[#2D3247] text-[11px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
+                <span className="bg-white text-[#2D3247] text-[11px] font-bold w-4 h-4 rounded-full inline-flex items-center justify-center leading-none shrink-0">
                   {advancedActiveCount}
                 </span>
               )}
             </button>
 
             {/* Sort */}
-            <div className="relative flex-shrink-0">
+            <div className="relative flex-shrink-0 inline-flex items-center">
               <select
                 value={filters.sort}
                 onChange={(e) => setFilters((p) => ({ ...p, sort: e.target.value }))}
-                className="appearance-none text-sm font-semibold text-gray-600 bg-transparent border-0 pe-6 py-2 cursor-pointer focus:outline-none hover:text-gray-900"
+                className="appearance-none text-sm font-semibold text-gray-600 bg-transparent border-0 pe-5 py-2 cursor-pointer focus:outline-none hover:text-gray-900 leading-none"
               >
                 <option value="newest">{isRTL ? "الأحدث" : "Newest"}</option>
                 <option value="price-low-high">{isRTL ? "السعر: من الأقل" : "Price: Low to High"}</option>
                 <option value="price-high-low">{isRTL ? "السعر: من الأعلى" : "Price: High to Low"}</option>
               </select>
-              <ChevronDown size={13} className="absolute end-0 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+              <ChevronDown size={13} className="absolute end-0 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none shrink-0" />
             </div>
           </div>
         </div>
