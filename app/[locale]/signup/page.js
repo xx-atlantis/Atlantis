@@ -7,8 +7,17 @@ import { useState, useEffect, useRef } from "react";
 import toast from "react-hot-toast";
 import { RecaptchaVerifier, signInWithPhoneNumber } from "firebase/auth";
 import { auth } from "@/lib/firebase";
-import { Eye, EyeOff } from "lucide-react";
-import GoogleButton from "@/app/components/auth/GoogleButton"; // Import the Google Button
+import { Eye, EyeOff, ChevronDown, Check } from "lucide-react";
+import GoogleButton from "@/app/components/auth/GoogleButton";
+
+const COUNTRY_CODES = [
+  { code: "SA", flag: "🇸🇦", name: "Saudi Arabia", nameAr: "السعودية", dialCode: "+966", maxLen: 9, placeholder: "5xxxxxxxx" },
+  { code: "AE", flag: "🇦🇪", name: "UAE",          nameAr: "الإمارات",  dialCode: "+971", maxLen: 9, placeholder: "5xxxxxxxx" },
+  { code: "KW", flag: "🇰🇼", name: "Kuwait",       nameAr: "الكويت",    dialCode: "+965", maxLen: 8, placeholder: "xxxxxxxx" },
+  { code: "QA", flag: "🇶🇦", name: "Qatar",        nameAr: "قطر",       dialCode: "+974", maxLen: 8, placeholder: "xxxxxxxx" },
+  { code: "BH", flag: "🇧🇭", name: "Bahrain",      nameAr: "البحرين",   dialCode: "+973", maxLen: 8, placeholder: "xxxxxxxx" },
+  { code: "OM", flag: "🇴🇲", name: "Oman",         nameAr: "عُمان",     dialCode: "+968", maxLen: 8, placeholder: "xxxxxxxx" },
+];
 
 export default function SignupPage() {
   const { locale } = useLocale();
@@ -24,6 +33,9 @@ export default function SignupPage() {
   const [confirmPassword, setConfirmPassword] = useState("");
 
   // OTP & Phone State
+  const [selectedCountry, setSelectedCountry] = useState(COUNTRY_CODES[0]);
+  const [countryDropdownOpen, setCountryDropdownOpen] = useState(false);
+  const countryDropdownRef = useRef(null);
   const [phoneInput, setPhoneInput] = useState("");
   const [otp, setOtp] = useState("");
   const [otpSent, setOtpSent] = useState(false);
@@ -48,6 +60,16 @@ export default function SignupPage() {
         window.recaptchaVerifier = null;
       }
     };
+  }, []);
+
+  // Close country dropdown on outside click
+  useEffect(() => {
+    const handler = (e) => {
+      if (countryDropdownRef.current && !countryDropdownRef.current.contains(e.target))
+        setCountryDropdownOpen(false);
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
   }, []);
 
   if (!t) return null;
@@ -78,17 +100,13 @@ export default function SignupPage() {
   const handleSendOtp = async () => {
     setErrorMsg("");
 
-    let rawNumber = phoneInput.replace(/\D/g, '');
-    if (rawNumber.startsWith("05")) rawNumber = rawNumber.substring(1);
-    if (rawNumber.startsWith("966")) rawNumber = rawNumber.substring(3);
-
-    const ksaRegex = /^5\d{8}$/;
-    if (!ksaRegex.test(rawNumber)) {
-      toast.error(isRTL ? "يرجى إدخال رقم جوال سعودي صحيح (5xxxxxxxx)" : "Please enter a valid KSA mobile (5xxxxxxxx)");
+    const rawNumber = phoneInput.replace(/\D/g, '');
+    if (rawNumber.length < 7 || rawNumber.length > 12) {
+      toast.error(isRTL ? "يرجى إدخال رقم هاتف صحيح" : "Please enter a valid phone number");
       return;
     }
 
-    const finalPhoneNumber = `+966${rawNumber}`;
+    const finalPhoneNumber = `${selectedCountry.dialCode}${rawNumber}`;
 
     try {
       setOtpLoading(true);
@@ -167,9 +185,8 @@ export default function SignupPage() {
       setErrorMsg(msg);
       return;
     }
-    let rawNumber = phoneInput.replace(/\D/g, '');
-    if (rawNumber.startsWith("05")) rawNumber = rawNumber.substring(1);
-    const finalSavedPhone = `+966${rawNumber}`;
+    const rawNumber = phoneInput.replace(/\D/g, '');
+    const finalSavedPhone = `${selectedCountry.dialCode}${rawNumber}`;
 
     try {
       setLoading(true);
