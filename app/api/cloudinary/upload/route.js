@@ -1,5 +1,6 @@
 import { v2 as cloudinary } from "cloudinary";
 import { NextResponse } from "next/server";
+import { prisma } from "@/lib/prisma";
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -16,7 +17,6 @@ export async function POST(req) {
       return NextResponse.json({ error: "No file received" }, { status: 400 });
     }
 
-    // Convert Blob → Buffer
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
 
@@ -29,7 +29,18 @@ export async function POST(req) {
         .end(buffer);
     });
 
-    return NextResponse.json({ url: uploadResult.secure_url });
+    const url = uploadResult.secure_url;
+
+    // Catalogue in media library (fire-and-forget, don't block response)
+    prisma.mediaAsset.create({
+      data: {
+        url,
+        filename: file.name || null,
+        folder: uploadResult.folder || "cms",
+      },
+    }).catch((e) => console.warn("MediaAsset save failed:", e.message));
+
+    return NextResponse.json({ url });
   } catch (err) {
     console.error("UPLOAD ERROR:", err);
     return NextResponse.json({ error: err.message }, { status: 500 });

@@ -5,60 +5,13 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import {
   Plus, Trash2, Pencil, X, Save, Loader2,
-  UploadCloud, ImageIcon, LayoutGrid, Search, Check, Eye, EyeOff,
+  ImageIcon, LayoutGrid, Search, Check, Eye, EyeOff,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import Image from "next/image";
+import MediaPicker from "@/app/admin/_components/MediaPicker";
 
-/* ── Cloudinary image uploader ─────────────────────────── */
-function ImgUpload({ value, onChange }) {
-  const [uploading, setUploading] = useState(false);
-
-  const pick = async (e) => {
-    const f = e.target.files?.[0];
-    if (!f) return;
-    setUploading(true);
-    const form = new FormData();
-    form.append("file", f);
-    const res = await fetch("/api/cloudinary/upload", { method: "POST", body: form });
-    const data = await res.json();
-    setUploading(false);
-    if (data?.url) onChange(data.url);
-    else toast.error("Image upload failed");
-  };
-
-  return (
-    <div className="space-y-2">
-      <div className="relative w-full aspect-square rounded-xl border-2 border-dashed border-gray-200 overflow-hidden bg-gray-50 flex items-center justify-center">
-        {value ? (
-          <Image src={value} alt="collection" fill className="object-cover rounded-xl" />
-        ) : (
-          <div className="text-center text-gray-400 p-4">
-            <ImageIcon size={28} className="mx-auto mb-2" />
-            <span className="text-xs">Square image recommended</span>
-          </div>
-        )}
-        {uploading && (
-          <div className="absolute inset-0 bg-black/50 flex items-center justify-center rounded-xl">
-            <Loader2 size={24} className="text-white animate-spin" />
-          </div>
-        )}
-      </div>
-      <div className="flex items-center gap-2">
-        <label className="inline-flex items-center gap-1 text-xs px-3 py-1.5 rounded-lg border border-gray-300 cursor-pointer hover:bg-gray-50 transition">
-          <UploadCloud size={13} /> {value ? "Change" : "Upload"}
-          <input type="file" accept="image/*" className="hidden" onChange={pick} />
-        </label>
-        {value && (
-          <button onClick={() => onChange("")} className="text-xs text-red-500 hover:text-red-700">
-            Remove
-          </button>
-        )}
-      </div>
-    </div>
-  );
-}
 
 /* ── Product picker multi-select ───────────────────────── */
 function ProductPicker({ allProducts, selectedIds, onChange }) {
@@ -204,7 +157,7 @@ function CollectionForm({ initial, allProducts, onSave, onClose }) {
                 <label className="text-xs font-semibold text-gray-600 uppercase tracking-wide mb-2 block">
                   Cover Image
                 </label>
-                <ImgUpload value={form.image} onChange={(url) => set("image", url)} />
+                <MediaPicker value={form.image} onChange={(url) => set("image", url)} aspect="square" />
               </div>
 
               <div className="grid grid-cols-2 gap-3">

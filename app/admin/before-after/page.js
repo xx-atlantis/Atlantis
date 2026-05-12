@@ -3,11 +3,12 @@
 import { useEffect, useState } from "react";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { Plus, Trash2, Save, Loader2, UploadCloud, ImageIcon } from "lucide-react";
+import { Plus, Trash2, Save, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import Image from "next/image";
+import MediaPicker from "@/app/admin/_components/MediaPicker";
 
 /* ─── helpers ─────────────────────────────────────────────────── */
 const emptyProject = () => ({
@@ -23,57 +24,6 @@ const defaultContent = () => ({
   list: [],
 });
 
-/* ─── tiny cloudinary uploader ────────────────────────────────── */
-function ImgUpload({ value, onChange, label }) {
-  const [preview, setPreview] = useState(null);
-  const [uploading, setUploading] = useState(false);
-  const id = `img-${label}-${Math.random().toString(36).slice(2)}`;
-
-  const pick = (e) => {
-    const f = e.target.files?.[0];
-    if (!f) return;
-    setPreview(URL.createObjectURL(f));
-    upload(f);
-  };
-
-  const upload = async (file) => {
-    setUploading(true);
-    const form = new FormData();
-    form.append("file", file);
-    const res = await fetch("/api/cloudinary/upload", { method: "POST", body: form });
-    const data = await res.json();
-    setUploading(false);
-    if (data?.url) { onChange(data.url); setPreview(null); }
-    else toast.error("Image upload failed");
-  };
-
-  const src = preview || value;
-
-  return (
-    <div className="space-y-2">
-      {label && <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide">{label}</p>}
-      <div className="relative w-full h-40 rounded-xl border-2 border-dashed border-gray-200 overflow-hidden bg-gray-50 flex items-center justify-center">
-        {src ? (
-          <Image src={src} alt={label} fill className="object-cover rounded-xl" />
-        ) : (
-          <div className="text-center text-gray-400">
-            <ImageIcon size={28} className="mx-auto mb-1" />
-            <span className="text-xs">No image</span>
-          </div>
-        )}
-        {uploading && (
-          <div className="absolute inset-0 bg-black/40 flex items-center justify-center rounded-xl">
-            <Loader2 size={24} className="text-white animate-spin" />
-          </div>
-        )}
-      </div>
-      <label htmlFor={id} className="inline-flex items-center gap-1 text-xs px-3 py-1.5 rounded-lg border border-gray-300 cursor-pointer hover:bg-gray-50 transition">
-        <UploadCloud size={13} /> {src ? "Change" : "Upload"}
-      </label>
-      <input id={id} type="file" accept="image/*" className="hidden" onChange={pick} />
-    </div>
-  );
-}
 
 /* ─── main page ───────────────────────────────────────────────── */
 export default function BeforeAfterAdmin() {
@@ -253,12 +203,12 @@ export default function BeforeAfterAdmin() {
 
             {/* before / after images */}
             <div className="grid grid-cols-2 gap-4">
-              <ImgUpload
+              <MediaPicker
                 label="Before Image"
                 value={proj.before}
                 onChange={(url) => patchProject(i, "before", url)}
               />
-              <ImgUpload
+              <MediaPicker
                 label="After Image"
                 value={proj.after}
                 onChange={(url) => patchProject(i, "after", url)}
@@ -272,7 +222,7 @@ export default function BeforeAfterAdmin() {
               {/* avatar */}
               <div className="flex items-start gap-4">
                 <div className="w-36 shrink-0">
-                  <ImgUpload
+                  <MediaPicker
                     label="Avatar Photo"
                     value={proj.review?.avatar}
                     onChange={(url) => patchReview(i, "avatar", url)}

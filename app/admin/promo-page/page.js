@@ -3,56 +3,13 @@
 import { useEffect, useState } from "react";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { Plus, Trash2, Pencil, X, Save, Loader2, UploadCloud, ImageIcon, Tag, Eye, EyeOff } from "lucide-react";
+import { Plus, Trash2, Pencil, X, Save, Loader2, Tag, Eye, EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import Image from "next/image";
+import MediaPicker from "@/app/admin/_components/MediaPicker";
 
-/* ── Cloudinary uploader ───────────────────────────────── */
-function ImgUpload({ value, onChange }) {
-  const [uploading, setUploading] = useState(false);
-
-  const pick = async (e) => {
-    const f = e.target.files?.[0];
-    if (!f) return;
-    setUploading(true);
-    const form = new FormData();
-    form.append("file", f);
-    const res = await fetch("/api/cloudinary/upload", { method: "POST", body: form });
-    const data = await res.json();
-    setUploading(false);
-    if (data?.url) onChange(data.url);
-    else toast.error("Image upload failed");
-  };
-
-  return (
-    <div className="space-y-2">
-      <div className="relative w-full h-36 rounded-xl border-2 border-dashed border-gray-200 overflow-hidden bg-gray-50 flex items-center justify-center">
-        {value ? (
-          <Image src={value} alt="promotion" fill className="object-cover rounded-xl" />
-        ) : (
-          <div className="text-center text-gray-400">
-            <ImageIcon size={24} className="mx-auto mb-1" />
-            <span className="text-xs">No image</span>
-          </div>
-        )}
-        {uploading && (
-          <div className="absolute inset-0 bg-black/40 flex items-center justify-center rounded-xl">
-            <Loader2 size={22} className="text-white animate-spin" />
-          </div>
-        )}
-      </div>
-      <label className="inline-flex items-center gap-1 text-xs px-3 py-1.5 rounded-lg border border-gray-300 cursor-pointer hover:bg-gray-50 transition">
-        <UploadCloud size={13} /> {value ? "Change" : "Upload"}
-        <input type="file" accept="image/*" className="hidden" onChange={pick} />
-      </label>
-      {value && (
-        <button onClick={() => onChange("")} className="text-xs text-red-500 hover:text-red-700 ms-2">Remove</button>
-      )}
-    </div>
-  );
-}
 
 const emptyPromo = () => ({
   titleEn: "", titleAr: "",
@@ -96,7 +53,7 @@ function PromoForm({ initial, onSave, onClose }) {
           {/* Image */}
           <div>
             <label className="text-xs font-semibold text-gray-600 uppercase tracking-wide mb-2 block">Promotion Image</label>
-            <ImgUpload value={form.image} onChange={(url) => set("image", url)} />
+            <MediaPicker value={form.image} onChange={(url) => set("image", url)} />
           </div>
 
           {/* Titles */}
