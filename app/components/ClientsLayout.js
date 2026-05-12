@@ -6,6 +6,8 @@ import Footer from "@/app/components/Footer";
 import { PageContentProvider } from "@/app/context/PageContentProvider";
 import WhatsAppFloatingIcon from "./WhatsApp";
 import PromoBanner from "./PromoBanner";
+import TopBar from "./TopBar";
+import { CountryCurrencyProvider } from "@/app/context/CountryCurrencyContext";
 
 export default function ClientLayout({ children }) {
   const pathname = usePathname();
@@ -43,8 +45,10 @@ export default function ClientLayout({ children }) {
   }
 
   return (
+    <CountryCurrencyProvider>
     <PageContentProvider page={page} locale={locale}>
       {!hideLayout && <PromoBanner />}
+      {!hideLayout && <TopBar />}
       {!hideLayout && <Header />}
 
       <main>{children}</main>
@@ -59,5 +63,6 @@ export default function ClientLayout({ children }) {
       
       {!hideLayout && <Footer />}
     </PageContentProvider>
+    </CountryCurrencyProvider>
   );
 }

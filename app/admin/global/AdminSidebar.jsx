@@ -28,6 +28,9 @@ const PAGE_PERMISSIONS = {
     "/admin": "content.read",
     "/admin/how-it-works": "content.read",
     "/admin/before-after": "content.read",
+    "/admin/shop-settings": "product.read",
+    "/admin/contact-us": "content.read",
+    "/admin/promo-page": "content.read",
     "/admin/contact-us": "content.read",
     "/admin/portfolio": "content.read",
     "/admin/plans-pricing": "content.read",
@@ -76,6 +79,11 @@ const AdminSidebar = ({ collapsed, setCollapsed, setMenuOpen }) => {
                 languages: { en: { title: "Products" }, ar: { title: "المنتجات" } },
             },
             {
+                id: 35,
+                slug: "/admin/shop-settings",
+                languages: { en: { title: "Shop Settings" }, ar: { title: "إعدادات المتجر" } },
+            },
+            {
                 id: 6,
                 slug: "/admin/blog",
                 languages: { en: { title: "Blogs Page" }, ar: { title: "صفحة المدونة" } },
@@ -104,6 +112,11 @@ const AdminSidebar = ({ collapsed, setCollapsed, setMenuOpen }) => {
                 id: 32,
                 slug: "/admin/promo-banner",
                 languages: { en: { title: "Promo Banner" }, ar: { title: "البانر الترويجي" } },
+            },
+            {
+                id: 36,
+                slug: "/admin/promo-page",
+                languages: { en: { title: "Promotions" }, ar: { title: "العروض الترويجية" } },
             },
             {
                 id: 31,
@@ -179,6 +192,7 @@ const AdminSidebar = ({ collapsed, setCollapsed, setMenuOpen }) => {
             { id: 19, slug: "/admin/about-us", languages: { en: { title: "About Us" }, ar: { title: "من نحن" } } },
             { id: 17, slug: "/admin/terms-and-condition", languages: { en: { title: "Terms" }, ar: { title: "الشروط" } } },
             { id: 20, slug: "/admin/privacy-policy", languages: { en: { title: "Privacy" }, ar: { title: "الخصوصية" } } },
+            { id: 37, slug: "/admin/contact-us", languages: { en: { title: "Contact Us" }, ar: { title: "اتصل بنا" } } },
         ],
         []
     );

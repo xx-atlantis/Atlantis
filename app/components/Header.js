@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { ChevronDown, Globe, Menu, X, ShoppingBag } from "lucide-react";
+import { ChevronDown, Menu, X, ShoppingBag } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useLocale } from "./LocaleProvider";
@@ -76,6 +76,10 @@ export default function Header() {
     {
       title: isRTL ? "المدونة" : "Blog",
       link: "/blog",
+    },
+    {
+      title: isRTL ? "العروض" : "Promotions",
+      link: "/promotions",
     },
   ];
 
@@ -198,15 +202,6 @@ export default function Header() {
             </Link>
           </div>
           
-          {/* LANGUAGE (Desktop) */}
-          <Link
-            href={newPath}
-            className="hidden lg:flex items-center gap-1 border border-gray-300 rounded-lg px-3 py-2 text-sm hover:bg-gray-50 transition"
-          >
-            <Globe size={16} />
-            <span className="uppercase font-medium">{locale === "ar" ? "EN" : "AR"}</span>
-          </Link>
-
           {/* AUTH (Desktop) */}
           <div className="hidden lg:block">
             {!customer ? (
@@ -324,16 +319,6 @@ export default function Header() {
                   <button onClick={() => { handleLogout(); setMenuOpen(false); }} className={`block w-full ${isRTL ? "text-right" : "text-left"} py-2 text-sm text-red-600 font-medium mt-1`}>{isRTL ? "تسجيل الخروج" : "Logout"}</button>
                 </div>
               )}
-
-              {/* Mobile Language */}
-              <Link
-                href={newPath}
-                onClick={() => setMenuOpen(false)}
-                className="flex items-center justify-center gap-2 border border-gray-300 rounded-lg px-4 py-3 hover:bg-gray-50 w-full font-medium transition"
-              >
-                <Globe size={18} />
-                <span>{locale === "ar" ? "English" : "العربية"}</span>
-              </Link>
 
               {/* Mobile CTA */}
               <button

@@ -7,7 +7,6 @@ import { usePageContent } from "@/app/context/PageContentProvider";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import ImageUploader from "@/app/components/ImageUploader";
 import { ChevronRight } from "lucide-react";
 
 const FORM_KEY = "start_project_form_v1";
@@ -206,20 +205,6 @@ export default function StartProjectSinglePage() {
                     })}
                   </div>
 
-                  {/* Upload Plan Logic */}
-                  {step.options.some((o) => o.cardName === "yes") &&
-                    form[stepKey]?.cardName === "yes" && (
-                      <div className="mt-6 p-6 border-2 border-dashed border-primary-theme/30 rounded-2xl bg-gradient-to-br from-gray-50 to-white">
-                        <p className="text-sm font-semibold text-gray-700 mb-4">
-                          {isRTL ? "📎 قم بتحميل المخطط الخاص بك" : "📎 Upload Your Plan"}
-                        </p>
-                        <ImageUploader
-                          value={form.uploadedPlan?.value || ""}
-                          inputId={`plan-upload-${sIndex}`}
-                          onChange={(url) => updateForm("uploadedPlan", { value: url }, "Uploaded Plan")}
-                        />
-                      </div>
-                    )}
                 </div>
               );
             })}

@@ -12,6 +12,7 @@ export function ProductModal({ editing, setEditing, onSave, onClose }) {
 	const [tab, setTab] = useState("en");
 	const [categories, setCategories] = useState([]);
 	const [loadingCategories, setLoadingCategories] = useState(false);
+	const [materials, setMaterials] = useState({ en: [], ar: [] });
 
 	/* ---------------- Fetch Categories ---------------- */
 	const fetchCategories = async (locale = "en") => {
@@ -29,10 +30,30 @@ export function ProductModal({ editing, setEditing, onSave, onClose }) {
 		}
 	};
 
-	/* ---------------- Load Categories on Mount & Tab Change ---------------- */
+	/* ---------------- Fetch Materials (both locales once) ---------------- */
+	const fetchMaterials = async () => {
+		try {
+			const [en, ar] = await Promise.all([
+				fetch("/api/materials?locale=en").then((r) => r.json()),
+				fetch("/api/materials?locale=ar").then((r) => r.json()),
+			]);
+			setMaterials({
+				en: (en.data || []).map((m) => m.name),
+				ar: (ar.data || []).map((m) => m.name),
+			});
+		} catch {
+			// materials dropdown is optional — fail silently
+		}
+	};
+
+	/* ---------------- Load on Mount & Tab Change ---------------- */
 	useEffect(() => {
 		fetchCategories(tab);
 	}, [tab]);
+
+	useEffect(() => {
+		fetchMaterials();
+	}, []);
 
 	/* ---------------- Helper ---------------- */
 	const update = (path, value) => {
@@ -158,17 +179,27 @@ export function ProductModal({ editing, setEditing, onSave, onClose }) {
 
 							{/* MATERIAL */}
 							<div>
-								<label className="text-sm font-medium text-gray-700 mb-2 block">
-									Material
+								<label className="text-sm font-medium text-gray-700 mb-2 flex items-center justify-between">
+									<span>Material</span>
+									{materials[tab].length > 0 && (
+										<span className="text-xs text-gray-400">{materials[tab].length} predefined options</span>
+									)}
 								</label>
 								<input
+									list={`materials-${tab}`}
 									className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
-									placeholder={tab === "en" ? "e.g., Cotton, Silk, Polyester" : "على سبيل المثال، القطن، الحرير، البوليستر"}
+									placeholder={tab === "en" ? "Select or type a material…" : "اختر أو اكتب مادة…"}
 									value={editing[tab].material || ""}
-									onChange={(e) =>
-										update(`${tab}.material`, e.target.value)
-									}
+									onChange={(e) => update(`${tab}.material`, e.target.value)}
+									dir={tab === "ar" ? "rtl" : "ltr"}
 								/>
+								{materials[tab].length > 0 && (
+									<datalist id={`materials-${tab}`}>
+										{materials[tab].map((name) => (
+											<option key={name} value={name} />
+										))}
+									</datalist>
+								)}
 							</div>
 						</div>
 
