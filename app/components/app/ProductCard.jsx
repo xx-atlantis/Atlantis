@@ -1,4 +1,5 @@
 "use client";
+
 import React from "react";
 import { ShoppingBag, Eye } from "lucide-react";
 import { useCart } from "@/app/context/CartContext";
@@ -34,71 +35,68 @@ export const ProductCard = ({ product, onClick }) => {
     <div
       dir={isRTL ? "rtl" : "ltr"}
       onClick={() => onClick(product.id)}
-      className="group cursor-pointer flex flex-col bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-300"
+      className="group cursor-pointer flex flex-col bg-white rounded-2xl overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-xl shadow-sm"
     >
       {/* ── Image ── */}
-      <div className="relative overflow-hidden bg-[#F5F3EF] aspect-[4/5]">
+      <div className="relative overflow-hidden bg-[#F5F2EC]" style={{ aspectRatio: "4/5" }}>
         <img
           src={product.coverImage}
           alt={product.name}
-          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.06]"
         />
 
-        {/* Category chip */}
-        {product.category?.[locale] && (
-          <div className="absolute top-3 start-3">
-            <span className="bg-white/90 backdrop-blur-sm text-gray-700 text-[11px] font-semibold px-2.5 py-1 rounded-full shadow-sm">
-              {product.category[locale]}
-            </span>
-          </div>
-        )}
-
-        {/* Out of stock overlay */}
+        {/* Out-of-stock dim */}
         {!product.inStock && (
-          <div className="absolute inset-0 bg-white/60 flex items-center justify-center">
-            <span className="bg-white text-gray-500 text-xs font-semibold px-3 py-1.5 rounded-full border border-gray-200 shadow-sm">
+          <div className="absolute inset-0 bg-white/50 flex items-end justify-center pb-4">
+            <span className="bg-white text-gray-500 text-xs font-semibold px-3 py-1 rounded-full border border-gray-200 shadow-sm">
               {isRTL ? "نفد المخزون" : "Out of Stock"}
             </span>
           </div>
         )}
 
-        {/* Hover actions */}
-        <div className="absolute bottom-0 start-0 end-0 flex translate-y-full group-hover:translate-y-0 transition-transform duration-300">
+        {/* Category chip — top */}
+        {product.category?.[locale] && (
+          <div className={`absolute top-3 ${isRTL ? "right-3" : "left-3"}`}>
+            <span className="bg-white/90 backdrop-blur-sm text-[#2D3247] text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wide shadow-sm">
+              {product.category[locale]}
+            </span>
+          </div>
+        )}
+
+        {/* Hover action bar — slides up from bottom */}
+        <div
+          className="absolute inset-x-0 bottom-0 flex translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out"
+        >
           <button
             onClick={handleAddToCart}
             disabled={!product.inStock}
-            className="flex-1 bg-[#2D3247] text-white py-3 text-xs font-semibold flex items-center justify-center gap-2 hover:bg-[#1e2231] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex-1 bg-[#2D3247]/95 backdrop-blur-sm text-white py-3.5 text-xs font-bold tracking-wide flex items-center justify-center gap-2 hover:bg-[#2D3247] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
           >
-            <ShoppingBag size={14} />
-            {isRTL ? "أضف إلى السلة" : "Add to Bag"}
+            <ShoppingBag size={13} />
+            {isRTL ? "أضف للسلة" : "Add to Bag"}
           </button>
           <button
             onClick={(e) => { e.stopPropagation(); onClick(product.id); }}
-            className="bg-white text-gray-700 px-4 py-3 text-xs font-semibold flex items-center justify-center hover:bg-gray-50 transition-colors border-s border-gray-100"
+            className="bg-white/95 backdrop-blur-sm text-[#2D3247] px-4 py-3.5 flex items-center justify-center hover:bg-white transition-colors border-s border-gray-100"
           >
             <Eye size={15} />
           </button>
         </div>
       </div>
 
-      {/* ── Content ── */}
-      <div className="p-4 flex flex-col gap-1 flex-1">
+      {/* ── Info ── */}
+      <div className="p-4 flex flex-col gap-0.5">
         {product.material && (
-          <p className="text-[11px] text-gray-400 uppercase tracking-wide font-medium">
+          <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-gray-400 mb-0.5">
             {product.material}
           </p>
         )}
         <h3 className="text-sm font-semibold text-gray-900 line-clamp-2 leading-snug group-hover:text-[#2D3247] transition-colors">
           {product.name}
         </h3>
-        <div className="mt-auto pt-2 flex items-center justify-between">
-          <span className="text-base font-bold text-[#2D3247]">
-            {formatPrice(product.price)}
-          </span>
-          {product.sku && (
-            <span className="text-[10px] text-gray-300 font-mono">{product.sku}</span>
-          )}
-        </div>
+        <p className="mt-2 text-base font-bold text-[#2D3247]">
+          {formatPrice(product.price)}
+        </p>
       </div>
     </div>
   );

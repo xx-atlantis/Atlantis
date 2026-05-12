@@ -117,7 +117,7 @@ export default function Header() {
   const header = data.header;
 
   return (
-    <header dir={isRTL ? "rtl" : "ltr"} className="w-full bg-white sticky top-0 z-50 shadow-sm font-sans">
+    <header dir={isRTL ? "rtl" : "ltr"} className="w-full bg-white shadow-sm font-sans">
       <div className="flex justify-between items-center px-4 sm:px-8 md:px-10 py-4">
         
         {/* LOGO */}

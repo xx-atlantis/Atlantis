@@ -48,8 +48,12 @@ export default function ClientLayout({ children }) {
     <CountryCurrencyProvider>
     <PageContentProvider page={page} locale={locale}>
       {!hideLayout && <PromoBanner />}
-      {!hideLayout && <TopBar />}
-      {!hideLayout && <Header />}
+      {!hideLayout && (
+        <div className="sticky top-0 z-50">
+          <TopBar />
+          <Header />
+        </div>
+      )}
 
       <main>{children}</main>
       
