@@ -18,24 +18,28 @@ const Shop = () => {
   const { isCartOpen } = useCart();
 
   const [products, setProducts] = useState([]);
+  const [collections, setCollections] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    async function fetchProducts() {
+    async function fetchData() {
       try {
         setLoading(true);
-        const res = await fetch(`/api/shop/product?locale=${locale}`);
-        const json = await res.json();
-        if (json.success) setProducts(json.data);
-        else setError(json.error || "Failed to load products");
+        const [prodRes, colRes] = await Promise.all([
+          fetch(`/api/shop/product?locale=${locale}`).then((r) => r.json()),
+          fetch("/api/collections").then((r) => r.json()),
+        ]);
+        if (prodRes.success) setProducts(prodRes.data);
+        else setError(prodRes.error || "Failed to load products");
+        setCollections(colRes.data || []);
       } catch (err) {
         setError(err.message);
       } finally {
         setLoading(false);
       }
     }
-    fetchProducts();
+    fetchData();
   }, [locale]);
 
   const navigateToProduct = (id) => {
@@ -47,6 +51,7 @@ const Shop = () => {
     <div dir={isRTL ? "rtl" : "ltr"} className="min-h-screen bg-white">
       <ShopPage
         products={products}
+        collections={collections}
         loading={loading}
         error={error}
         onProductClick={navigateToProduct}

@@ -31,6 +31,7 @@ const PAGE_PERMISSIONS = {
     "/admin/shop-settings": "product.read",
     "/admin/contact-us": "content.read",
     "/admin/promo-page": "content.read",
+    "/admin/collections": "product.read",
     "/admin/contact-us": "content.read",
     "/admin/portfolio": "content.read",
     "/admin/plans-pricing": "content.read",
@@ -82,6 +83,11 @@ const AdminSidebar = ({ collapsed, setCollapsed, setMenuOpen }) => {
                 id: 35,
                 slug: "/admin/shop-settings",
                 languages: { en: { title: "Shop Settings" }, ar: { title: "إعدادات المتجر" } },
+            },
+            {
+                id: 38,
+                slug: "/admin/collections",
+                languages: { en: { title: "Collections" }, ar: { title: "المجموعات" } },
             },
             {
                 id: 6,

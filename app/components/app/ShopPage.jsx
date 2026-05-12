@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useMemo, useRef } from "react";
-import { SlidersHorizontal, ChevronDown, X, Check, LayoutGrid } from "lucide-react";
+import { SlidersHorizontal, ChevronDown, X, Check, LayoutGrid, Layers } from "lucide-react";
 import { ProductCard } from "./ProductCard";
 import { ShopSkeleton } from "../ShopSkeleton";
 import { useLocale } from "@/app/components/LocaleProvider";
@@ -167,8 +167,73 @@ function FiltersSheet({ open, onClose, filters, setFilters, products, isRTL }) {
   );
 }
 
+/* ── Collections strip ─────────────────────────────────── */
+function CollectionsStrip({ collections, activeCollectionId, onSelect, isRTL, locale }) {
+  if (!collections || collections.length === 0) return null;
+
+  return (
+    <div className="bg-white py-8 md:py-10 border-b border-gray-100">
+      <div className="max-w-7xl mx-auto px-4 sm:px-10 md:px-14">
+        <p className="text-xs font-bold uppercase tracking-[0.18em] text-gray-400 mb-5">
+          {isRTL ? "تسوق حسب المجموعة" : "Shop by Collection"}
+        </p>
+        <div className="flex gap-4 overflow-x-auto no-scrollbar pb-1">
+          {collections.map((col) => {
+            const isActive = activeCollectionId === col.id;
+            return (
+              <button
+                key={col.id}
+                onClick={() => onSelect(isActive ? null : col.id)}
+                className="shrink-0 group relative focus:outline-none"
+                style={{ width: "160px" }}
+              >
+                {/* Square tile */}
+                <div
+                  className={`relative aspect-square rounded-2xl overflow-hidden transition-all duration-300 ${
+                    isActive
+                      ? "ring-2 ring-[#2D3247] ring-offset-2 shadow-xl"
+                      : "hover:shadow-lg hover:-translate-y-0.5"
+                  }`}
+                >
+                  {col.image ? (
+                    <img
+                      src={col.image}
+                      alt={locale === "ar" ? col.nameAr : col.nameEn}
+                      className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    />
+                  ) : (
+                    <div className="absolute inset-0 bg-gradient-to-br from-[#2D3247] to-[#3d4560]" />
+                  )}
+                  {/* Gradient overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent" />
+
+                  {/* Active check */}
+                  {isActive && (
+                    <div className="absolute top-2.5 right-2.5 w-6 h-6 bg-white rounded-full flex items-center justify-center shadow-md">
+                      <Check size={13} className="text-[#2D3247]" />
+                    </div>
+                  )}
+                </div>
+
+                {/* Name below tile */}
+                <p
+                  className={`mt-2.5 text-sm font-semibold text-center leading-tight transition-colors ${
+                    isActive ? "text-[#2D3247]" : "text-gray-700 group-hover:text-[#2D3247]"
+                  }`}
+                >
+                  {locale === "ar" ? col.nameAr : col.nameEn}
+                </p>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 /* ── Main ShopPage ─────────────────────────────────────── */
-export const ShopPage = ({ products, onProductClick, loading, error, content }) => {
+export const ShopPage = ({ products, collections = [], onProductClick, loading, error, content }) => {
   const { locale } = useLocale();
   const { country, formatPrice } = useCountryCurrency();
   const isRTL = locale === "ar";
@@ -176,6 +241,7 @@ export const ShopPage = ({ products, onProductClick, loading, error, content }) 
 
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [activeCategory, setActiveCategory] = useState("all");
+  const [activeCollectionId, setActiveCollectionId] = useState(null);
   const [filters, setFilters] = useState({
     material: [],
     color: [],
@@ -196,6 +262,11 @@ export const ShopPage = ({ products, onProductClick, loading, error, content }) 
 
   const filteredProducts = useMemo(() => {
     let result = [...products];
+
+    if (activeCollectionId) {
+      const col = collections.find((c) => c.id === activeCollectionId);
+      if (col) result = result.filter((p) => col.productIds.includes(p.id));
+    }
 
     if (activeCategory !== "all")
       result = result.filter((p) => p.category?.en === activeCategory);
@@ -277,6 +348,15 @@ export const ShopPage = ({ products, onProductClick, loading, error, content }) 
           </div>
         </div>
       </div>
+
+      {/* ── Collections strip ── */}
+      <CollectionsStrip
+        collections={collections}
+        activeCollectionId={activeCollectionId}
+        onSelect={(id) => { setActiveCollectionId(id); setActiveCategory("all"); }}
+        isRTL={isRTL}
+        locale={locale}
+      />
 
       {/* ── Category + Filter Bar ── */}
       <div
@@ -360,8 +440,22 @@ export const ShopPage = ({ products, onProductClick, loading, error, content }) 
       </div>
 
       {/* ── Active filter tags ── */}
-      {(activeCategory !== "all" || advancedActiveCount > 0) && (
+      {(activeCollectionId || activeCategory !== "all" || advancedActiveCount > 0) && (
         <div className="max-w-7xl mx-auto px-4 sm:px-10 md:px-14 pt-4 flex flex-wrap gap-2">
+          {activeCollectionId && (
+            <span className="inline-flex items-center gap-1.5 bg-[#2D3247] text-white text-sm rounded-full px-3 py-1 shadow-sm">
+              <Layers size={11} className="shrink-0" />
+              <span className="leading-none">
+                {(() => {
+                  const col = collections.find((c) => c.id === activeCollectionId);
+                  return locale === "ar" ? col?.nameAr : col?.nameEn;
+                })()}
+              </span>
+              <button onClick={() => setActiveCollectionId(null)} className="hover:text-white/60 transition">
+                <X size={12} />
+              </button>
+            </span>
+          )}
           {activeCategory !== "all" && (
             <span className="inline-flex items-center gap-1.5 bg-white text-sm text-gray-700 border border-gray-200 rounded-full px-3 py-1 shadow-sm">
               {categories.find((c) => c.en === activeCategory)?.label || activeCategory}
@@ -379,7 +473,7 @@ export const ShopPage = ({ products, onProductClick, loading, error, content }) 
             </span>
           ))}
           <button
-            onClick={() => { setActiveCategory("all"); setFilters((p) => ({ ...p, material: [], color: [], inStock: false, minPrice: 0, maxPrice: 50000 })); }}
+            onClick={() => { setActiveCollectionId(null); setActiveCategory("all"); setFilters((p) => ({ ...p, material: [], color: [], inStock: false, minPrice: 0, maxPrice: 50000 })); }}
             className="text-xs text-gray-400 underline hover:text-gray-700 transition"
           >
             {isRTL ? "مسح الكل" : "Clear all"}
@@ -401,7 +495,7 @@ export const ShopPage = ({ products, onProductClick, loading, error, content }) 
               {isRTL ? "جرب تعديل الفلاتر أو اختر فئة مختلفة" : "Try adjusting your filters or browse a different category"}
             </p>
             <button
-              onClick={() => { setActiveCategory("all"); setFilters({ material: [], color: [], inStock: false, minPrice: 0, maxPrice: 50000, sort: "newest" }); }}
+              onClick={() => { setActiveCollectionId(null); setActiveCategory("all"); setFilters({ material: [], color: [], inStock: false, minPrice: 0, maxPrice: 50000, sort: "newest" }); }}
               className="bg-[#2D3247] text-white px-6 py-2.5 rounded-full text-sm font-semibold hover:bg-[#1e2231] transition"
             >
               {isRTL ? "مسح الفلاتر" : "Clear Filters"}
