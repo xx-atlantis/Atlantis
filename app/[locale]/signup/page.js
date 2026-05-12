@@ -300,40 +300,80 @@ export default function SignupPage() {
               </label>
 
               <div className="flex gap-2" dir="ltr">
-                <div className="flex items-center justify-center bg-gray-100 border border-gray-300 border-r-0 rounded-l-md px-3 min-w-[80px]">
-                  <span className="mr-2">🇸🇦</span>
-                  <span className="text-gray-600 font-medium text-sm">+966</span>
+                {/* Country code dropdown */}
+                <div className="relative shrink-0" ref={countryDropdownRef}>
+                  <button
+                    type="button"
+                    disabled={isPhoneVerified || otpSent}
+                    onClick={() => setCountryDropdownOpen((o) => !o)}
+                    className="flex items-center gap-1.5 h-full bg-gray-100 border border-gray-300 rounded-l-md px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-200 disabled:pointer-events-none transition min-w-[90px]"
+                  >
+                    <span>{selectedCountry.flag}</span>
+                    <span className="text-gray-600">{selectedCountry.dialCode}</span>
+                    <ChevronDown size={13} className={`text-gray-400 transition-transform ${countryDropdownOpen ? "rotate-180" : ""}`} />
+                  </button>
+
+                  {countryDropdownOpen && (
+                    <div className="absolute top-full left-0 mt-1 w-52 bg-white border border-gray-200 rounded-xl shadow-xl z-50 overflow-hidden py-1">
+                      {COUNTRY_CODES.map((c) => (
+                        <button
+                          key={c.code}
+                          type="button"
+                          onClick={() => {
+                            setSelectedCountry(c);
+                            setCountryDropdownOpen(false);
+                            setPhoneInput("");
+                          }}
+                          className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm text-left hover:bg-gray-50 transition ${
+                            selectedCountry.code === c.code ? "bg-gray-50 font-semibold" : ""
+                          }`}
+                        >
+                          <span className="text-base shrink-0">{c.flag}</span>
+                          <span className="flex-1 text-gray-800">{isRTL ? c.nameAr : c.name}</span>
+                          <span className="text-gray-400 text-xs shrink-0">{c.dialCode}</span>
+                          {selectedCountry.code === c.code && (
+                            <Check size={13} className="text-[#2D3247] shrink-0" />
+                          )}
+                        </button>
+                      ))}
+                    </div>
+                  )}
                 </div>
 
+                {/* Phone number input */}
                 <input
                   type="tel"
-                  placeholder="5xxxxxxxx"
+                  placeholder={selectedCountry.placeholder}
                   value={phoneInput}
-                  maxLength={9}
+                  maxLength={selectedCountry.maxLen}
                   disabled={isPhoneVerified || otpSent}
-                  onChange={(e) => {
-                    const val = e.target.value.replace(/\D/g, '');
-                    setPhoneInput(val);
-                  }}
-                  className={`flex-1 border border-gray-300 rounded-r-md px-3 py-2 text-sm focus:ring-1 focus:ring-[#5E7E7D] tracking-wider ${isPhoneVerified ? "bg-green-50 border-green-500 text-green-700" : ""
-                    }`}
+                  onChange={(e) => setPhoneInput(e.target.value.replace(/\D/g, ''))}
+                  className={`flex-1 border border-gray-300 border-l-0 px-3 py-2 text-sm focus:ring-1 focus:ring-[#5E7E7D] focus:outline-none tracking-wider min-w-0 ${
+                    isPhoneVerified
+                      ? "bg-green-50 border-green-500 text-green-700"
+                      : "rounded-none"
+                  }`}
                 />
 
+                {/* Send OTP button */}
                 {!isPhoneVerified && !otpSent && (
                   <button
                     type="button"
                     onClick={handleSendOtp}
-                    disabled={otpLoading || phoneInput.length < 9}
-                    className="ml-2 bg-gray-900 text-white px-4 rounded-md text-xs font-medium hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+                    disabled={otpLoading || phoneInput.length < 7}
+                    className="shrink-0 bg-gray-900 text-white px-4 py-2 rounded-r-md text-xs font-medium hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap border border-gray-900"
                   >
-                    {otpLoading ? "..." : (isRTL ? "إرسال" : "Send")}
+                    {otpLoading ? "…" : (isRTL ? "إرسال" : "Send")}
                   </button>
                 )}
 
+                {/* Verified check */}
                 {isPhoneVerified && (
-                  <div className="flex items-center justify-center px-2">
+                  <div className="flex items-center justify-center px-2 border border-l-0 border-green-300 rounded-r-md bg-green-50">
                     <div className="bg-green-100 rounded-full p-1">
-                      <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path></svg>
+                      <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" />
+                      </svg>
                     </div>
                   </div>
                 )}
