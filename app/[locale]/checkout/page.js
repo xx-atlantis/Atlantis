@@ -3,6 +3,7 @@
 import { useLocale } from "@/app/components/LocaleProvider";
 import { usePageContent } from "@/app/context/PageContentProvider";
 import { useCart } from "@/app/context/CartContext";
+import { useCountryCurrency } from "@/app/context/CountryCurrencyContext";
 import { useState, useMemo, useEffect } from "react";
 import { CheckCircle2, CreditCard, Wallet, Sparkles, Landmark, Tag, X, SaudiRiyal, Trash2 } from "lucide-react";
 import Script from "next/script";
@@ -32,6 +33,7 @@ const formatSaudiPhone = (input) => {
 export default function CheckoutPage() {
   const { locale } = useLocale();
   const { data } = usePageContent();
+  const { country, formatPrice, convertAmount } = useCountryCurrency();
   const [cart, setCart] = useState({});
   const checkout = data?.checkout;
   const isRTL = locale === "ar";
@@ -148,8 +150,8 @@ export default function CheckoutPage() {
         setAppliedCoupon(data);
         toast.success(
           isRTL
-            ? `تم تطبيق الكوبون! وفرت ${data.discount.amount.toFixed(2)} ر.س`
-            : `Coupon applied! You saved SAR ${data.discount.amount.toFixed(2)}`
+            ? `تم تطبيق الكوبون! وفرت ${formatPrice(data.discount.amount)}`
+            : `Coupon applied! You saved ${formatPrice(data.discount.amount)}`
         );
       } else {
         toast.error(data.error || (isRTL ? "كود كوبون غير صالح" : "Invalid coupon code"));
@@ -300,6 +302,10 @@ export default function CheckoutPage() {
           phone: formattedPhone,
           email,
           amount: total,
+          // Multi-currency: pass selected country's currency and converted amount
+          currency: country?.currency || "SAR",
+          amount: convertAmount ? convertAmount(total) : total,
+          countryCode: country?.code || "SA",
           items: cart.cartType === "package" ? [{ name: cart.package.title, price: total, quantity: 1 }] : safeCartItems
         }),
       });
@@ -535,7 +541,9 @@ export default function CheckoutPage() {
                       <h3 className="text-lg font-bold text-gray-800 leading-tight">{cart.package?.title}</h3>
                     </div>
                     <div className="text-right">
-                      <span className="text-lg font-extrabold text-[#2D3247]">{cart.package?.price} <SaudiRiyalIcon size={16} className="inline-block " /></span>
+                      <span className="text-lg font-extrabold text-[#2D3247]">
+                        {formatPrice(typeof cart.package?.price === "string" ? Number(cart.package.price.replace(/\D/g, "")) : Number(cart.package?.price) || 0)}
+                      </span>
                     </div>
                   </div>
                   {cart.extraFee > 0 && (
@@ -544,7 +552,7 @@ export default function CheckoutPage() {
                         <span className="text-amber-800 text-sm font-bold block">{isRTL ? "رسوم إضافية" : "Additional Fee"}</span>
                         <p className="text-[11px] text-amber-700 mt-0.5 leading-relaxed">{cart.feeReason}</p>
                       </div>
-                      <span className="font-bold text-amber-800 text-sm">+{cart.extraFee} <SaudiRiyalIcon size={12} className="inline-block " /></span>
+                      <span className="font-bold text-amber-800 text-sm">+{formatPrice(Number(cart.extraFee) || 0)}</span>
                     </div>
                   )}
 
@@ -584,19 +592,19 @@ export default function CheckoutPage() {
                   <div className="space-y-2">
                     <div className="flex justify-between text-sm text-gray-500">
                       <span>{isRTL ? "مشمول الضريبة (15%)" : "Includes VAT (15%)"}</span>
-                      <span>{vat.toFixed(2)} <SaudiRiyalIcon size={16} className="inline-block " /></span>
+                      <span>{formatPrice(vat)}</span>
                     </div>
                     {/* Coupon Discount */}
                     {appliedCoupon && (
                       <div className="flex justify-between text-sm text-green-600 font-medium">
                         <span>{isRTL ? "خصم الكوبون" : "Coupon Discount"} ({discountPercentage}%)</span>
-                        <span>-{couponDiscount.toFixed(2)} <SaudiRiyalIcon size={16} className="inline-block " /></span>
+                        <span>-{formatPrice(couponDiscount)}</span>
                       </div>
                     )}
                     <div className="flex justify-between items-center text-lg font-bold border-t border-gray-100 pt-4 mt-4">
                       <span className="text-gray-900">{isRTL ? "الإجمالي" : "Total"}</span>
                       <div className="text-right">
-                        <span className="text-[#2D3247]">{total.toFixed(2)} <SaudiRiyalIcon size={16} className="inline-block " /></span>
+                        <span className="text-[#2D3247]">{formatPrice(total)}</span>
                         <p className="text-[10px] text-gray-400 font-normal">{isRTL ? "شامل الضريبة" : "VAT Included"}</p>
                       </div>
                     </div>
@@ -619,8 +627,8 @@ export default function CheckoutPage() {
                               </div>
                             </div>
                             <div className="flex flex-col items-end gap-1">
-                              <span className="font-semibold text-gray-700 flex items-end gap-1">
-                                {(item.price * item.quantity).toFixed(2)} <span className="text-[10px]"><SaudiRiyalIcon size={16} className="inline-block " /></span>
+                              <span className="font-semibold text-gray-700">
+                                {formatPrice(item.price * item.quantity)}
                               </span>
                               <button
                                 onClick={() => {
@@ -646,26 +654,26 @@ export default function CheckoutPage() {
                       <div className="space-y-2">
                         <div className="flex justify-between text-sm text-gray-500">
                           <span>{isRTL ? "المجموع الفرعي" : "Subtotal"}</span>
-                          <span>{subtotal.toFixed(2)} <SaudiRiyalIcon size={16} className="inline-block " /></span>
+                          <span>{formatPrice(subtotal)}</span>
                         </div>
 
                         <div className="flex justify-between text-sm text-gray-500">
                           <span>{isRTL ? "مشمول الضريبة (15%)" : "Includes VAT (15%)"}</span>
-                          <span>{vat.toFixed(2)} <SaudiRiyalIcon size={16} className="inline-block " /></span>
+                          <span>{formatPrice(vat)}</span>
                         </div>
 
                         {/* Coupon Discount */}
                         {appliedCoupon && (
                           <div className="flex justify-between text-sm text-green-600 font-medium">
                             <span>{isRTL ? "خصم الكوبون" : "Coupon Discount"} ({discountPercentage}%)</span>
-                            <span>-{couponDiscount.toFixed(2)} <SaudiRiyalIcon size={16} className="inline-block " /></span>
+                            <span>-{formatPrice(couponDiscount)}</span>
                           </div>
                         )}
 
                         <div className="flex justify-between items-center text-lg font-bold border-t border-gray-100 pt-4 mt-4">
                           <span className="text-gray-900">{isRTL ? "الإجمالي" : "Total"}</span>
                           <div className="text-right">
-                            <span className="text-[#2D3247]">{total.toFixed(2)} <SaudiRiyalIcon size={16} className="inline-block " /></span>
+                            <span className="text-[#2D3247]">{formatPrice(total)}</span>
                             <p className="text-[10px] text-gray-400 font-normal">
                               {isRTL ? "شامل الضريبة" : "VAT Included"}
                             </p>
@@ -708,7 +716,7 @@ export default function CheckoutPage() {
                     {appliedCoupon.coupon.description || (isRTL ? "تم تطبيق الكوبون بنجاح" : "Coupon applied successfully")}
                   </p>
                   <p className="text-sm font-bold text-green-800 mt-2">
-                    {isRTL ? "وفرت" : "You saved"}: {couponDiscount.toFixed(2)} <SaudiRiyalIcon size={14} className="inline-block" />
+                    {isRTL ? "وفرت" : "You saved"}: {formatPrice(couponDiscount)}
                   </p>
                 </div>
               ) : (

@@ -61,8 +61,15 @@ export function CountryCurrencyProvider({ children }) {
     })}`;
   };
 
+  // Returns raw converted number (no formatting) — use for payment APIs
+  const convertAmount = (sarPrice) => {
+    const rate = RATES_FROM_SAR[country.currency] ?? 1;
+    const digits = country.currency === "KWD" || country.currency === "BHD" || country.currency === "OMR" ? 3 : 2;
+    return parseFloat((sarPrice * rate).toFixed(digits));
+  };
+
   return (
-    <CountryCurrencyContext.Provider value={{ country, countries: COUNTRIES, selectCountry, formatPrice, ready }}>
+    <CountryCurrencyContext.Provider value={{ country, countries: COUNTRIES, selectCountry, formatPrice, convertAmount, ready }}>
       {children}
     </CountryCurrencyContext.Provider>
   );
