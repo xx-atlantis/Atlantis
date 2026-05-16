@@ -449,26 +449,6 @@ function SizesEditor({ editing, update }) {
 				<span className="text-xs font-normal text-gray-400">(optional — e.g. Single, Queen, King, 180×200)</span>
 			</h3>
 
-			{sizes.length > 0 && (
-				<div className="flex flex-wrap gap-2">
-					{sizes.map((s) => (
-						<span
-							key={s}
-							className="inline-flex items-center gap-1.5 bg-white border border-gray-200 text-gray-700 text-sm px-3 py-1.5 rounded-lg shadow-sm"
-						>
-							{s}
-							<button
-								type="button"
-								onClick={() => removeSize(s)}
-								className="text-gray-400 hover:text-red-500 transition"
-							>
-								<X size={12} />
-							</button>
-						</span>
-					))}
-				</div>
-			)}
-
 			<div className="flex gap-2">
 				<input
 					ref={inputRef}
@@ -489,7 +469,31 @@ function SizesEditor({ editing, update }) {
 					Add
 				</button>
 			</div>
-			<p className="text-xs text-gray-400">Press Enter or click Add. Sizes apply to all languages.</p>
+
+			{sizes.length > 0 ? (
+				<div>
+					<p className="text-xs text-gray-400 mb-2">Added sizes:</p>
+					<div className="flex flex-wrap gap-2">
+						{sizes.map((s) => (
+							<span
+								key={s}
+								className="inline-flex items-center gap-1.5 bg-white border border-orange-200 text-gray-700 text-sm px-3 py-1.5 rounded-lg shadow-sm"
+							>
+								{s}
+								<button
+									type="button"
+									onClick={() => removeSize(s)}
+									className="text-gray-400 hover:text-red-500 transition"
+								>
+									<X size={12} />
+								</button>
+							</span>
+						))}
+					</div>
+				</div>
+			) : (
+				<p className="text-xs text-gray-400 italic">No sizes added yet. Sizes apply to all languages.</p>
+			)}
 		</div>
 	);
 }
@@ -530,26 +534,6 @@ function MaterialsEditor({ editing, update, tab, predefined = [] }) {
 				</span>
 			</h3>
 
-			{mats.length > 0 && (
-				<div className="flex flex-wrap gap-2">
-					{mats.map((m) => (
-						<span
-							key={m}
-							className="inline-flex items-center gap-1.5 bg-teal-50 border border-teal-200 text-teal-800 text-sm px-3 py-1.5 rounded-lg shadow-sm"
-						>
-							{m}
-							<button
-								type="button"
-								onClick={() => removeMaterial(m)}
-								className="text-teal-400 hover:text-red-500 transition"
-							>
-								<X size={12} />
-							</button>
-						</span>
-					))}
-				</div>
-			)}
-
 			<div className="flex gap-2" dir={tab === "ar" ? "rtl" : "ltr"}>
 				<input
 					ref={inputRef}
@@ -578,7 +562,31 @@ function MaterialsEditor({ editing, update, tab, predefined = [] }) {
 					Add
 				</button>
 			</div>
-			<p className="text-xs text-gray-400">Press Enter or click Add. Each language has its own material labels.</p>
+
+			{mats.length > 0 ? (
+				<div>
+					<p className="text-xs text-gray-400 mb-2">Added materials:</p>
+					<div className="flex flex-wrap gap-2">
+						{mats.map((m) => (
+							<span
+								key={m}
+								className="inline-flex items-center gap-1.5 bg-teal-50 border border-teal-200 text-teal-800 text-sm px-3 py-1.5 rounded-lg shadow-sm"
+							>
+								{m}
+								<button
+									type="button"
+									onClick={() => removeMaterial(m)}
+									className="text-teal-400 hover:text-red-500 transition"
+								>
+									<X size={12} />
+								</button>
+							</span>
+						))}
+					</div>
+				</div>
+			) : (
+				<p className="text-xs text-gray-400 italic">No materials added yet. Each language has its own material labels.</p>
+			)}
 		</div>
 	);
 }
