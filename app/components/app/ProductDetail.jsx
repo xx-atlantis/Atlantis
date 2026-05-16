@@ -234,7 +234,21 @@ export const ProductDetails = ({ product, onBack, loading }) => {
                             <span className="text-sm text-gray-500">
                                 {locale === "ar" ? "الخامة" : "Material"}
                             </span>
-                            <div className="font-medium">{product.material || "-"}</div>
+                            {(() => {
+                                const arr = product.variant?.materials;
+                                const mats = Array.isArray(arr) && arr.length > 0
+                                    ? arr
+                                    : (product.material || "").split(",").map((m) => m.trim()).filter(Boolean);
+                                return mats.length > 0 ? (
+                                    <div className="flex flex-wrap gap-1 mt-1">
+                                        {mats.map((m) => (
+                                            <span key={m} className="text-sm bg-gray-100 text-gray-700 px-2 py-0.5 rounded-full font-medium">
+                                                {m}
+                                            </span>
+                                        ))}
+                                    </div>
+                                ) : <div className="font-medium">-</div>;
+                            })()}
                         </div>
 
                         <div>

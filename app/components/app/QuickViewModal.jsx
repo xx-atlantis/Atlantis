@@ -133,11 +133,21 @@ export function QuickViewModal({ product, onClose, onViewFull }) {
                 <h2 className="text-lg font-bold text-[#2D3247] leading-snug">
                   {product.name}
                 </h2>
-                {product.material && (
-                  <p className="text-xs text-gray-400 mt-1 uppercase tracking-wide font-medium">
-                    {product.material}
-                  </p>
-                )}
+                {(() => {
+                  const arr = product.variant?.materials;
+                  const mats = Array.isArray(arr) && arr.length > 0
+                    ? arr
+                    : (product.material || "").split(",").map((m) => m.trim()).filter(Boolean);
+                  return mats.length > 0 ? (
+                    <div className="flex flex-wrap gap-1 mt-1">
+                      {mats.map((m) => (
+                        <span key={m} className="text-xs bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full uppercase tracking-wide font-medium">
+                          {m}
+                        </span>
+                      ))}
+                    </div>
+                  ) : null;
+                })()}
               </div>
               <button
                 onClick={onClose}

@@ -177,30 +177,6 @@ export function ProductModal({ editing, setEditing, onSave, onClose }) {
 								</div>
 							</div>
 
-							{/* MATERIAL */}
-							<div>
-								<label className="text-sm font-medium text-gray-700 mb-2 flex items-center justify-between">
-									<span>Material</span>
-									{materials[tab].length > 0 && (
-										<span className="text-xs text-gray-400">{materials[tab].length} predefined options</span>
-									)}
-								</label>
-								<input
-									list={`materials-${tab}`}
-									className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
-									placeholder={tab === "en" ? "Select or type a material…" : "اختر أو اكتب مادة…"}
-									value={editing[tab].material || ""}
-									onChange={(e) => update(`${tab}.material`, e.target.value)}
-									dir={tab === "ar" ? "rtl" : "ltr"}
-								/>
-								{materials[tab].length > 0 && (
-									<datalist id={`materials-${tab}`}>
-										{materials[tab].map((name) => (
-											<option key={name} value={name} />
-										))}
-									</datalist>
-								)}
-							</div>
 						</div>
 
 						{/* BASIC INFO */}
@@ -342,6 +318,9 @@ export function ProductModal({ editing, setEditing, onSave, onClose }) {
 
 						{/* SIZES SECTION */}
 						<SizesEditor editing={editing} update={update} />
+
+						{/* MATERIALS SECTION */}
+						<MaterialsEditor editing={editing} update={update} tab={tab} predefined={materials[tab]} />
 
 						{/* IMAGES SECTION */}
 						<div className="bg-gradient-to-br from-gray-50/50 to-gray-100 rounded-xl p-5 border border-purple-100 space-y-5">
@@ -511,6 +490,95 @@ function SizesEditor({ editing, update }) {
 				</button>
 			</div>
 			<p className="text-xs text-gray-400">Press Enter or click Add. Sizes apply to all languages.</p>
+		</div>
+	);
+}
+
+/* ── Materials editor (per-language, stored in variant.materials + material string) ── */
+function MaterialsEditor({ editing, update, tab, predefined = [] }) {
+	const [input, setInput] = useState("");
+	const inputRef = useRef(null);
+
+	const mats = editing?.[tab]?.variant?.materials || [];
+
+	const syncMaterial = (next, locale) => {
+		update(`${locale}.variant`, { ...(editing[locale].variant || {}), materials: next });
+		update(`${locale}.material`, next.join(", "));
+	};
+
+	const addMaterial = () => {
+		const val = input.trim();
+		if (!val || mats.includes(val)) { setInput(""); return; }
+		syncMaterial([...mats, val], tab);
+		setInput("");
+		inputRef.current?.focus();
+	};
+
+	const removeMaterial = (m) => {
+		syncMaterial(mats.filter((x) => x !== m), tab);
+	};
+
+	const listId = `mat-predefined-${tab}`;
+
+	return (
+		<div className="bg-gray-50 rounded-xl p-5 border space-y-4">
+			<h3 className="font-semibold text-gray-900 flex items-center gap-2">
+				<span className="w-1 h-5 bg-teal-500 rounded"></span>
+				Materials
+				<span className="text-xs font-normal text-gray-400">
+					({tab === "en" ? "English" : "Arabic"} — optional, e.g. Wood, Velvet, Marble)
+				</span>
+			</h3>
+
+			{mats.length > 0 && (
+				<div className="flex flex-wrap gap-2">
+					{mats.map((m) => (
+						<span
+							key={m}
+							className="inline-flex items-center gap-1.5 bg-teal-50 border border-teal-200 text-teal-800 text-sm px-3 py-1.5 rounded-lg shadow-sm"
+						>
+							{m}
+							<button
+								type="button"
+								onClick={() => removeMaterial(m)}
+								className="text-teal-400 hover:text-red-500 transition"
+							>
+								<X size={12} />
+							</button>
+						</span>
+					))}
+				</div>
+			)}
+
+			<div className="flex gap-2" dir={tab === "ar" ? "rtl" : "ltr"}>
+				<input
+					ref={inputRef}
+					type="text"
+					list={listId}
+					value={input}
+					onChange={(e) => setInput(e.target.value)}
+					onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addMaterial(); } }}
+					placeholder={tab === "en" ? "e.g. Oak Wood, Velvet, Marble…" : "مثال: خشب، مخمل، رخام…"}
+					className="flex-1 border border-gray-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-teal-500 focus:border-transparent transition"
+				/>
+				{predefined.length > 0 && (
+					<datalist id={listId}>
+						{predefined.map((name) => (
+							<option key={name} value={name} />
+						))}
+					</datalist>
+				)}
+				<button
+					type="button"
+					onClick={addMaterial}
+					disabled={!input.trim()}
+					className="flex items-center gap-1.5 bg-teal-700 hover:bg-teal-800 text-white text-sm font-semibold px-4 py-2.5 rounded-lg transition disabled:opacity-40 disabled:cursor-not-allowed"
+				>
+					<Plus size={14} />
+					Add
+				</button>
+			</div>
+			<p className="text-xs text-gray-400">Press Enter or click Add. Each language has its own material labels.</p>
 		</div>
 	);
 }

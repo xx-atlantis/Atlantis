@@ -54,7 +54,14 @@ function SidebarFilters({
 }) {
   const materials = useMemo(() => {
     const s = new Set();
-    products.forEach((p) => { if (p.material) s.add(p.material); });
+    products.forEach((p) => {
+      const arr = p.variant?.materials;
+      if (Array.isArray(arr) && arr.length > 0) {
+        arr.forEach((m) => s.add(m));
+      } else if (p.material) {
+        p.material.split(",").forEach((m) => { const t = m.trim(); if (t) s.add(t); });
+      }
+    });
     return [...s];
   }, [products]);
 
@@ -538,7 +545,13 @@ export const ShopPage = ({ products, collections = [], servicePackages = [], onP
     );
 
     if (filters.material.length)
-      result = result.filter((p) => p.material && filters.material.includes(p.material));
+      result = result.filter((p) => {
+        const arr = p.variant?.materials;
+        const productMats = Array.isArray(arr) && arr.length > 0
+          ? arr
+          : (p.material || "").split(",").map((m) => m.trim()).filter(Boolean);
+        return productMats.some((m) => filters.material.includes(m));
+      });
 
     if (filters.color.length)
       result = result.filter((p) => p.color && filters.color.includes(p.color));

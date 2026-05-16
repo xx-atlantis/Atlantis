@@ -27,6 +27,14 @@ async function api(url, options = {}) {
 	return json;
 }
 
+/* if variant.materials not yet set, seed it from old comma string */
+function migrateVariantMaterials(variant, materialStr) {
+	const v = variant || {};
+	if (Array.isArray(v.materials) && v.materials.length > 0) return v;
+	const mats = (materialStr || "").split(",").map((m) => m.trim()).filter(Boolean);
+	return mats.length > 0 ? { ...v, materials: mats } : v;
+}
+
 /* ======================================================
 	ADMIN SHOP PAGE
 ====================================================== */
@@ -161,13 +169,13 @@ export default function AdminShopPage() {
 					name: resEn.data.name || "",
 					short_description: resEn.data.short_description || "",
 					material: resEn.data.material || "",
-					variant: resEn.data.variant || {},
+					variant: migrateVariantMaterials(resEn.data.variant, resEn.data.material),
 				},
 				ar: {
 					name: resAr.data.name || "",
 					short_description: resAr.data.short_description || "",
 					material: resAr.data.material || "",
-					variant: resAr.data.variant || {},
+					variant: migrateVariantMaterials(resAr.data.variant, resAr.data.material),
 				},
 			});
 			setModalOpen(true);
