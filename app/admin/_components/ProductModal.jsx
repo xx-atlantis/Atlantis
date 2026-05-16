@@ -56,6 +56,8 @@ export function ProductModal({ editing, setEditing, onSave, onClose }) {
 	}, []);
 
 	/* ---------------- Helpers ---------------- */
+	const deepClone = (obj) => JSON.parse(JSON.stringify(obj));
+
 	const applyPath = (obj, path, value) => {
 		const keys = path.split(".");
 		let ref = obj;
@@ -63,17 +65,13 @@ export function ProductModal({ editing, setEditing, onSave, onClose }) {
 		ref[keys.at(-1)] = value;
 	};
 
+	/* always use functional updater so we operate on the latest state */
 	const update = (path, value) => {
-		const clone = structuredClone(editing);
-		applyPath(clone, path, value);
-		setEditing(clone);
-	};
-
-	/* apply multiple [path, value] pairs in one clone → one setEditing call */
-	const batchUpdate = (pairs) => {
-		const clone = structuredClone(editing);
-		for (const [path, value] of pairs) applyPath(clone, path, value);
-		setEditing(clone);
+		setEditing((prev) => {
+			const clone = deepClone(prev);
+			applyPath(clone, path, value);
+			return clone;
+		});
 	};
 
 	/* ---------------- Validation ---------------- */
@@ -328,10 +326,10 @@ export function ProductModal({ editing, setEditing, onSave, onClose }) {
 						</div>
 
 						{/* SIZES SECTION */}
-						<SizesEditor editing={editing} batchUpdate={batchUpdate} />
+						<SizesEditor editing={editing} setEditing={setEditing} />
 
 						{/* MATERIALS SECTION */}
-						<MaterialsEditor editing={editing} batchUpdate={batchUpdate} tab={tab} predefined={materials[tab]} />
+						<MaterialsEditor editing={editing} setEditing={setEditing} tab={tab} predefined={materials[tab]} />
 
 						{/* IMAGES SECTION */}
 						<div className="bg-gradient-to-br from-gray-50/50 to-gray-100 rounded-xl p-5 border border-purple-100 space-y-5">
@@ -430,17 +428,19 @@ export function ProductModal({ editing, setEditing, onSave, onClose }) {
 }
 
 /* ── Sizes editor (language-agnostic, stored in en.variant.sizes) ── */
-function SizesEditor({ editing, batchUpdate }) {
+function SizesEditor({ editing, setEditing }) {
 	const [input, setInput] = useState("");
 	const inputRef = useRef(null);
 
 	const sizes = editing?.en?.variant?.sizes || [];
 
 	const syncSizes = (next) => {
-		batchUpdate([
-			["en.variant", { ...(editing.en.variant || {}), sizes: next }],
-			["ar.variant", { ...(editing.ar.variant || {}), sizes: next }],
-		]);
+		setEditing((prev) => {
+			const clone = JSON.parse(JSON.stringify(prev));
+			clone.en.variant = { ...(prev.en.variant || {}), sizes: next };
+			clone.ar.variant = { ...(prev.ar.variant || {}), sizes: next };
+			return clone;
+		});
 	};
 
 	const addSize = () => {
@@ -511,17 +511,19 @@ function SizesEditor({ editing, batchUpdate }) {
 }
 
 /* ── Materials editor (per-language, stored in variant.materials + material string) ── */
-function MaterialsEditor({ editing, batchUpdate, tab, predefined = [] }) {
+function MaterialsEditor({ editing, setEditing, tab, predefined = [] }) {
 	const [input, setInput] = useState("");
 	const inputRef = useRef(null);
 
 	const mats = editing?.[tab]?.variant?.materials || [];
 
 	const syncMaterials = (next) => {
-		batchUpdate([
-			[`${tab}.variant`, { ...(editing[tab].variant || {}), materials: next }],
-			[`${tab}.material`, next.join(", ")],
-		]);
+		setEditing((prev) => {
+			const clone = JSON.parse(JSON.stringify(prev));
+			clone[tab].variant = { ...(prev[tab].variant || {}), materials: next };
+			clone[tab].material = next.join(", ");
+			return clone;
+		});
 	};
 
 	const addMaterial = () => {
