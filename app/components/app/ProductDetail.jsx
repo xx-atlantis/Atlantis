@@ -253,9 +253,20 @@ export const ProductDetails = ({ product, onBack, loading }) => {
 
                         <div>
                             <span className="text-sm text-gray-500">
-                                {productVariant.label || (locale === "ar" ? "خيار" : "Option")}
+                                {locale === "ar" ? "الأحجام" : "Size"}
                             </span>
-                            <div className="font-medium">{productVariant.value || "-"}</div>
+                            {(() => {
+                                const sizes = Array.isArray(product.variant?.sizes) ? product.variant.sizes : [];
+                                return sizes.length > 0 ? (
+                                    <div className="flex flex-wrap gap-1 mt-1">
+                                        {sizes.map((s) => (
+                                            <span key={s} className="text-sm bg-gray-100 text-gray-700 px-2 py-0.5 rounded-full font-medium">
+                                                {s}
+                                            </span>
+                                        ))}
+                                    </div>
+                                ) : <div className="font-medium">-</div>;
+                            })()}
                         </div>
                     </div>
 
