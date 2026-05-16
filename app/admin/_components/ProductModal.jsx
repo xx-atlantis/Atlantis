@@ -55,13 +55,24 @@ export function ProductModal({ editing, setEditing, onSave, onClose }) {
 		fetchMaterials();
 	}, []);
 
-	/* ---------------- Helper ---------------- */
-	const update = (path, value) => {
-		const clone = structuredClone(editing);
-		let ref = clone;
+	/* ---------------- Helpers ---------------- */
+	const applyPath = (obj, path, value) => {
 		const keys = path.split(".");
+		let ref = obj;
 		for (let i = 0; i < keys.length - 1; i++) ref = ref[keys[i]];
 		ref[keys.at(-1)] = value;
+	};
+
+	const update = (path, value) => {
+		const clone = structuredClone(editing);
+		applyPath(clone, path, value);
+		setEditing(clone);
+	};
+
+	/* apply multiple [path, value] pairs in one clone → one setEditing call */
+	const batchUpdate = (pairs) => {
+		const clone = structuredClone(editing);
+		for (const [path, value] of pairs) applyPath(clone, path, value);
 		setEditing(clone);
 	};
 
@@ -317,10 +328,10 @@ export function ProductModal({ editing, setEditing, onSave, onClose }) {
 						</div>
 
 						{/* SIZES SECTION */}
-						<SizesEditor editing={editing} update={update} />
+						<SizesEditor editing={editing} batchUpdate={batchUpdate} />
 
 						{/* MATERIALS SECTION */}
-						<MaterialsEditor editing={editing} update={update} tab={tab} predefined={materials[tab]} />
+						<MaterialsEditor editing={editing} batchUpdate={batchUpdate} tab={tab} predefined={materials[tab]} />
 
 						{/* IMAGES SECTION */}
 						<div className="bg-gradient-to-br from-gray-50/50 to-gray-100 rounded-xl p-5 border border-purple-100 space-y-5">
@@ -419,27 +430,28 @@ export function ProductModal({ editing, setEditing, onSave, onClose }) {
 }
 
 /* ── Sizes editor (language-agnostic, stored in en.variant.sizes) ── */
-function SizesEditor({ editing, update }) {
+function SizesEditor({ editing, batchUpdate }) {
 	const [input, setInput] = useState("");
 	const inputRef = useRef(null);
 
 	const sizes = editing?.en?.variant?.sizes || [];
 
+	const syncSizes = (next) => {
+		batchUpdate([
+			["en.variant", { ...(editing.en.variant || {}), sizes: next }],
+			["ar.variant", { ...(editing.ar.variant || {}), sizes: next }],
+		]);
+	};
+
 	const addSize = () => {
 		const val = input.trim();
 		if (!val || sizes.includes(val)) { setInput(""); return; }
-		const next = [...sizes, val];
-		update("en.variant", { ...(editing.en.variant || {}), sizes: next });
-		update("ar.variant", { ...(editing.ar.variant || {}), sizes: next });
+		syncSizes([...sizes, val]);
 		setInput("");
 		inputRef.current?.focus();
 	};
 
-	const removeSize = (s) => {
-		const next = sizes.filter((x) => x !== s);
-		update("en.variant", { ...(editing.en.variant || {}), sizes: next });
-		update("ar.variant", { ...(editing.ar.variant || {}), sizes: next });
-	};
+	const removeSize = (s) => syncSizes(sizes.filter((x) => x !== s));
 
 	return (
 		<div className="bg-gray-50 rounded-xl p-5 border space-y-4">
@@ -499,28 +511,28 @@ function SizesEditor({ editing, update }) {
 }
 
 /* ── Materials editor (per-language, stored in variant.materials + material string) ── */
-function MaterialsEditor({ editing, update, tab, predefined = [] }) {
+function MaterialsEditor({ editing, batchUpdate, tab, predefined = [] }) {
 	const [input, setInput] = useState("");
 	const inputRef = useRef(null);
 
 	const mats = editing?.[tab]?.variant?.materials || [];
 
-	const syncMaterial = (next, locale) => {
-		update(`${locale}.variant`, { ...(editing[locale].variant || {}), materials: next });
-		update(`${locale}.material`, next.join(", "));
+	const syncMaterials = (next) => {
+		batchUpdate([
+			[`${tab}.variant`, { ...(editing[tab].variant || {}), materials: next }],
+			[`${tab}.material`, next.join(", ")],
+		]);
 	};
 
 	const addMaterial = () => {
 		const val = input.trim();
 		if (!val || mats.includes(val)) { setInput(""); return; }
-		syncMaterial([...mats, val], tab);
+		syncMaterials([...mats, val]);
 		setInput("");
 		inputRef.current?.focus();
 	};
 
-	const removeMaterial = (m) => {
-		syncMaterial(mats.filter((x) => x !== m), tab);
-	};
+	const removeMaterial = (m) => syncMaterials(mats.filter((x) => x !== m));
 
 	const listId = `mat-predefined-${tab}`;
 
