@@ -328,6 +328,7 @@ export default function PromotionsPage() {
 
   const c = isRTL ? content.ar : content.en;
   const scrollToOffer = () => offerRef.current?.scrollIntoView({ behavior: "smooth" });
+  const ctaAction = (link) => link ? { href: link } : { onClick: scrollToOffer };
 
   return (
     <div dir={isRTL ? "rtl" : "ltr"} className="min-h-screen bg-white">
@@ -350,13 +351,23 @@ export default function PromotionsPage() {
             <span className="text-sm font-semibold">{c.hero.valueBadge}</span>
           </div>
           <div className="pt-2">
-            <button
-              onClick={scrollToOffer}
-              className="inline-flex items-center gap-2 bg-[#C9A96E] hover:bg-[#b8955c] text-white font-semibold px-10 py-4 rounded-xl transition text-base"
-            >
-              {c.hero.ctaPrimary}
-              <ArrowRight size={16} className={isRTL ? "rotate-180" : ""} />
-            </button>
+            {c.hero.ctaLink ? (
+              <Link
+                href={c.hero.ctaLink}
+                className="inline-flex items-center gap-2 bg-[#C9A96E] hover:bg-[#b8955c] text-white font-semibold px-10 py-4 rounded-xl transition text-base"
+              >
+                {c.hero.ctaPrimary}
+                <ArrowRight size={16} className={isRTL ? "rotate-180" : ""} />
+              </Link>
+            ) : (
+              <button
+                onClick={scrollToOffer}
+                className="inline-flex items-center gap-2 bg-[#C9A96E] hover:bg-[#b8955c] text-white font-semibold px-10 py-4 rounded-xl transition text-base"
+              >
+                {c.hero.ctaPrimary}
+                <ArrowRight size={16} className={isRTL ? "rotate-180" : ""} />
+              </button>
+            )}
           </div>
           <p className="text-white/40 text-xs">{c.hero.finePrint}</p>
         </div>
@@ -518,12 +529,21 @@ export default function PromotionsPage() {
 
           {/* CTA — same style as hero */}
           <div className="text-center space-y-3">
-            <button
-              onClick={scrollToOffer}
-              className="w-full inline-flex items-center justify-center gap-2 bg-[#C9A96E] hover:bg-[#b8955c] text-white font-bold px-10 py-4 rounded-xl transition text-base"
-            >
-              {c.offerCard.ctaButton}
-            </button>
+            {c.offerCard.ctaLink ? (
+              <Link
+                href={c.offerCard.ctaLink}
+                className="w-full inline-flex items-center justify-center gap-2 bg-[#C9A96E] hover:bg-[#b8955c] text-white font-bold px-10 py-4 rounded-xl transition text-base"
+              >
+                {c.offerCard.ctaButton}
+              </Link>
+            ) : (
+              <button
+                onClick={scrollToOffer}
+                className="w-full inline-flex items-center justify-center gap-2 bg-[#C9A96E] hover:bg-[#b8955c] text-white font-bold px-10 py-4 rounded-xl transition text-base"
+              >
+                {c.offerCard.ctaButton}
+              </button>
+            )}
             <p className="text-white/40 text-xs">{c.offerCard.ctaNote}</p>
           </div>
         </div>
@@ -585,7 +605,7 @@ export default function PromotionsPage() {
                         </div>
                         {promo.link && !expired && (
                           <Link href={promo.link} className="inline-flex items-center gap-2 bg-[#2D3247] hover:bg-[#1e2231] text-white text-sm font-semibold px-6 py-3 rounded-xl transition">
-                            {isRTL ? "احصل على العرض" : "Claim Offer"}
+                            {isRTL ? (promo.ctaTextAr || "احصل على العرض") : (promo.ctaTextEn || "Claim Offer")}
                             <ArrowRight size={14} className={isRTL ? "rotate-180" : ""} />
                           </Link>
                         )}
@@ -712,13 +732,23 @@ export default function PromotionsPage() {
           <h2 className="text-3xl md:text-4xl font-bold leading-tight">{c.finalCta.title}</h2>
           <p className="text-white/70 max-w-xl mx-auto text-base">{c.finalCta.subtitle}</p>
           <div className="pt-2">
-            <button
-              onClick={scrollToOffer}
-              className="inline-flex items-center gap-2 bg-[#C9A96E] hover:bg-[#b8955c] text-white font-semibold px-10 py-4 rounded-xl transition text-base"
-            >
-              {c.finalCta.primaryBtn}
-              <ArrowRight size={16} className={isRTL ? "rotate-180" : ""} />
-            </button>
+            {c.finalCta.ctaLink ? (
+              <Link
+                href={c.finalCta.ctaLink}
+                className="inline-flex items-center gap-2 bg-[#C9A96E] hover:bg-[#b8955c] text-white font-semibold px-10 py-4 rounded-xl transition text-base"
+              >
+                {c.finalCta.primaryBtn}
+                <ArrowRight size={16} className={isRTL ? "rotate-180" : ""} />
+              </Link>
+            ) : (
+              <button
+                onClick={scrollToOffer}
+                className="inline-flex items-center gap-2 bg-[#C9A96E] hover:bg-[#b8955c] text-white font-semibold px-10 py-4 rounded-xl transition text-base"
+              >
+                {c.finalCta.primaryBtn}
+                <ArrowRight size={16} className={isRTL ? "rotate-180" : ""} />
+              </button>
+            )}
           </div>
           <p className="text-white/40 text-xs">{c.finalCta.finePrint}</p>
         </div>

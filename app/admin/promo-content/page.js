@@ -14,6 +14,7 @@ const DEFAULT_EN = {
     subtitle: "Premium interior design packages at exclusive promotional rates — crafted by Atlantis's expert team for homes and businesses across the GCC.",
     valueBadge: "Save up to 40% on select packages",
     ctaPrimary: "View Current Offers",
+    ctaLink: "",
     finePrint: "* Limited spots available. No credit card required for consultation.",
   },
   stats: [
@@ -72,6 +73,7 @@ const DEFAULT_EN = {
       ],
     },
     ctaButton: "Book Now — 199 SAR",
+    ctaLink: "",
     ctaNote: "All GCC countries · Online sessions · Limited spots",
   },
   howSection: {
@@ -132,6 +134,7 @@ const DEFAULT_EN = {
     title: "Ready to Transform Your Space?",
     subtitle: "Join hundreds of satisfied clients across the GCC. Claim your promotional package today before spots run out.",
     primaryBtn: "View Offers",
+    ctaLink: "",
     finePrint: "* No commitment required for the free consultation.",
   },
 };
@@ -144,6 +147,7 @@ const DEFAULT_AR = {
     subtitle: "حزم تصميم داخلي فاخرة بأسعار ترويجية حصرية — يصممها فريق أتلانتس المتخصص للمنازل والأعمال في دول الخليج.",
     valueBadge: "وفر حتى ٤٠٪ على حزم مختارة",
     ctaPrimary: "اعرض العروض الحالية",
+    ctaLink: "",
     finePrint: "* أماكن محدودة. لا تحتاج إلى بطاقة ائتمان للاستشارة.",
   },
   stats: [
@@ -202,6 +206,7 @@ const DEFAULT_AR = {
       ],
     },
     ctaButton: "احجز الآن — ١٩٩ ريال",
+    ctaLink: "",
     ctaNote: "جميع دول الخليج · جلسات أونلاين · الأماكن محدودة",
   },
   howSection: {
@@ -262,6 +267,7 @@ const DEFAULT_AR = {
     title: "مستعد لتحويل مساحتك؟",
     subtitle: "انضم إلى مئات العملاء الراضين في دول الخليج. احصل على حزمتك الترويجية اليوم قبل نفاد الأماكن.",
     primaryBtn: "اعرض العروض",
+    ctaLink: "",
     finePrint: "* الاستشارة المجانية لا تلزمك بأي شيء.",
   },
 };
@@ -460,7 +466,8 @@ export default function PromoContentAdmin() {
               ["titleMain", "Title (main)"],
               ["titleHighlight", "Title (gold highlight)"],
               ["valueBadge", "Value Badge"],
-              ["ctaPrimary", "CTA Button"],
+              ["ctaPrimary", "CTA Button Text"],
+              ["ctaLink", "CTA Button Link (blank = scroll to offer)"],
               ["finePrint", "Fine Print"],
             ].map(([key, label]) => (
               <BiRow key={key}>
@@ -525,7 +532,7 @@ export default function PromoContentAdmin() {
         <div className="space-y-4">
           {/* Header + Price */}
           <Card title="Header & Price">
-            {[["tag","Tag"],["title","Title"],["price","Price (number only)"],["currency","Currency"],["priceNote","Price Note"],["totalLabel","Total Label"],["totalValue","Total Value (crossed out)"],["payLabel","Pay Today Label"],["savingsNote","Savings Note"],["ctaButton","CTA Button Text"],["ctaNote","CTA Note (below button)"]].map(([k,l]) => (
+            {[["tag","Tag"],["title","Title"],["price","Price (number only)"],["currency","Currency"],["priceNote","Price Note"],["totalLabel","Total Label"],["totalValue","Total Value (crossed out)"],["payLabel","Pay Today Label"],["savingsNote","Savings Note"],["ctaButton","CTA Button Text"],["ctaLink","CTA Button Link (blank = scroll to offer)"],["ctaNote","CTA Note (below button)"]].map(([k,l]) => (
               <BiRow key={k}>
                 <Field label={`${l} (EN)`} value={en.offerCard[k]} onChange={(v) => setOC("en", k, v)} />
                 <Field label={`${l} (AR)`} value={ar.offerCard[k]} onChange={(v) => setOC("ar", k, v)} dir="rtl" />
@@ -855,7 +862,7 @@ export default function PromoContentAdmin() {
       case "cta": return (
         <div className="space-y-4">
           <Card title="Final CTA Section">
-            {[["badge","Badge"],["title","Title"],["primaryBtn","Button Text"],["finePrint","Fine Print"]].map(([k,l]) => (
+            {[["badge","Badge"],["title","Title"],["primaryBtn","Button Text"],["ctaLink","Button Link (blank = scroll to offer)"],["finePrint","Fine Print"]].map(([k,l]) => (
               <BiRow key={k}>
                 <Field label={`${l} (EN)`} value={en.finalCta[k]} onChange={(v) => setEn((p) => ({ ...p, finalCta: { ...p.finalCta, [k]: v } }))} />
                 <Field label={`${l} (AR)`} value={ar.finalCta[k]} onChange={(v) => setAr((p) => ({ ...p, finalCta: { ...p.finalCta, [k]: v } }))} dir="rtl" />

@@ -15,6 +15,7 @@ const emptyPromo = () => ({
   titleEn: "", titleAr: "",
   descEn: "", descAr: "",
   badgeEn: "", badgeAr: "",
+  ctaTextEn: "", ctaTextAr: "",
   image: "",
   link: "",
   couponCode: "",
@@ -89,6 +90,18 @@ function PromoForm({ initial, onSave, onClose }) {
             <div>
               <label className="text-xs font-medium text-gray-600 uppercase tracking-wide">Badge Text (AR)</label>
               <Input className="mt-1" value={form.badgeAr} onChange={(e) => set("badgeAr", e.target.value)} placeholder="مثال: ٣٠٪ خصم" dir="rtl" />
+            </div>
+          </div>
+
+          {/* CTA Button Text */}
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="text-xs font-medium text-gray-600 uppercase tracking-wide">CTA Button Text (EN)</label>
+              <Input className="mt-1" value={form.ctaTextEn} onChange={(e) => set("ctaTextEn", e.target.value)} placeholder="e.g. Claim Offer" />
+            </div>
+            <div>
+              <label className="text-xs font-medium text-gray-600 uppercase tracking-wide">CTA Button Text (AR)</label>
+              <Input className="mt-1" value={form.ctaTextAr} onChange={(e) => set("ctaTextAr", e.target.value)} placeholder="مثال: احصل على العرض" dir="rtl" />
             </div>
           </div>
 

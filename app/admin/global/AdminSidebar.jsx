@@ -83,7 +83,7 @@ const AdminSidebar = ({ collapsed, setCollapsed, setMenuOpen }) => {
             {
                 id: 35,
                 slug: "/admin/shop-settings",
-                languages: { en: { title: "Shop Settings" }, ar: { title: "إعدادات المتجر" } },
+                languages: { en: { title: "Settings" }, ar: { title: "الإعدادات" } },
             },
             {
                 id: 38,
@@ -204,7 +204,6 @@ const AdminSidebar = ({ collapsed, setCollapsed, setMenuOpen }) => {
             { id: 19, slug: "/admin/about-us", languages: { en: { title: "About Us" }, ar: { title: "من نحن" } } },
             { id: 17, slug: "/admin/terms-and-condition", languages: { en: { title: "Terms" }, ar: { title: "الشروط" } } },
             { id: 20, slug: "/admin/privacy-policy", languages: { en: { title: "Privacy" }, ar: { title: "الخصوصية" } } },
-            { id: 37, slug: "/admin/contact-us", languages: { en: { title: "Contact Us" }, ar: { title: "اتصل بنا" } } },
         ],
         []
     );

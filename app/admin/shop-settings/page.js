@@ -3,9 +3,10 @@
 import { useEffect, useState } from "react";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { Plus, Trash2, Pencil, X, Check, Loader2, Tag, Layers } from "lucide-react";
+import { Plus, Trash2, Pencil, X, Check, Loader2, Tag, Layers, Mail, Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import MediaPicker from "@/app/admin/_components/MediaPicker";
 
 /* ─── Generic bilingual item form ─────────────────────────── */
 function ItemForm({ onSave, onCancel, initial }) {
@@ -147,6 +148,133 @@ function ListPanel({ title, items, loading, onAdd, onUpdate, onDelete, icon: Ico
   );
 }
 
+/* ─── Contact Form Settings ───────────────────────────────── */
+const defaultContactContent = () => ({
+  heroImage: "",
+  brand: "Atlantis",
+  mainTitle: "",
+  form: { name: "", email: "", subject: "", message: "", button: "" },
+});
+
+function ContactFormSettings() {
+  const [lang, setLang] = useState("en");
+  const [en, setEn] = useState(defaultContactContent);
+  const [ar, setAr] = useState(defaultContactContent);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+
+  const current = lang === "en" ? en : ar;
+  const setCurrent = lang === "en" ? setEn : setAr;
+
+  useEffect(() => {
+    fetch("/api/admin/content?page=contact-us")
+      .then((r) => r.json())
+      .then(({ data }) => {
+        if (data?.contactus?.en) setEn({ ...defaultContactContent(), ...data.contactus.en });
+        if (data?.contactus?.ar) setAr({ ...defaultContactContent(), ...data.contactus.ar });
+      })
+      .catch(() => toast.error("Failed to load contact content"))
+      .finally(() => setLoading(false));
+  }, []);
+
+  const patch = (field, value) => setCurrent((prev) => ({ ...prev, [field]: value }));
+  const patchForm = (field, value) =>
+    setCurrent((prev) => ({ ...prev, form: { ...prev.form, [field]: value } }));
+
+  const save = async () => {
+    setSaving(true);
+    const promise = fetch("/api/admin/content", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ page: "contact-us", key: "contactus", locale: lang, content: current }),
+    }).then(async (res) => {
+      const json = await res.json();
+      if (!res.ok || !json.success) throw new Error(json.error || "Save failed");
+      return json;
+    });
+    toast.promise(promise, {
+      pending: `Saving ${lang.toUpperCase()}…`,
+      success: `${lang.toUpperCase()} saved!`,
+      error: { render: ({ data }) => data?.message || "Save failed" },
+    });
+    try { await promise; } catch (_) {}
+    setSaving(false);
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-16 text-gray-400">
+        <Loader2 size={24} className="animate-spin mr-2" /> Loading…
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-5">
+      {/* Language tabs */}
+      <div className="flex gap-2 p-1 bg-gray-100 rounded-lg w-fit">
+        {["en", "ar"].map((l) => (
+          <button
+            key={l}
+            onClick={() => setLang(l)}
+            className={`px-5 py-1.5 rounded-md text-sm font-semibold transition ${
+              lang === l ? "bg-white shadow text-gray-900" : "text-gray-500 hover:text-gray-800"
+            }`}
+          >
+            {l === "en" ? "English" : "العربية"}
+          </button>
+        ))}
+      </div>
+
+      {/* Hero Image */}
+      <div className="bg-white rounded-xl border p-5 space-y-4">
+        <h3 className="font-semibold text-gray-800">Hero Image</h3>
+        <MediaPicker label="Background Image" value={current.heroImage} onChange={(url) => patch("heroImage", url)} />
+      </div>
+
+      {/* Page Text */}
+      <div className="bg-white rounded-xl border p-5 space-y-4">
+        <h3 className="font-semibold text-gray-800">Page Text</h3>
+        <div>
+          <label className="text-xs font-medium text-gray-600 uppercase tracking-wide">Brand Name</label>
+          <Input className="mt-1" value={current.brand || ""} onChange={(e) => patch("brand", e.target.value)} />
+        </div>
+        <div>
+          <label className="text-xs font-medium text-gray-600 uppercase tracking-wide">Main Heading</label>
+          <Input className="mt-1" value={current.mainTitle || ""} onChange={(e) => patch("mainTitle", e.target.value)} dir={lang === "ar" ? "rtl" : "ltr"} />
+        </div>
+      </div>
+
+      {/* Form Labels */}
+      <div className="bg-white rounded-xl border p-5 space-y-4">
+        <h3 className="font-semibold text-gray-800">Form Labels / Placeholders</h3>
+        {[
+          { field: "name", label: "Name Placeholder" },
+          { field: "email", label: "Email Placeholder" },
+          { field: "subject", label: "Subject Placeholder" },
+          { field: "message", label: "Message Placeholder" },
+          { field: "button", label: "Submit Button Text" },
+        ].map(({ field, label }) => (
+          <div key={field}>
+            <label className="text-xs font-medium text-gray-600 uppercase tracking-wide">{label}</label>
+            <Input
+              className="mt-1"
+              value={current.form?.[field] || ""}
+              onChange={(e) => patchForm(field, e.target.value)}
+              dir={lang === "ar" ? "rtl" : "ltr"}
+            />
+          </div>
+        ))}
+      </div>
+
+      <Button onClick={save} disabled={saving} className="w-full flex items-center justify-center gap-2 py-3">
+        {saving ? <Loader2 size={15} className="animate-spin" /> : <Save size={15} />}
+        Save {lang.toUpperCase()} Contact Settings
+      </Button>
+    </div>
+  );
+}
+
 /* ─── Main Page ───────────────────────────────────────────── */
 export default function ShopSettingsPage() {
   const [tab, setTab] = useState("categories");
@@ -263,15 +391,16 @@ export default function ShopSettingsPage() {
       <ToastContainer position="top-right" autoClose={3000} theme="colored" />
 
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Shop Settings</h1>
-        <p className="text-sm text-gray-500 mt-1">Manage product categories and materials used across the shop.</p>
+        <h1 className="text-2xl font-bold text-gray-900">Settings</h1>
+        <p className="text-sm text-gray-500 mt-1">Manage product categories, materials, and contact form settings.</p>
       </div>
 
       {/* Tab switcher */}
-      <div className="flex gap-2 p-1 bg-gray-100 rounded-lg w-fit">
+      <div className="flex gap-2 p-1 bg-gray-100 rounded-lg w-fit flex-wrap">
         {[
           { key: "categories", label: "Categories", icon: Tag },
           { key: "materials", label: "Materials", icon: Layers },
+          { key: "contact", label: "Contact Form", icon: Mail },
         ].map(({ key, label, icon: Icon }) => (
           <button
             key={key}
@@ -308,6 +437,8 @@ export default function ShopSettingsPage() {
           onDelete={deleteMaterial}
         />
       )}
+
+      {tab === "contact" && <ContactFormSettings />}
     </main>
   );
 }
