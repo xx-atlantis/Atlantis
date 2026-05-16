@@ -1,5 +1,62 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+
+/* =========================================================
+   PATCH — Bulk update fields on selected products
+   Body: { ids: string[], update: { showInShop?: boolean, inStock?: boolean } }
+========================================================= */
+export async function PATCH(req) {
+  try {
+    const { ids, update } = await req.json();
+
+    if (!Array.isArray(ids) || ids.length === 0) {
+      return NextResponse.json(
+        { success: false, error: "ids must be a non-empty array" },
+        { status: 400 }
+      );
+    }
+
+    if (!update || typeof update !== "object") {
+      return NextResponse.json(
+        { success: false, error: "update object is required" },
+        { status: 400 }
+      );
+    }
+
+    const allowedFields = ["showInShop", "inStock"];
+    const data = {};
+    for (const field of allowedFields) {
+      if (update[field] !== undefined) data[field] = update[field];
+    }
+
+    if (Object.keys(data).length === 0) {
+      return NextResponse.json(
+        { success: false, error: "No valid fields to update" },
+        { status: 400 }
+      );
+    }
+
+    const result = await prisma.product.updateMany({
+      where: { id: { in: ids } },
+      data,
+    });
+
+    return NextResponse.json({
+      success: true,
+      updated: result.count,
+    });
+  } catch (err) {
+    console.error("Bulk Product Update Error:", err);
+    return NextResponse.json(
+      { success: false, error: err.message },
+      { status: 500 }
+    );
+  }
+}
+
+/* =========================================================
+   POST — Bulk create products
+========================================================= */
 export async function POST(req) {
   try {
     const body = await req.json();
