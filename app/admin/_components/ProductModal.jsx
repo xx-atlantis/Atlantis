@@ -246,6 +246,35 @@ export function ProductModal({ editing, setEditing, onSave, onClose }) {
 									</select>
 								</div>
 
+								{/* SHOW IN SHOP */}
+								<div className="md:col-span-2">
+									<label className="text-sm font-medium text-gray-700 mb-2 block">
+										Shop Visibility
+									</label>
+									<div
+										className={`flex items-center justify-between px-4 py-3 rounded-lg border cursor-pointer transition-colors ${
+											editing.showInShop !== false
+												? "bg-green-50 border-green-200"
+												: "bg-gray-50 border-gray-200"
+										}`}
+										onClick={() => update("showInShop", editing.showInShop === false ? true : false)}
+									>
+										<div className="flex items-center gap-2">
+											<span className={`text-sm font-semibold ${editing.showInShop !== false ? "text-green-700" : "text-gray-500"}`}>
+												{editing.showInShop !== false ? "✓ Visible in Shop" : "✗ Hidden from Shop"}
+											</span>
+											<span className="text-xs text-gray-400">
+												{editing.showInShop !== false
+													? "Customers can see and buy this product"
+													: "This product won't appear on the shop page"}
+											</span>
+										</div>
+										<div className={`w-11 h-6 rounded-full relative transition-colors shrink-0 ${editing.showInShop !== false ? "bg-green-500" : "bg-gray-300"}`}>
+											<span className={`absolute top-1 start-1 w-4 h-4 bg-white rounded-full shadow transition-transform ${editing.showInShop !== false ? "translate-x-5" : ""}`} />
+										</div>
+									</div>
+								</div>
+
 								{/* SKU */}
 								<div>
 									<label className="text-sm font-medium text-gray-700 mb-2 block">

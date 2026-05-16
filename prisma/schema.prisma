@@ -225,6 +225,7 @@ model Product {
 	price Float
 	sku String?
 	inStock Boolean @default(true)
+	showInShop Boolean @default(true)
 	coverImage String
 	images String[]
 

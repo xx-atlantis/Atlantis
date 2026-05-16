@@ -58,6 +58,7 @@ export async function GET(req, context) {
 				price: product.price,
 				sku: product.sku,
 				inStock: product.inStock,
+				showInShop: product.showInShop,
 				images: product.images,
 		coverImage: product.coverImage,
 
@@ -102,6 +103,7 @@ export async function PUT(req, context) {
 			price,
 			sku,
 			inStock,
+			showInShop,
 			coverImage,
 			images,
 			en,
@@ -122,6 +124,7 @@ export async function PUT(req, context) {
 				price,
 				sku: sku || null,
 				inStock,
+				showInShop: showInShop !== undefined ? showInShop : true,
 				coverImage,
 				images,
 

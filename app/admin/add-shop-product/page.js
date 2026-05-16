@@ -71,6 +71,7 @@ export default function AdminShopPage() {
 			categoryId: "",
 			price: 0,
 			inStock: true,
+			showInShop: true,
 			coverImage: "",
 			images: [],
 			en: { name: "", short_description: "", material: "", variant: {} },
@@ -90,6 +91,7 @@ export default function AdminShopPage() {
 				categoryId: resEn.data.categoryId || p.categoryId,
 				price: resEn.data.price,
 				inStock: resEn.data.inStock,
+				showInShop: resEn.data.showInShop !== false,
 				sku: resEn.data.sku || "",
 				coverImage: resEn.data.coverImage,
 				images: resEn.data.images || [],
@@ -119,6 +121,7 @@ export default function AdminShopPage() {
 				price: Number(editing.price),
 				sku: editing.sku || null,
 				inStock: editing.inStock,
+				showInShop: editing.showInShop,
 				coverImage: editing.coverImage,
 				images: editing.images,
 				en: editing.en,
@@ -222,7 +225,7 @@ export default function AdminShopPage() {
 					</div>
 
 					{/* STATS */}
-					<div className="flex gap-6 mt-4 pt-4 border-t">
+					<div className="flex flex-wrap gap-6 mt-4 pt-4 border-t">
 						<div className="text-sm">
 							<span className="text-gray-500">Total:</span>{" "}
 							<span className="font-semibold text-gray-900">{products.length}</span>
@@ -237,6 +240,12 @@ export default function AdminShopPage() {
 							<span className="text-gray-500">Out of Stock:</span>{" "}
 							<span className="font-semibold text-red-600">
 								{products.filter(p => !p.inStock).length}
+							</span>
+						</div>
+						<div className="text-sm">
+							<span className="text-gray-500">Hidden from Shop:</span>{" "}
+							<span className="font-semibold text-gray-700">
+								{products.filter(p => p.showInShop === false).length}
 							</span>
 						</div>
 					</div>
@@ -288,6 +297,11 @@ export default function AdminShopPage() {
 									>
 										{p.inStock ? "In Stock" : "Out of Stock"}
 									</span>
+									{p.showInShop === false && (
+										<span className="absolute top-3 right-3 text-xs font-bold px-2.5 py-1 rounded-full bg-gray-900/80 text-white backdrop-blur-sm shadow">
+											Hidden
+										</span>
+									)}
 								</div>
 
 								{/* CONTENT */}

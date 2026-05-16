@@ -28,7 +28,7 @@ const Shop = () => {
       try {
         setLoading(true);
         const [prodRes, colRes, pkgRes] = await Promise.all([
-          fetch(`/api/shop/product?locale=${locale}`).then((r) => r.json()),
+          fetch(`/api/shop/product?locale=${locale}&shopOnly=true`).then((r) => r.json()),
           fetch("/api/collections").then((r) => r.json()),
           fetch(`/api/content?page=packages&locale=${locale}`).then((r) => r.json()),
         ]);

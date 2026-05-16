@@ -12,6 +12,7 @@ export async function POST(req) {
 			price,
 			sku,
 			inStock = true,
+			showInShop = true,
 			coverImage,
 			images = [],
 			en,
@@ -61,6 +62,7 @@ export async function POST(req) {
 				price,
 				sku: sku || null,
 				inStock,
+				showInShop,
 				coverImage,
 				images,
 
@@ -104,7 +106,7 @@ export async function POST(req) {
 
 /* =========================================================
 	GET — List Products
-	?locale=en
+	?locale=en&shopOnly=true  → filters showInShop=true
 ========================================================= */
 export async function GET(req) {
 	try {
@@ -114,6 +116,7 @@ export async function GET(req) {
 		const categoryId = searchParams.get("categoryId");
 		const search = searchParams.get("search");
 		const inStock = searchParams.get("inStock");
+		const shopOnly = searchParams.get("shopOnly");
 
 		const page = parseInt(searchParams.get("page") || "1");
 		const limit = parseInt(searchParams.get("limit") || "30");
@@ -122,8 +125,8 @@ export async function GET(req) {
 		const where = {};
 
 		if (categoryId) where.categoryId = categoryId;
-		if (inStock !== null)
-			where.inStock = inStock === "true";
+		if (inStock !== null) where.inStock = inStock === "true";
+		if (shopOnly === "true") where.showInShop = true;
 
 		if (search) {
 			where.translations = {
@@ -172,6 +175,7 @@ export async function GET(req) {
 				price: p.price,
 				sku: p.sku,
 				inStock: p.inStock,
+				showInShop: p.showInShop,
 				coverImage: p.coverImage,
 				images: p.images,
 				categoryId: p.categoryId,
