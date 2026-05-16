@@ -4,6 +4,7 @@ import React, { useState, useMemo } from "react";
 import {
   SlidersHorizontal, ChevronDown, X, Check,
   LayoutGrid, Layers, Search, Grid3X3, Grid2X2,
+  ArrowRight, CheckCircle2,
 } from "lucide-react";
 import { ProductCard } from "./ProductCard";
 import { QuickViewModal } from "./QuickViewModal";
@@ -383,9 +384,109 @@ function CollectionsStrip({ collections, activeCollectionId, onSelect, isRTL, lo
 }
 
 /* ──────────────────────────────────────────────────────────────
+   ServicePackagesSection — packages with showInShop=true
+────────────────────────────────────────────────────────────── */
+function ServicePackagesSection({ packages, isRTL, locale }) {
+  if (!packages || packages.length === 0) return null;
+
+  return (
+    <div className="bg-[#2D3247] px-4 sm:px-6 py-10">
+      <div className="max-w-[1600px] mx-auto">
+        <div className="flex items-end justify-between mb-6">
+          <div>
+            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#C9A96E] mb-1">
+              {isRTL ? "خدماتنا" : "Design Services"}
+            </p>
+            <h2 className="text-xl font-bold text-white">
+              {isRTL ? "باقات التصميم المتاحة" : "Available Design Packages"}
+            </h2>
+          </div>
+        </div>
+
+        <div className={`grid gap-4 ${
+          packages.length === 1
+            ? "grid-cols-1 max-w-sm"
+            : packages.length === 2
+            ? "grid-cols-1 sm:grid-cols-2 max-w-2xl"
+            : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
+        }`}>
+          {packages.map((pkg, i) => (
+            <ServicePackageCard key={i} pkg={pkg} isRTL={isRTL} locale={locale} />
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ServicePackageCard({ pkg, isRTL, locale }) {
+  const price = parseFloat(String(pkg.price || "0").replace(/[^0-9.]/g, "")) || 0;
+  const includedFeatures = (pkg.features || []).filter((f) => f.included);
+
+  return (
+    <div className={`relative flex flex-col bg-white rounded-2xl overflow-hidden shadow-lg ${
+      pkg.recommended ? "ring-2 ring-[#C9A96E]" : ""
+    }`}>
+      {pkg.recommended && (
+        <div className="bg-[#C9A96E] text-white text-[10px] font-bold uppercase tracking-widest text-center py-1.5 px-4">
+          {isRTL ? "الأكثر طلباً" : "Most Popular"}
+        </div>
+      )}
+
+      <div className="p-6 flex flex-col flex-1 gap-4">
+        {/* Header */}
+        <div>
+          <p className="text-[10px] font-bold uppercase tracking-widest text-[#C9A96E] mb-1">
+            {pkg.type}
+          </p>
+          <h3 className="text-lg font-bold text-[#2D3247]">{pkg.title}</h3>
+        </div>
+
+        {/* Price */}
+        <div>
+          <div className="flex items-baseline gap-1">
+            <span className="text-3xl font-bold text-[#2D3247]">{price.toLocaleString()}</span>
+            <span className="text-sm font-semibold text-gray-400">SAR</span>
+          </div>
+          {pkg.perRoom && (
+            <p className="text-xs text-gray-400 mt-0.5">{pkg.perRoom}</p>
+          )}
+        </div>
+
+        {/* Features */}
+        {includedFeatures.length > 0 && (
+          <ul className="space-y-2 flex-1">
+            {includedFeatures.slice(0, 5).map((f, fi) => (
+              <li key={fi} className="flex items-start gap-2 text-sm text-gray-700">
+                <CheckCircle2 size={15} className="text-green-500 shrink-0 mt-0.5" />
+                <span className="leading-snug">{f.text}</span>
+              </li>
+            ))}
+            {includedFeatures.length > 5 && (
+              <li className="text-xs text-gray-400 ps-[23px]">
+                +{includedFeatures.length - 5} {isRTL ? "ميزة إضافية" : "more features"}
+              </li>
+            )}
+          </ul>
+        )}
+
+        {/* CTA */}
+        <a
+          href={`/${locale}/start-a-project`}
+          className="mt-auto flex items-center justify-center gap-2 bg-[#2D3247] hover:bg-[#1e2231] text-white font-bold py-3 rounded-xl text-sm transition"
+        >
+          {isRTL ? "ابدأ مشروعك" : "Get Started"}
+          <ArrowRight size={14} className={isRTL ? "rotate-180" : ""} />
+        </a>
+      </div>
+    </div>
+  );
+}
+
+/* ──────────────────────────────────────────────────────────────
    Main ShopPage
 ────────────────────────────────────────────────────────────── */
-export const ShopPage = ({ products, collections = [], onProductClick, loading, error, content }) => {
+export const ShopPage = ({ products, collections = [], servicePackages = [], onProductClick, loading, error, content }) => {
   const { locale } = useLocale();
   const { country, formatPrice } = useCountryCurrency();
   const isRTL = locale === "ar";
@@ -522,6 +623,9 @@ export const ShopPage = ({ products, collections = [], onProductClick, loading, 
         isRTL={isRTL}
         locale={locale}
       />
+
+      {/* ── Service Packages (showInShop=true) ── */}
+      <ServicePackagesSection packages={servicePackages} isRTL={isRTL} locale={locale} />
 
       {/* ── Main layout: sidebar + content ── */}
       <div className="max-w-[1600px] mx-auto flex">

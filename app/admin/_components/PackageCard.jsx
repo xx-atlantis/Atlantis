@@ -1,6 +1,6 @@
 "use client";
 
-import { Check, X, Star, Tag } from "lucide-react";
+import { Check, X, Star, Tag, ShoppingBag } from "lucide-react";
 
 export default function PackageCard({ item, perRoom, isRecommended, onChange, onSetRecommended, locale, readOnly }) {
   const isAr = locale === "ar";
@@ -40,6 +40,32 @@ export default function PackageCard({ item, perRoom, isRecommended, onChange, on
       )}
 
       <div className="mt-4 mb-6 space-y-4">
+        {/* Show in Shop toggle */}
+        <div className={`flex items-center justify-between px-3 py-2.5 rounded-xl border transition-colors ${
+          item.showInShop ? "bg-blue-50 border-blue-200" : "bg-slate-50 border-slate-200"
+        }`}>
+          <div className="flex items-center gap-2">
+            <ShoppingBag size={13} className={item.showInShop ? "text-blue-600" : "text-slate-400"} />
+            <div>
+              <p className="text-xs font-bold text-slate-700">Show in Shop</p>
+              <p className="text-[10px] text-slate-400">
+                {item.showInShop ? "Visible in product shop" : "Hidden from shop"}
+              </p>
+            </div>
+          </div>
+          <button
+            type="button"
+            disabled={readOnly}
+            onClick={() => handleInputChange("showInShop", !item.showInShop)}
+            className={`w-10 h-5 rounded-full relative transition-colors shrink-0 ${
+              item.showInShop ? "bg-blue-500" : "bg-slate-300"
+            } disabled:opacity-50 disabled:cursor-not-allowed`}
+          >
+            <span className={`absolute top-0.5 start-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform ${
+              item.showInShop ? "translate-x-5" : ""
+            }`} />
+          </button>
+        </div>
         <div className="grid grid-cols-2 gap-3">
           <div>
             <label className="text-[10px] uppercase font-bold text-slate-400 block mb-1">Type</label>

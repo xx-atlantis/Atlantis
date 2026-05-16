@@ -19,6 +19,7 @@ const Shop = () => {
 
   const [products, setProducts] = useState([]);
   const [collections, setCollections] = useState([]);
+  const [servicePackages, setServicePackages] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -26,13 +27,18 @@ const Shop = () => {
     async function fetchData() {
       try {
         setLoading(true);
-        const [prodRes, colRes] = await Promise.all([
+        const [prodRes, colRes, pkgRes] = await Promise.all([
           fetch(`/api/shop/product?locale=${locale}`).then((r) => r.json()),
           fetch("/api/collections").then((r) => r.json()),
+          fetch(`/api/content?page=packages&locale=${locale}`).then((r) => r.json()),
         ]);
         if (prodRes.success) setProducts(prodRes.data);
         else setError(prodRes.error || "Failed to load products");
         setCollections(colRes.data || []);
+
+        // Filter packages that have showInShop enabled
+        const pkgList = pkgRes?.packages?.list || [];
+        setServicePackages(pkgList.filter((p) => p.showInShop === true));
       } catch (err) {
         setError(err.message);
       } finally {
@@ -52,6 +58,7 @@ const Shop = () => {
       <ShopPage
         products={products}
         collections={collections}
+        servicePackages={servicePackages}
         loading={loading}
         error={error}
         onProductClick={navigateToProduct}
