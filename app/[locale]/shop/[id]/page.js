@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { ProductDetails } from "@/app/components/app/ProductDetail";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useLocale } from "@/app/components/LocaleProvider";
 import { FloatingCartButton } from "@/app/components/FloatingCartButton";
 import Script from "next/script";
@@ -10,8 +10,10 @@ import Script from "next/script";
 export default function ProductPage() {
   const pathname = usePathname();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { locale } = useLocale();
   const id = pathname.split("/").pop();
+  const buyNow = searchParams.get("buyNow") === "1";
 
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -30,6 +32,25 @@ export default function ProductPage() {
     }
     load();
   }, [id, locale]);
+
+  // Direct checkout: write product to cart in localStorage then redirect
+  useEffect(() => {
+    if (!product || !buyNow) return;
+    const cartItem = [{
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      image: product.coverImage,
+      coverImage: product.coverImage,
+      category: product.category,
+      material: product.material,
+      short_description: product.short_description,
+      variant: null,
+      quantity: 1,
+    }];
+    localStorage.setItem("cart", JSON.stringify(cartItem));
+    router.replace(`/${locale}/checkout`);
+  }, [product, buyNow]);
 
   // Tabby Point 3: Initialize the snippet once the product is loaded
   useEffect(() => {

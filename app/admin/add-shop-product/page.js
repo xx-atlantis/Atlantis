@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { useAdminAuth } from "@/app/context/AdminAuthContext";
 import {
 	Edit, Trash2, Plus, Search, Filter, SaudiRiyal,
-	CheckSquare, Square, Eye, EyeOff, X, Layers,
+	CheckSquare, Square, Eye, EyeOff, X, Layers, Link2, Check, ShoppingCart,
 } from "lucide-react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -51,6 +51,9 @@ export default function AdminShopPage() {
 	const [searchTerm, setSearchTerm] = useState("");
 	const [stockFilter, setStockFilter] = useState("all");
 	const [visibilityFilter, setVisibilityFilter] = useState("all");
+
+	const [copiedId, setCopiedId] = useState(null);
+	const [copiedCheckoutId, setCopiedCheckoutId] = useState(null);
 
 	/* ── Bulk selection state ── */
 	const [selectMode, setSelectMode] = useState(false);
@@ -214,6 +217,22 @@ export default function AdminShopPage() {
 		} catch (e) {
 			toast.error(e.message);
 		}
+	};
+
+	const copyProductLink = (e, id) => {
+		e.stopPropagation();
+		const url = `${window.location.origin}/en/shop/${id}`;
+		navigator.clipboard.writeText(url);
+		setCopiedId(id);
+		setTimeout(() => setCopiedId(null), 2000);
+	};
+
+	const copyCheckoutLink = (e, id) => {
+		e.stopPropagation();
+		const url = `${window.location.origin}/en/shop/${id}?buyNow=1`;
+		navigator.clipboard.writeText(url);
+		setCopiedCheckoutId(id);
+		setTimeout(() => setCopiedCheckoutId(null), 2000);
 	};
 
 	const deleteProduct = async (id) => {
@@ -531,6 +550,20 @@ export default function AdminShopPage() {
 
 											{!selectMode && (
 												<div className="flex gap-2">
+													<button
+														onClick={(e) => copyProductLink(e, p.id)}
+														className={`p-2.5 rounded-lg transition ${copiedId === p.id ? "bg-green-50 text-green-600" : "hover:bg-gray-50 text-gray-400 hover:text-gray-600"}`}
+														title="Copy product page link"
+													>
+														{copiedId === p.id ? <Check size={18} /> : <Link2 size={18} />}
+													</button>
+													<button
+														onClick={(e) => copyCheckoutLink(e, p.id)}
+														className={`p-2.5 rounded-lg transition ${copiedCheckoutId === p.id ? "bg-orange-50 text-orange-600" : "hover:bg-orange-50 text-orange-400 hover:text-orange-600"}`}
+														title="Copy direct checkout link"
+													>
+														{copiedCheckoutId === p.id ? <Check size={18} /> : <ShoppingCart size={18} />}
+													</button>
 													{canUpdate && (
 														<button
 															onClick={(e) => { e.stopPropagation(); openEdit(p); }}
