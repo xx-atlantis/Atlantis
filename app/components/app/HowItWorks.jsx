@@ -3,6 +3,7 @@
 import { useLocale } from "@/app/components/LocaleProvider";
 import { usePageContent } from "@/app/context/PageContentProvider";
 import { HowItWorksSVG } from "@/app/components/icons/StepIcons";
+import { HowItWorksSVGAR } from "@/app/components/icons/StepIconsAR";
 
 export default function HowItWorks() {
   const { locale } = useLocale();
@@ -25,7 +26,11 @@ export default function HowItWorks() {
     >
       {/* ── Desktop: pixel-perfect Figma SVG ── */}
       <div className="hidden md:block w-full max-w-[1120px] mx-auto px-6 py-12">
-        <HowItWorksSVG className="w-full h-auto" />
+        {isRTL ? (
+          <HowItWorksSVGAR className="w-full h-auto" />
+        ) : (
+          <HowItWorksSVG className="w-full h-auto" />
+        )}
       </div>
 
       {/* ── Mobile: CMS-driven stacked layout ── */}
