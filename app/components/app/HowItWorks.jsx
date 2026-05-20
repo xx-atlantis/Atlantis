@@ -61,17 +61,17 @@ export default function HowItWorks() {
         >
           {isRTL ? (
             <>
-              {/* RTL Curve 1: badge 1 (699,54) → badge 2 (337,88), S-arch from Figma (mirrored) */}
+              {/* RTL Curve 1: badge 1 → badge 2 (Figma S-arch, mirrored) */}
               <path
-                d="M 699,54 C 569,241 455,-121 337,88"
+                d="M 719,53 C 581,260 460,-142 333,90"
                 stroke="#C5CDD6"
                 strokeWidth="2.5"
                 strokeDasharray="14 9"
                 strokeLinecap="round"
               />
-              {/* RTL Curve 2: badge 2 (337,88) → badge 3 (665,381), downward arch (mirrored) */}
+              {/* RTL Curve 2: badge 2 → badge 3 (Figma S-curve, mirrored) */}
               <path
-                d="M 337,88 C 180,350 800,150 665,381"
+                d="M 333,90 C 344,140 403,286 531,208 C 727,90 872,304 735,340"
                 stroke="#C5CDD6"
                 strokeWidth="2.5"
                 strokeDasharray="14 9"
@@ -80,17 +80,17 @@ export default function HowItWorks() {
             </>
           ) : (
             <>
-              {/* LTR Curve 1: badge 1 (301,54) → badge 2 (663,88), S-arch from Figma path */}
+              {/* LTR Curve 1: badge 1 → badge 2 (Figma S-arch) */}
               <path
-                d="M 301,54 C 431,241 545,-121 663,88"
+                d="M 281,53 C 419,260 540,-142 667,90"
                 stroke="#C5CDD6"
                 strokeWidth="2.5"
                 strokeDasharray="14 9"
                 strokeLinecap="round"
               />
-              {/* LTR Curve 2: badge 2 (663,88) → badge 3 (335,381), downward arch */}
+              {/* LTR Curve 2: badge 2 → badge 3 (Figma S-curve) */}
               <path
-                d="M 663,88 C 820,350 200,150 335,381"
+                d="M 667,90 C 656,140 597,286 469,208 C 273,90 128,304 265,340"
                 stroke="#C5CDD6"
                 strokeWidth="2.5"
                 strokeDasharray="14 9"
