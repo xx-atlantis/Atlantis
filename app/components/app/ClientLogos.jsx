@@ -49,14 +49,14 @@ export default function ClientLogos() {
           {track.map((logo, i) => (
             <div
               key={`${logo.id}-${i}`}
-              className="flex-shrink-0 h-12 w-36 relative grayscale hover:grayscale-0 transition-all duration-300 opacity-60 hover:opacity-100"
+              className="flex-shrink-0 h-20 w-48 relative grayscale hover:grayscale-0 transition-all duration-300 opacity-60 hover:opacity-100"
             >
               <Image
                 src={logo.url}
                 alt={logo.alt || "Client"}
                 fill
                 className="object-contain"
-                sizes="144px"
+                sizes="192px"
               />
             </div>
           ))}
