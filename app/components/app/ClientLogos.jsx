@@ -57,7 +57,7 @@ export default function ClientLogos() {
           {track.map((logo, i) => (
             <div
               key={`${logo.id}-${i}`}
-              className="flex-shrink-0 w-52 h-28 bg-white rounded-2xl border border-gray-200 shadow-sm flex items-center justify-center p-5 grayscale hover:grayscale-0 hover:shadow-md hover:border-[#6D9494]/40 transition-all duration-300 group"
+              className="flex-shrink-0 w-72 h-36 bg-white rounded-2xl border border-gray-200 shadow-sm flex items-center justify-center p-6 grayscale hover:grayscale-0 hover:shadow-md hover:border-[#6D9494]/40 transition-all duration-300 group"
             >
               <div className="relative w-full h-full">
                 <Image
@@ -65,7 +65,7 @@ export default function ClientLogos() {
                   alt={logo.alt || "Client"}
                   fill
                   className="object-contain opacity-60 group-hover:opacity-100 transition-opacity duration-300"
-                  sizes="208px"
+                  sizes="288px"
                 />
               </div>
             </div>
