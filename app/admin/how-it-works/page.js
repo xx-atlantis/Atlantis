@@ -71,6 +71,10 @@ export default function AdminHomePage() {
       />
 
       <h1 className="text-2xl font-bold mb-8">How it Works CMS</h1>
+      <p className="text-sm text-gray-500 mb-6 bg-amber-50 border border-amber-200 rounded-lg px-4 py-3">
+        <strong>Tip:</strong> In the <em>Main Title</em> field, use <code className="bg-amber-100 px-1 rounded">||</code> to split the title into two parts — the second part renders in dark navy.
+        Example: <code className="bg-amber-100 px-1 rounded">How can we fulfil your ||design aspirations</code>
+      </p>
 
       {Object.keys(data).map((key) => (
         <SectionWithTabs
