@@ -12,17 +12,17 @@ const icons = [step1, step2, step3];
 
 /*
   Layout (LTR):
-    Step 1 — top-left
-    Step 2 — top-right  (slightly lower)
-    Step 3 — bottom-left (much lower)
+    Step 1 — top-left    [icon][Title][badge●1]
+    Step 2 — top-right   [badge●2][Title][icon]
+    Step 3 — centered    [badge●3][Title][icon]
 
-  SVG viewBox 0 0 1280 520
-    Step 1 badge ≈ (70, 65)
-    Step 2 badge ≈ (1060, 185)
-    Step 3 badge ≈ (390, 415)
+  SVG viewBox 0 0 1000 520
+    Step 1 badge ≈ (280, 72)   — badge is RIGHT of icon+title in left-aligned block
+    Step 2 badge ≈ (670, 200)  — badge is LEFT of title in right-aligned block
+    Step 3 badge ≈ (340, 430)  — badge is LEFT of title in centered block
 
-  Curve 1: oval arc bowing UPWARD from step 1 → step 2
-  Curve 2: oval arc bowing DOWNWARD from step 2 → step 3
+  Curve 1: half-oval arc bowing UPWARD  from step 1 → step 2
+  Curve 2: half-oval arc bowing DOWNWARD from step 2 → step 3
 */
 
 export default function HowItWorks() {
@@ -61,17 +61,17 @@ export default function HowItWorks() {
         >
           {isRTL ? (
             <>
-              {/* RTL Curve 1: step 1 (top-right) → step 2 (top-left), oval bows upward */}
+              {/* RTL Curve 1: step 1 badge (720,72) → step 2 badge (330,200), bows upward */}
               <path
-                d="M 930,65 C 820,-55 180,-55 70,185"
+                d="M 720,72 C 600,-50 450,-50 330,200"
                 stroke="#C5CDD6"
                 strokeWidth="2.5"
                 strokeDasharray="14 9"
                 strokeLinecap="round"
               />
-              {/* RTL Curve 2: step 2 (top-left) → step 3 (bottom-right), oval bows downward */}
+              {/* RTL Curve 2: step 2 badge (330,200) → step 3 badge (660,430), bows downward */}
               <path
-                d="M 70,185 C -60,340 860,500 640,415"
+                d="M 330,200 C 180,390 880,530 660,430"
                 stroke="#C5CDD6"
                 strokeWidth="2.5"
                 strokeDasharray="14 9"
@@ -80,17 +80,17 @@ export default function HowItWorks() {
             </>
           ) : (
             <>
-              {/* LTR Curve 1: step 1 (top-left) → step 2 (top-right), oval bows upward */}
+              {/* LTR Curve 1: step 1 badge (280,72) → step 2 badge (670,200), bows upward */}
               <path
-                d="M 70,65 C 180,-55 820,-55 930,185"
+                d="M 280,72 C 400,-50 550,-50 670,200"
                 stroke="#C5CDD6"
                 strokeWidth="2.5"
                 strokeDasharray="14 9"
                 strokeLinecap="round"
               />
-              {/* LTR Curve 2: step 2 (top-right) → step 3 (bottom-left), oval bows downward */}
+              {/* LTR Curve 2: step 2 badge (670,200) → step 3 badge (340,430), bows downward */}
               <path
-                d="M 930,185 C 1060,340 140,500 360,415"
+                d="M 670,200 C 820,390 120,530 340,430"
                 stroke="#C5CDD6"
                 strokeWidth="2.5"
                 strokeDasharray="14 9"
@@ -107,8 +107,10 @@ export default function HowItWorks() {
             const isSecond = index === 1;
 
             const alignClass = isSecond
-              ? isRTL ? "md:mr-auto" : "md:ml-auto"
-              : isRTL ? "md:ml-auto" : "md:mr-auto";
+              ? (isRTL ? "md:mr-auto" : "md:ml-auto")
+              : isFirst
+              ? (isRTL ? "md:ml-auto" : "md:mr-auto")
+              : "md:mx-auto"; // step 3 centered under the two upper steps
 
             const marginClass = isFirst ? "md:mb-8" : isSecond ? "md:mb-24" : "";
 
