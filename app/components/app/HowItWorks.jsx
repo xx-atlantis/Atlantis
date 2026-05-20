@@ -103,60 +103,53 @@ export default function HowItWorks() {
         {/* ── Step cards ── */}
         <div className="flex flex-col gap-10 md:gap-0">
           {steps.map((step, index) => {
-            const isFirst = index === 0;
+            const isFirst  = index === 0;
             const isSecond = index === 1;
 
-            // Desktop alignment: 1=left, 2=right, 3=left-center
-            const alignClass =
-              isSecond
-                ? isRTL ? "md:mr-auto" : "md:ml-auto"
-                : isRTL ? "md:ml-auto" : "md:mr-auto";
+            const alignClass = isSecond
+              ? isRTL ? "md:mr-auto" : "md:ml-auto"
+              : isRTL ? "md:ml-auto" : "md:mr-auto";
 
-            const textAlign = isSecond ? "text-right" : "text-left";
+            const marginClass = isFirst ? "md:mb-8" : isSecond ? "md:mb-24" : "";
 
-            // Vertical spacing to create stagger
-            const marginClass =
-              isFirst ? "md:mb-8" : isSecond ? "md:mb-24" : "";
+            const Badge = (
+              <div className="flex-shrink-0 w-11 h-11 rounded-full bg-[#5E7E7D] text-white flex items-center justify-center font-bold text-base z-10 shadow-sm">
+                {index + 1}
+              </div>
+            );
 
-            return (
-              <div
-                key={index}
-                className={`flex flex-row items-start gap-4 md:gap-5 w-full md:w-auto md:max-w-xs ${alignClass} ${marginClass}`}
-              >
-                {/* Badge */}
-                <div className="flex-shrink-0 w-11 h-11 rounded-full bg-[#5E7E7D] text-white flex items-center justify-center font-bold text-base z-10 shadow-sm">
-                  {index + 1}
+            /* ── Step 1: [icon] [Title + Badge] [desc] ── */
+            if (isFirst) {
+              return (
+                <div key={index} className={`flex flex-row items-start gap-3 w-full md:w-auto md:max-w-xs ${alignClass} ${marginClass}`}>
+                  {/* Icon to the left */}
+                  {icons[0] && (
+                    <Image src={icons[0]} alt="Step 1" width={28} height={28} className="shrink-0 mt-1" />
+                  )}
+                  <div>
+                    {/* Title + badge on the same row */}
+                    <div className="flex items-center gap-3 mb-1.5">
+                      <h3 className="text-lg md:text-xl font-bold text-gray-900">{step.title}</h3>
+                      {Badge}
+                    </div>
+                    <p className="text-gray-500 text-sm md:text-base leading-relaxed">{step.desc}</p>
+                  </div>
                 </div>
+              );
+            }
 
-                {/* Content */}
-                <div className={textAlign}>
-                  {/* Title row — icon before title on step 1, after on steps 2 & 3 */}
+            /* ── Steps 2 & 3: [Badge] [Title + icon] [desc] ── */
+            return (
+              <div key={index} className={`flex flex-row items-start gap-3 w-full md:w-auto md:max-w-xs ${alignClass} ${marginClass}`}>
+                {Badge}
+                <div className={isSecond ? "text-right" : "text-left"}>
                   <div className={`flex items-center gap-2 mb-1.5 ${isSecond ? "justify-end" : "justify-start"}`}>
-                    {isFirst && icons[0] && (
-                      <Image
-                        src={icons[0]}
-                        alt="Step 1"
-                        width={24}
-                        height={24}
-                        className="shrink-0"
-                      />
-                    )}
-                    <h3 className="text-lg md:text-xl font-bold text-gray-900">
-                      {step.title}
-                    </h3>
-                    {!isFirst && icons[index] && (
-                      <Image
-                        src={icons[index]}
-                        alt={`Step ${index + 1}`}
-                        width={24}
-                        height={24}
-                        className="shrink-0"
-                      />
+                    <h3 className="text-lg md:text-xl font-bold text-gray-900">{step.title}</h3>
+                    {icons[index] && (
+                      <Image src={icons[index]} alt={`Step ${index + 1}`} width={24} height={24} className="shrink-0" />
                     )}
                   </div>
-                  <p className="text-gray-500 text-sm md:text-base leading-relaxed">
-                    {step.desc}
-                  </p>
+                  <p className="text-gray-500 text-sm md:text-base leading-relaxed">{step.desc}</p>
                 </div>
               </div>
             );
