@@ -20,26 +20,34 @@ export default function ClientLogos() {
 
   if (logos.length === 0) return null;
 
-  // Duplicate the list so the marquee loops seamlessly
-  const track = [...logos, ...logos];
+  // Triple the list so the marquee never shows a gap
+  const track = [...logos, ...logos, ...logos];
 
   return (
-    <section className="py-12 bg-white border-y border-gray-100 overflow-hidden">
-      <div className="text-center mb-8 px-4">
-        <p className="text-sm text-[#6D9494] font-semibold tracking-widest uppercase">
+    <section className="py-16 sm:py-20 bg-[#F5F3EF] overflow-hidden">
+
+      {/* ── Title ── */}
+      <div className="text-center mb-12 px-4">
+        <h2 className="text-sm sm:text-base font-bold text-[#4A6E6D] uppercase tracking-wider mb-2">
+          {isRTL ? "شركاء النجاح" : "Trusted By"}
+        </h2>
+        <h3 className="text-3xl md:text-4xl font-bold text-[#2D3247]">
           {isRTL ? "عملاؤنا" : "Our Clients"}
-        </p>
+        </h3>
       </div>
 
-      {/* Marquee wrapper — overflow hidden on section, inner div scrolls */}
+      {/* ── Marquee ── */}
       <div
-        className="relative flex"
-        style={{ maskImage: "linear-gradient(to right, transparent, black 10%, black 90%, transparent)" }}
+        className="relative"
+        style={{
+          maskImage: "linear-gradient(to right, transparent, black 8%, black 92%, transparent)",
+          WebkitMaskImage: "linear-gradient(to right, transparent, black 8%, black 92%, transparent)",
+        }}
       >
         <div
-          className="flex gap-12 items-center"
+          className="flex gap-6 items-stretch"
           style={{
-            animation: `marquee 30s linear infinite`,
+            animation: "marquee 35s linear infinite",
             animationDirection: isRTL ? "reverse" : "normal",
             willChange: "transform",
           }}
@@ -49,15 +57,17 @@ export default function ClientLogos() {
           {track.map((logo, i) => (
             <div
               key={`${logo.id}-${i}`}
-              className="flex-shrink-0 h-20 w-48 relative grayscale hover:grayscale-0 transition-all duration-300 opacity-60 hover:opacity-100"
+              className="flex-shrink-0 w-52 h-28 bg-white rounded-2xl border border-gray-200 shadow-sm flex items-center justify-center p-5 grayscale hover:grayscale-0 hover:shadow-md hover:border-[#6D9494]/40 transition-all duration-300 group"
             >
-              <Image
-                src={logo.url}
-                alt={logo.alt || "Client"}
-                fill
-                className="object-contain"
-                sizes="192px"
-              />
+              <div className="relative w-full h-full">
+                <Image
+                  src={logo.url}
+                  alt={logo.alt || "Client"}
+                  fill
+                  className="object-contain opacity-60 group-hover:opacity-100 transition-opacity duration-300"
+                  sizes="208px"
+                />
+              </div>
             </div>
           ))}
         </div>
@@ -66,7 +76,7 @@ export default function ClientLogos() {
       <style jsx global>{`
         @keyframes marquee {
           from { transform: translateX(0); }
-          to   { transform: translateX(-50%); }
+          to   { transform: translateX(calc(-100% / 3)); }
         }
       `}</style>
     </section>
