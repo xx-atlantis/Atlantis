@@ -103,22 +103,20 @@ export default function HowItWorks() {
         {/* ── Step cards ── */}
         <div className="flex flex-col gap-10 md:gap-0">
           {steps.map((step, index) => {
+            const isFirst = index === 0;
+            const isSecond = index === 1;
+
             // Desktop alignment: 1=left, 2=right, 3=left-center
             const alignClass =
-              index === 1
+              isSecond
                 ? isRTL ? "md:mr-auto" : "md:ml-auto"
                 : isRTL ? "md:ml-auto" : "md:mr-auto";
 
-            const textAlign =
-              index === 1
-                ? isRTL ? "text-right" : "text-right"
-                : "text-left";
+            const textAlign = isSecond ? "text-right" : "text-left";
 
             // Vertical spacing to create stagger
             const marginClass =
-              index === 0 ? "md:mb-8"
-              : index === 1 ? "md:mb-24"
-              : "";
+              isFirst ? "md:mb-8" : isSecond ? "md:mb-24" : "";
 
             return (
               <div
@@ -131,19 +129,31 @@ export default function HowItWorks() {
                 </div>
 
                 {/* Content */}
-                <div className={`${textAlign}`}>
-                  <h3 className="text-lg md:text-xl font-bold text-gray-900 mb-1.5 flex items-center gap-2 flex-wrap">
-                    {step.title}
-                    {icons[index] && (
+                <div className={textAlign}>
+                  {/* Title row — icon before title on step 1, after on steps 2 & 3 */}
+                  <div className={`flex items-center gap-2 mb-1.5 ${isSecond ? "justify-end" : "justify-start"}`}>
+                    {isFirst && icons[0] && (
+                      <Image
+                        src={icons[0]}
+                        alt="Step 1"
+                        width={24}
+                        height={24}
+                        className="shrink-0"
+                      />
+                    )}
+                    <h3 className="text-lg md:text-xl font-bold text-gray-900">
+                      {step.title}
+                    </h3>
+                    {!isFirst && icons[index] && (
                       <Image
                         src={icons[index]}
                         alt={`Step ${index + 1}`}
-                        width={22}
-                        height={22}
-                        className="inline-block"
+                        width={24}
+                        height={24}
+                        className="shrink-0"
                       />
                     )}
-                  </h3>
+                  </div>
                   <p className="text-gray-500 text-sm md:text-base leading-relaxed">
                     {step.desc}
                   </p>
