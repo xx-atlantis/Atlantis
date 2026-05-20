@@ -61,17 +61,17 @@ export default function HowItWorks() {
         >
           {isRTL ? (
             <>
-              {/* RTL Curve 1: step 1 badge (720,72) → step 2 badge (330,200), bows upward */}
+              {/* RTL Curve 1: step 1 badge (724,24) → step 2 badge (316,110), bows upward */}
               <path
-                d="M 720,72 C 600,-50 450,-50 330,200"
+                d="M 724,24 C 610,-40 430,-40 316,110"
                 stroke="#C5CDD6"
                 strokeWidth="2.5"
                 strokeDasharray="14 9"
                 strokeLinecap="round"
               />
-              {/* RTL Curve 2: step 2 badge (330,200) → step 3 badge (660,430), bows downward */}
+              {/* RTL Curve 2: step 2 badge (316,110) → step 3 badge (665,384), bows downward */}
               <path
-                d="M 330,200 C 180,390 880,530 660,430"
+                d="M 316,110 C 180,350 850,480 665,384"
                 stroke="#C5CDD6"
                 strokeWidth="2.5"
                 strokeDasharray="14 9"
@@ -80,17 +80,17 @@ export default function HowItWorks() {
             </>
           ) : (
             <>
-              {/* LTR Curve 1: step 1 badge (280,72) → step 2 badge (670,200), bows upward */}
+              {/* LTR Curve 1: step 1 badge (276,24) → step 2 badge (684,110), bows upward */}
               <path
-                d="M 280,72 C 400,-50 550,-50 670,200"
+                d="M 276,24 C 390,-40 570,-40 684,110"
                 stroke="#C5CDD6"
                 strokeWidth="2.5"
                 strokeDasharray="14 9"
                 strokeLinecap="round"
               />
-              {/* LTR Curve 2: step 2 badge (670,200) → step 3 badge (340,430), bows downward */}
+              {/* LTR Curve 2: step 2 badge (684,110) → step 3 badge (335,384), bows downward */}
               <path
-                d="M 670,200 C 820,390 120,530 340,430"
+                d="M 684,110 C 820,350 150,480 335,384"
                 stroke="#C5CDD6"
                 strokeWidth="2.5"
                 strokeDasharray="14 9"
