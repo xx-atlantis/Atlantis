@@ -403,3 +403,11 @@ model EmailLog {
   sentAt      DateTime  @default(now())
   openedAt    DateTime? // set when tracking pixel is loaded
 }
+model ClientLogo {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  url       String
+  alt       String   @default("")
+  order     Int      @default(0)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+}

@@ -116,6 +116,11 @@ const AdminSidebar = ({ collapsed, setCollapsed, setMenuOpen }) => {
                 languages: { en: { title: "Customer Reviews" }, ar: { title: "تقييمات العملاء" } },
             },
             {
+                id: 41,
+                slug: "/admin/client-logos",
+                languages: { en: { title: "Client Logos" }, ar: { title: "شعارات العملاء" } },
+            },
+            {
                 id: 32,
                 slug: "/admin/promo-banner",
                 languages: { en: { title: "Promo Banner" }, ar: { title: "البانر الترويجي" } },

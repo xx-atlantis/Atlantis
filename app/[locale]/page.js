@@ -9,6 +9,7 @@ import PricingPlans from "../components/app/PricingPlans";
 import ProjectsShowcase from "../components/app/ProjectShowcase";
 import WhyBestChoice from "../components/app/WhyBestChoice";
 import CustomerReviews from "../components/app/CustomerReviews";
+import ClientLogos from "../components/app/ClientLogos";
 
 export default async function LandingPage({ params }) {
   const { locale } = await params;
@@ -34,6 +35,7 @@ export default async function LandingPage({ params }) {
         <ProjectsShowcase />
         <WhyBestChoice />
         <PricingPlans />
+        <ClientLogos />
         <CustomerReviews />
         <OurStyles />
       </PageContentProvider>
