@@ -15,19 +15,46 @@ const tajawal = Tajawal({
 });
 
 export const metadata = {
+    metadataBase: new URL('https://atlantis.sa'),
+
     title: {
-        default: "ATLANTIS",
-        template: "%s | ATLANTIS" 
+        default: "Atlantis Design | Exterior & Interior Design",
+        template: "%s | Atlantis Design",
     },
-    description: "Exterior & Interior Designs Company",
+    description: "Premium exterior and interior design company in Saudi Arabia. Transform your space with expert designers.",
+    keywords: ["interior design", "exterior design", "Saudi Arabia", "home decor", "تصميم داخلي", "ديكور", "أتلانتس"],
+
+    openGraph: {
+        title: "Atlantis Design | Exterior & Interior Design",
+        description: "Premium exterior and interior design company in Saudi Arabia. Transform your space with expert designers.",
+        url: "https://atlantis.sa",
+        siteName: "Atlantis Design",
+        images: [
+            {
+                url: "/og-image.jpg",
+                width: 1200,
+                height: 630,
+                alt: "Atlantis Interior & Exterior Design",
+            },
+        ],
+        locale: "en_US",
+        type: "website",
+    },
+
+    twitter: {
+        card: "summary_large_image",
+        title: "Atlantis Design | Exterior & Interior Design",
+        description: "Premium exterior and interior design company in Saudi Arabia.",
+        images: ["/og-image.jpg"],
+    },
+
+    icons: {
+        icon: "/favicon.ico",
+    },
+
     verification: {
         google: "r85ymFdlzbgXaLsNprhlxr1nwzUC4wUhWqPICWEU0DI",
     },
-    openGraph: {
-        title: 'ATLANTIS',
-        description: 'Exterior & Interior Designs Company',
-        type: 'website',
-    }
 };
 
 export default function RootLayout({ children }) {
