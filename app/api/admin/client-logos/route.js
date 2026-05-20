@@ -1,8 +1,9 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
-// Logos are stored as a locale-neutral CMS section (locale = "any")
+// Logos are locale-independent — stored under locale "en" as the canonical store.
 // Content shape: { logos: [{ id, url, alt, order }] }
+const LOGO_LOCALE = "en";
 
 async function ensureSection() {
   const page = await prisma.page.upsert({
@@ -31,10 +32,18 @@ async function ensureSection() {
 
 async function getLogos(sectionId) {
   const t = await prisma.sectionTranslation.findFirst({
-    where: { sectionId, locale: "any" },
+    where: { sectionId, locale: LOGO_LOCALE },
   });
   const logos = t?.content?.logos ?? [];
   return logos.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+}
+
+async function saveLogos(sectionId, logos) {
+  await prisma.sectionTranslation.upsert({
+    where: { locale_sectionId: { locale: LOGO_LOCALE, sectionId } },
+    create: { locale: LOGO_LOCALE, content: { logos }, sectionId },
+    update: { content: { logos } },
+  });
 }
 
 // GET — return all logos
@@ -57,20 +66,8 @@ export async function POST(req) {
     const sectionId = await ensureSection();
     const logos = await getLogos(sectionId);
 
-    const newLogo = {
-      id: crypto.randomUUID(),
-      url,
-      alt: alt || "",
-      order: logos.length,
-    };
-
-    const updated = [...logos, newLogo];
-
-    await prisma.sectionTranslation.upsert({
-      where: { locale_sectionId: { locale: "any", sectionId } },
-      create: { locale: "any", content: { logos: updated }, sectionId },
-      update: { content: { logos: updated } },
-    });
+    const newLogo = { id: crypto.randomUUID(), url, alt: alt || "", order: logos.length };
+    await saveLogos(sectionId, [...logos, newLogo]);
 
     return NextResponse.json({ success: true, data: newLogo });
   } catch (err) {
@@ -78,35 +75,23 @@ export async function POST(req) {
   }
 }
 
-// PATCH — update a logo (alt, order) or reorder all
+// PATCH — reorder all ({ logos: [...] }) or update one ({ id, alt })
 export async function PATCH(req) {
   try {
     const body = await req.json();
     const sectionId = await ensureSection();
 
-    // Full reorder: { logos: [...] }
     if (Array.isArray(body.logos)) {
       const reordered = body.logos.map((l, i) => ({ ...l, order: i }));
-      await prisma.sectionTranslation.upsert({
-        where: { locale_sectionId: { locale: "any", sectionId } },
-        create: { locale: "any", content: { logos: reordered }, sectionId },
-        update: { content: { logos: reordered } },
-      });
+      await saveLogos(sectionId, reordered);
       return NextResponse.json({ success: true });
     }
 
-    // Single update: { id, alt }
     const { id, alt } = body;
     if (!id) return NextResponse.json({ success: false, error: "id required" }, { status: 400 });
 
     const logos = await getLogos(sectionId);
-    const updated = logos.map((l) => (l.id === id ? { ...l, alt: alt ?? l.alt } : l));
-
-    await prisma.sectionTranslation.upsert({
-      where: { locale_sectionId: { locale: "any", sectionId } },
-      create: { locale: "any", content: { logos: updated }, sectionId },
-      update: { content: { logos: updated } },
-    });
+    await saveLogos(sectionId, logos.map((l) => (l.id === id ? { ...l, alt: alt ?? l.alt } : l)));
 
     return NextResponse.json({ success: true });
   } catch (err) {
@@ -123,12 +108,7 @@ export async function DELETE(req) {
     const sectionId = await ensureSection();
     const logos = await getLogos(sectionId);
     const updated = logos.filter((l) => l.id !== id).map((l, i) => ({ ...l, order: i }));
-
-    await prisma.sectionTranslation.upsert({
-      where: { locale_sectionId: { locale: "any", sectionId } },
-      create: { locale: "any", content: { logos: updated }, sectionId },
-      update: { content: { logos: updated } },
-    });
+    await saveLogos(sectionId, updated);
 
     return NextResponse.json({ success: true });
   } catch (err) {
