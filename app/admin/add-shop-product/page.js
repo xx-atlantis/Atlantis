@@ -229,7 +229,7 @@ export default function AdminShopPage() {
 
 	const copyCheckoutLink = (e, id) => {
 		e.stopPropagation();
-		const url = `${window.location.origin}/en/shop/${id}?buyNow=1`;
+		const url = `${window.location.origin}/en/quick-checkout/${id}`;
 		navigator.clipboard.writeText(url);
 		setCopiedCheckoutId(id);
 		setTimeout(() => setCopiedCheckoutId(null), 2000);

@@ -9,7 +9,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
-import ClientLogos from "@/app/components/app/ClientLogos";
+import WhatWeDeliver from "@/app/components/app/WhatWeDeliver";
 
 /* ─── default content ─────────────────────────────────────────────── */
 const DEFAULT_EN = {
@@ -656,10 +656,10 @@ export default function PromotionsPage() {
         </div>
       </section>
 
-      {/* ── 8. CLIENT LOGOS ──────────────────────────────────────────── */}
-      <ClientLogos />
+      {/* ── 8. WHAT WE DELIVER GALLERY ───────────────────────────────── */}
+      <WhatWeDeliver />
 
-      {/* ── 8. TESTIMONIALS ──────────────────────────────────────────── */}
+      {/* ── 9. TESTIMONIALS ──────────────────────────────────────────── */}
       <section className="max-w-6xl mx-auto px-4 sm:px-8 md:px-10 py-16 md:py-20">
         <div className="text-center mb-12 space-y-3">
           <p className="text-xs uppercase tracking-widest font-semibold text-[#C9A96E]">{c.testimonialSection.tag}</p>

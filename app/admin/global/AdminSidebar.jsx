@@ -121,6 +121,11 @@ const AdminSidebar = ({ collapsed, setCollapsed, setMenuOpen }) => {
                 languages: { en: { title: "Client Logos" }, ar: { title: "شعارات العملاء" } },
             },
             {
+                id: 42,
+                slug: "/admin/deliver-gallery",
+                languages: { en: { title: "What We Deliver" }, ar: { title: "ما نقدمه" } },
+            },
+            {
                 id: 32,
                 slug: "/admin/promo-banner",
                 languages: { en: { title: "Promo Banner" }, ar: { title: "البانر الترويجي" } },

@@ -5,7 +5,7 @@ import { prisma } from "@/lib/prisma";
 ========================================================= */
 export async function GET(req, context) {
 	try {
-		const { id } = context.params;
+		const { id } = await context.params;
 		const { searchParams } = new URL(req.url);
 		const locale = searchParams.get("locale") || "en";
 
@@ -50,7 +50,7 @@ export async function GET(req, context) {
 ========================================================= */
 export async function PUT(req, context) {
 	try {
-		const { id } = context.params;
+		const { id } = await context.params;
 		const body = await req.json();
 		const { en, ar } = body;
 
@@ -105,7 +105,7 @@ export async function PUT(req, context) {
 ========================================================= */
 export async function DELETE(req, context) {
 	try {
-		const { id } = context.params;
+		const { id } = await context.params;
 
 		// Optional safety check
 		const count = await prisma.product.count({

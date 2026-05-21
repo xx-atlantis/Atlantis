@@ -1,13 +1,17 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { useLocale } from "@/app/components/LocaleProvider";
+
+const DURATION = 20; // seconds for one full loop
 
 export default function ClientLogos() {
   const { locale } = useLocale();
   const isRTL = locale === "ar";
   const [logos, setLogos] = useState([]);
+  const trackRef = useRef(null);
+  const drag = useRef({ active: false, startX: 0, baseX: 0 });
 
   useEffect(() => {
     fetch("/api/admin/client-logos")
@@ -20,13 +24,63 @@ export default function ClientLogos() {
 
   if (logos.length === 0) return null;
 
-  // Triple the list so the marquee never shows a gap
   const track = [...logos, ...logos, ...logos];
+
+  const startAnim = (fromX) => {
+    const el = trackRef.current;
+    if (!el) return;
+    const trackWidth = el.scrollWidth / 3;
+    // Clamp to [-trackWidth, 0]
+    let x = fromX % trackWidth;
+    if (x > 0) x -= trackWidth;
+    const progress = -x / trackWidth; // 0..1
+    const delay = -progress * DURATION;
+
+    el.style.transition = "none";
+    el.style.transform = "";
+    el.style.animation = `marquee ${DURATION}s linear ${delay}s infinite`;
+    el.style.animationDirection = isRTL ? "reverse" : "normal";
+  };
+
+  const pauseAnim = () => {
+    const el = trackRef.current;
+    if (!el) return;
+    const matrix = new DOMMatrix(window.getComputedStyle(el).transform);
+    const currentX = matrix.m41;
+    el.style.animation = "none";
+    el.style.transform = `translateX(${currentX}px)`;
+    return currentX;
+  };
+
+  const onPointerDown = (e) => {
+    const el = trackRef.current;
+    if (!el) return;
+    const currentX = pauseAnim();
+    drag.current = { active: true, startX: e.clientX, baseX: currentX };
+    el.setPointerCapture(e.pointerId);
+  };
+
+  const onPointerMove = (e) => {
+    if (!drag.current.active) return;
+    const el = trackRef.current;
+    if (!el) return;
+    const dx = e.clientX - drag.current.startX;
+    el.style.transform = `translateX(${drag.current.baseX + dx}px)`;
+  };
+
+  const onPointerUp = (e) => {
+    if (!drag.current.active) return;
+    drag.current.active = false;
+    const el = trackRef.current;
+    if (!el) return;
+    const matrix = new DOMMatrix(window.getComputedStyle(el).transform);
+    startAnim(matrix.m41);
+  };
 
   return (
     <section className="py-16 sm:py-20 bg-[#F5F3EF] overflow-hidden">
 
-      {/* ── Title ── */}
+      {/* Title */}
       <div className="text-center mb-12 px-4">
         <h2 className="text-sm sm:text-base font-bold text-[#4A6E6D] uppercase tracking-wider mb-2">
           {isRTL ? "شركاء النجاح" : "Trusted By"}
@@ -36,7 +90,7 @@ export default function ClientLogos() {
         </h3>
       </div>
 
-      {/* ── Marquee ── */}
+      {/* Marquee */}
       <div
         className="relative"
         style={{
@@ -45,14 +99,17 @@ export default function ClientLogos() {
         }}
       >
         <div
-          className="flex gap-6 items-stretch"
+          ref={trackRef}
+          className="flex gap-6 items-stretch cursor-grab active:cursor-grabbing select-none"
           style={{
-            animation: "marquee 35s linear infinite",
+            animation: `marquee ${DURATION}s linear infinite`,
             animationDirection: isRTL ? "reverse" : "normal",
             willChange: "transform",
           }}
-          onMouseEnter={(e) => (e.currentTarget.style.animationPlayState = "paused")}
-          onMouseLeave={(e) => (e.currentTarget.style.animationPlayState = "running")}
+          onPointerDown={onPointerDown}
+          onPointerMove={onPointerMove}
+          onPointerUp={onPointerUp}
+          onPointerCancel={onPointerUp}
         >
           {track.map((logo, i) => (
             <div
@@ -64,6 +121,7 @@ export default function ClientLogos() {
                   src={logo.url}
                   alt={logo.alt || "Client"}
                   fill
+                  draggable={false}
                   className="object-contain opacity-60 group-hover:opacity-100 transition-opacity duration-300"
                   sizes="384px"
                 />
