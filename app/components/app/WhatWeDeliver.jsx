@@ -4,6 +4,50 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import { useLocale } from "@/app/components/LocaleProvider";
 
+// Renders one bento block of up to 5 images in a 3-col grid
+function BentoBlock({ group, heading }) {
+  const cells = [
+    // [colSpan, rowSpan, sizes hint]
+    [2, 2, "(max-width:640px) 100vw, 66vw"],   // 0 — large
+    [1, 1, "(max-width:640px) 100vw, 33vw"],   // 1 — small top-right
+    [1, 1, "(max-width:640px) 100vw, 33vw"],   // 2 — small bottom-right
+    [1, 1, "(max-width:640px) 100vw, 33vw"],   // 3 — small bottom-left
+    [2, 1, "(max-width:640px) 100vw, 66vw"],   // 4 — wide bottom-right
+  ];
+
+  return (
+    <div
+      className="grid grid-cols-3 gap-3 sm:gap-4"
+      style={{ gridTemplateRows: "220px 220px 220px" }}
+    >
+      {group.map((img, i) => {
+        const [cs, rs, sizes] = cells[i] || [1, 1, "33vw"];
+        return (
+          <div
+            key={img.id}
+            className="relative rounded-2xl overflow-hidden group shadow-sm"
+            style={{ gridColumn: `span ${cs}`, gridRow: `span ${rs}` }}
+          >
+            <Image
+              src={img.url}
+              alt={img.alt || heading}
+              fill
+              className="object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+              sizes={sizes}
+            />
+            {/* dark gradient + caption on hover */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4">
+              {img.alt && (
+                <p className="text-white text-sm font-medium leading-snug">{img.alt}</p>
+              )}
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 export default function WhatWeDeliver() {
   const { locale } = useLocale();
   const isRTL = locale === "ar";
@@ -18,16 +62,19 @@ export default function WhatWeDeliver() {
       .finally(() => setLoading(false));
   }, []);
 
-  // Don't render at all while loading or if no content configured
-  if (loading || !data) return null;
-  // Hide section entirely if no images have been added yet
-  if (data.images.length === 0) return null;
+  if (loading || !data || data.images.length === 0) return null;
 
-  const heading = isRTL ? data.headingAr : data.headingEn;
+  const heading    = isRTL ? data.headingAr    : data.headingEn;
   const subheading = isRTL ? data.subheadingAr : data.subheadingEn;
 
+  // Split into bento blocks of 5
+  const blocks = [];
+  for (let i = 0; i < data.images.length; i += 5) {
+    blocks.push(data.images.slice(i, i + 5));
+  }
+
   return (
-    <section className="py-16 sm:py-20 bg-white" dir={isRTL ? "rtl" : "ltr"}>
+    <section className="py-16 sm:py-20 bg-[#F5F3EF]" dir={isRTL ? "rtl" : "ltr"}>
       <div className="max-w-7xl mx-auto px-4 sm:px-8 md:px-10">
 
         {/* Title */}
@@ -41,27 +88,10 @@ export default function WhatWeDeliver() {
           )}
         </div>
 
-        {/* Gallery grid — uniform cards, image contained (no cropping) */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-          {data.images.map((img) => (
-            <div
-              key={img.id}
-              className="group relative bg-[#F5F3EF] rounded-2xl overflow-hidden border border-gray-100 shadow-sm hover:shadow-md transition-shadow duration-300"
-              style={{ aspectRatio: "4/3" }}
-            >
-              <Image
-                src={img.url}
-                alt={img.alt || heading}
-                fill
-                className="object-contain p-3 group-hover:scale-105 transition-transform duration-500"
-                sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-              />
-              {img.alt && (
-                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/50 to-transparent px-3 py-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                  <p className="text-white text-xs font-medium truncate">{img.alt}</p>
-                </div>
-              )}
-            </div>
+        {/* Bento blocks */}
+        <div className="space-y-4">
+          {blocks.map((group, i) => (
+            <BentoBlock key={i} group={group} heading={heading} />
           ))}
         </div>
 
