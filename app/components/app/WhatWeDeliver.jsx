@@ -1,49 +1,100 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import Image from "next/image";
+import { X, ChevronLeft, ChevronRight, ZoomIn } from "lucide-react";
 import { useLocale } from "@/app/components/LocaleProvider";
 
-// Renders one bento block of up to 5 images in a 3-col grid
-function BentoBlock({ group, heading }) {
-  const cells = [
-    // [colSpan, rowSpan, sizes hint]
-    [2, 2, "(max-width:640px) 100vw, 66vw"],   // 0 — large
-    [1, 1, "(max-width:640px) 100vw, 33vw"],   // 1 — small top-right
-    [1, 1, "(max-width:640px) 100vw, 33vw"],   // 2 — small bottom-right
-    [1, 1, "(max-width:640px) 100vw, 33vw"],   // 3 — small bottom-left
-    [2, 1, "(max-width:640px) 100vw, 66vw"],   // 4 — wide bottom-right
-  ];
+function Lightbox({ images, index, onClose, onPrev, onNext }) {
+  const img = images[index];
+
+  // Keyboard navigation
+  useEffect(() => {
+    const handler = (e) => {
+      if (e.key === "Escape")     onClose();
+      if (e.key === "ArrowLeft")  onPrev();
+      if (e.key === "ArrowRight") onNext();
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [onClose, onPrev, onNext]);
+
+  // Lock body scroll
+  useEffect(() => {
+    document.body.style.overflow = "hidden";
+    return () => { document.body.style.overflow = ""; };
+  }, []);
 
   return (
     <div
-      className="grid grid-cols-3 gap-3 sm:gap-4"
-      style={{ gridTemplateRows: "220px 220px 220px" }}
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm"
+      onClick={onClose}
     >
-      {group.map((img, i) => {
-        const [cs, rs, sizes] = cells[i] || [1, 1, "33vw"];
-        return (
-          <div
-            key={img.id}
-            className="relative rounded-2xl overflow-hidden group shadow-sm"
-            style={{ gridColumn: `span ${cs}`, gridRow: `span ${rs}` }}
-          >
-            <Image
-              src={img.url}
-              alt={img.alt || heading}
-              fill
-              className="object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
-              sizes={sizes}
-            />
-            {/* dark gradient + caption on hover */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4">
-              {img.alt && (
-                <p className="text-white text-sm font-medium leading-snug">{img.alt}</p>
-              )}
-            </div>
+      {/* Counter */}
+      <div className="absolute top-5 left-1/2 -translate-x-1/2 text-white/60 text-sm font-medium tabular-nums">
+        {index + 1} / {images.length}
+      </div>
+
+      {/* Close */}
+      <button
+        onClick={onClose}
+        className="absolute top-4 right-4 text-white/70 hover:text-white bg-white/10 hover:bg-white/20 rounded-full p-2 transition"
+      >
+        <X size={22} />
+      </button>
+
+      {/* Prev */}
+      {images.length > 1 && (
+        <button
+          onClick={(e) => { e.stopPropagation(); onPrev(); }}
+          className="absolute left-4 top-1/2 -translate-y-1/2 text-white/70 hover:text-white bg-white/10 hover:bg-white/20 rounded-full p-3 transition"
+        >
+          <ChevronLeft size={28} />
+        </button>
+      )}
+
+      {/* Image */}
+      <div
+        className="relative w-full max-w-5xl max-h-[80vh] mx-16 flex items-center justify-center"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <img
+          src={img.url}
+          alt={img.alt || ""}
+          className="max-w-full max-h-[80vh] object-contain rounded-xl shadow-2xl select-none"
+          draggable={false}
+        />
+        {img.alt && (
+          <div className="absolute bottom-0 inset-x-0 text-center pb-4">
+            <span className="inline-block bg-black/60 text-white text-sm px-4 py-1.5 rounded-full backdrop-blur-sm">
+              {img.alt}
+            </span>
           </div>
-        );
-      })}
+        )}
+      </div>
+
+      {/* Next */}
+      {images.length > 1 && (
+        <button
+          onClick={(e) => { e.stopPropagation(); onNext(); }}
+          className="absolute right-4 top-1/2 -translate-y-1/2 text-white/70 hover:text-white bg-white/10 hover:bg-white/20 rounded-full p-3 transition"
+        >
+          <ChevronRight size={28} />
+        </button>
+      )}
+
+      {/* Dot strip */}
+      {images.length > 1 && (
+        <div className="absolute bottom-5 left-1/2 -translate-x-1/2 flex gap-1.5">
+          {images.map((_, i) => (
+            <button
+              key={i}
+              onClick={(e) => { e.stopPropagation(); /* jump handled via index prop */ }}
+              className={`w-1.5 h-1.5 rounded-full transition-all ${i === index ? "bg-white w-4" : "bg-white/40"}`}
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 }
@@ -51,8 +102,9 @@ function BentoBlock({ group, heading }) {
 export default function WhatWeDeliver() {
   const { locale } = useLocale();
   const isRTL = locale === "ar";
-  const [data, setData] = useState(null);
+  const [data, setData]       = useState(null);
   const [loading, setLoading] = useState(true);
+  const [active, setActive]   = useState(null); // null = closed, number = open index
 
   useEffect(() => {
     fetch("/api/admin/deliver-gallery")
@@ -62,16 +114,15 @@ export default function WhatWeDeliver() {
       .finally(() => setLoading(false));
   }, []);
 
+  const open  = (i) => setActive(i);
+  const close = useCallback(() => setActive(null), []);
+  const prev  = useCallback(() => setActive((i) => (i - 1 + data.images.length) % data.images.length), [data]);
+  const next  = useCallback(() => setActive((i) => (i + 1) % data.images.length), [data]);
+
   if (loading || !data || data.images.length === 0) return null;
 
   const heading    = isRTL ? data.headingAr    : data.headingEn;
   const subheading = isRTL ? data.subheadingAr : data.subheadingEn;
-
-  // Split into bento blocks of 5
-  const blocks = [];
-  for (let i = 0; i < data.images.length; i += 5) {
-    blocks.push(data.images.slice(i, i + 5));
-  }
 
   return (
     <section className="py-16 sm:py-20 bg-[#F5F3EF]" dir={isRTL ? "rtl" : "ltr"}>
@@ -88,14 +139,50 @@ export default function WhatWeDeliver() {
           )}
         </div>
 
-        {/* Bento blocks */}
-        <div className="space-y-4">
-          {blocks.map((group, i) => (
-            <BentoBlock key={i} group={group} heading={heading} />
+        {/* Grid */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
+          {data.images.map((img, i) => (
+            <button
+              key={img.id}
+              onClick={() => open(i)}
+              className="group relative bg-white rounded-2xl overflow-hidden border border-gray-200 shadow-sm hover:shadow-lg hover:border-[#6D9494]/50 transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#2D3247]"
+              style={{ aspectRatio: "4/3" }}
+            >
+              <Image
+                src={img.url}
+                alt={img.alt || heading}
+                fill
+                className="object-contain p-2 group-hover:scale-105 transition-transform duration-500"
+                sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+              />
+              {/* Hover overlay */}
+              <div className="absolute inset-0 bg-[#2D3247]/0 group-hover:bg-[#2D3247]/30 transition-colors duration-300 flex items-center justify-center">
+                <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-white rounded-full p-2.5 shadow-lg">
+                  <ZoomIn size={18} className="text-[#2D3247]" />
+                </div>
+              </div>
+              {/* Caption bar */}
+              {img.alt && (
+                <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/50 to-transparent px-3 py-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                  <p className="text-white text-xs font-medium truncate">{img.alt}</p>
+                </div>
+              )}
+            </button>
           ))}
         </div>
 
       </div>
+
+      {/* Lightbox */}
+      {active !== null && (
+        <Lightbox
+          images={data.images}
+          index={active}
+          onClose={close}
+          onPrev={prev}
+          onNext={next}
+        />
+      )}
     </section>
   );
 }
