@@ -8,15 +8,20 @@ export default function WhatWeDeliver() {
   const { locale } = useLocale();
   const isRTL = locale === "ar";
   const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetch("/api/admin/deliver-gallery")
       .then((r) => r.json())
       .then(({ data }) => { if (data) setData(data); })
-      .catch(() => {});
+      .catch(() => {})
+      .finally(() => setLoading(false));
   }, []);
 
-  if (!data || data.images.length === 0) return null;
+  // Don't render at all while loading or if no content configured
+  if (loading || !data) return null;
+  // Hide section entirely if no images have been added yet
+  if (data.images.length === 0) return null;
 
   const heading = isRTL ? data.headingAr : data.headingEn;
   const subheading = isRTL ? data.subheadingAr : data.subheadingEn;
@@ -36,27 +41,26 @@ export default function WhatWeDeliver() {
           )}
         </div>
 
-        {/* Masonry-style grid */}
-        <div className="columns-1 sm:columns-2 lg:columns-3 gap-4 space-y-4">
-          {data.images.map((img, i) => (
+        {/* Gallery grid — uniform cards, image contained (no cropping) */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+          {data.images.map((img) => (
             <div
               key={img.id}
-              className="break-inside-avoid rounded-2xl overflow-hidden shadow-sm border border-gray-100 group relative"
+              className="group relative bg-[#F5F3EF] rounded-2xl overflow-hidden border border-gray-100 shadow-sm hover:shadow-md transition-shadow duration-300"
+              style={{ aspectRatio: "4/3" }}
             >
-              <div className="relative w-full" style={{ paddingBottom: i % 3 === 1 ? "75%" : "66.66%" }}>
-                <Image
-                  src={img.url}
-                  alt={img.alt || heading}
-                  fill
-                  className="object-cover group-hover:scale-105 transition-transform duration-500"
-                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                />
-                {img.alt && (
-                  <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/60 to-transparent p-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                    <p className="text-white text-sm font-medium">{img.alt}</p>
-                  </div>
-                )}
-              </div>
+              <Image
+                src={img.url}
+                alt={img.alt || heading}
+                fill
+                className="object-contain p-3 group-hover:scale-105 transition-transform duration-500"
+                sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+              />
+              {img.alt && (
+                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/50 to-transparent px-3 py-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                  <p className="text-white text-xs font-medium truncate">{img.alt}</p>
+                </div>
+              )}
             </div>
           ))}
         </div>

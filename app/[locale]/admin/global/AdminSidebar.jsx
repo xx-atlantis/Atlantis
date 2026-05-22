@@ -46,6 +46,14 @@ const AdminSidebar = ({ collapsed, setCollapsed, locale, toggleLocale, setMenuOp
         ar: { title: "اتصل بنا" },
       },
     },
+    {
+      id: 6,
+      slug: "/admin/deliver-gallery",
+      languages: {
+        en: { title: "What We Deliver" },
+        ar: { title: "ما نقدمه" },
+      },
+    },
   ]);
 
   const [selectedPageId, setSelectedPageId] = useState(pages[0].id);
