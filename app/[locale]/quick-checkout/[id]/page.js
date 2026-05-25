@@ -1,13 +1,12 @@
 "use client";
 
 import { useEffect } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import { useLocale } from "@/app/components/LocaleProvider";
 
 export default function QuickCheckout() {
   const { id } = useParams();
   const { locale } = useLocale();
-  const router = useRouter();
 
   useEffect(() => {
     if (!id || !locale) return;
@@ -39,9 +38,10 @@ export default function QuickCheckout() {
         ];
 
         localStorage.setItem("cart", JSON.stringify(cartItem));
-        router.replace(`/${locale}/checkout`);
+        // Hard navigate so CartContext re-mounts and reads fresh localStorage
+        window.location.href = `/${locale}/checkout`;
       } catch {
-        router.replace(`/${locale}/shop`);
+        window.location.href = `/${locale}/shop`;
       }
     }
 
