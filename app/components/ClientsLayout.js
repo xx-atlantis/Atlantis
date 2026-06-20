@@ -4,7 +4,6 @@ import { usePathname } from "next/navigation";
 import Header from "@/app/components/Header";
 import Footer from "@/app/components/Footer";
 import { PageContentProvider } from "@/app/context/PageContentProvider";
-import WhatsAppFloatingIcon from "./WhatsApp";
 import PromoBanner from "./PromoBanner";
 import TopBar from "./TopBar";
 import { CountryCurrencyProvider } from "@/app/context/CountryCurrencyContext";
@@ -56,14 +55,6 @@ export default function ClientLayout({ children }) {
       )}
 
       <main>{children}</main>
-      
-      {/* WhatsApp Icon logic: Hidden on restricted routes, same as Header/Footer */}
-      {!hideLayout && (
-        <WhatsAppFloatingIcon
-          phoneNumber="966537878794" 
-          message={locale === "ar" ? "مرحباً، لدي استفسار بخصوص مشروعي." : "Hello, I have a query regarding my project."} 
-        />
-      )}
       
       {!hideLayout && <Footer />}
     </PageContentProvider>
