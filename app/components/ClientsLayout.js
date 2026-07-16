@@ -7,6 +7,7 @@ import { PageContentProvider } from "@/app/context/PageContentProvider";
 import PromoBanner from "./PromoBanner";
 import TopBar from "./TopBar";
 import { CountryCurrencyProvider } from "@/app/context/CountryCurrencyContext";
+import WhatsAppFloatingIcon from "./WhatsApp";
 
 export default function ClientLayout({ children }) {
   const pathname = usePathname();
@@ -56,6 +57,12 @@ export default function ClientLayout({ children }) {
 
       <main>{children}</main>
       
+      {!hideLayout && (
+        <WhatsAppFloatingIcon
+          phoneNumber="966573650889"
+          message={locale === "ar" ? "مرحباً، لدي استفسار بخصوص مشروعي." : "Hello, I have a query regarding my project."}
+        />
+      )}
       {!hideLayout && <Footer />}
     </PageContentProvider>
     </CountryCurrencyProvider>
