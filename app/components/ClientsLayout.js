@@ -60,7 +60,7 @@ export default function ClientLayout({ children }) {
       {!hideLayout && (
         <WhatsAppFloatingIcon
           phoneNumber="966537878794"
-          message={locale === "ar" ? "السلام عليكم،\nأرغب بمعرفة المزيد عن باقات التصميم الداخلي و بالحصول على باقة الاستشارة الإحترافية بقيمة 299 ريال.\nأرجو تزويدي بالتفاصيل وآلية الحجز والدفع. شكراً" : "Hello,\nI would like to learn more about the interior design packages and get the Professional Consultation package for 299 SAR.\nPlease send me the details along with the booking and payment process. Thank you."}
+          message={locale === "ar" ? "السلام عليكم،\nأرغب بمعرفة المزيد عن باقات التصميم الداخلي والحصول على باقة الاستشارة الإحترافية.\nأرجو تزويدي بالتفاصيل وآلية الحجز والدفع. شكراً" : "Hello,\nI would like to learn more about the interior design packages and get the Professional Consultation package.\nPlease send me the details along with the booking and payment process. Thank you."}
         />
       )}
       {!hideLayout && <Footer />}
