@@ -59,7 +59,7 @@ export default function ClientLayout({ children }) {
       
       {!hideLayout && (
         <WhatsAppFloatingIcon
-          phoneNumber="966573650889"
+          phoneNumber="966537878794"
           message={locale === "ar" ? "مرحباً، لدي استفسار بخصوص مشروعي." : "Hello, I have a query regarding my project."}
         />
       )}
